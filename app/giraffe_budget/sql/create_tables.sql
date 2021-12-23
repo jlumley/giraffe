@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   id integer PRIMARY KEY,
   name text NOT NULL,
   notes text,
+  credit_account integer,
   reconciled_balance real,
   cleared_balance real,
   uncleared_balance real,
