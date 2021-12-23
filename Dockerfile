@@ -13,10 +13,9 @@ gcc \
 libc-dev \
 pcre-dev
 
-#RUN apk add --no-cache python3 && ln -sf python3 /usr/bin/python
-#RUN python3 -m ensurepip
+RUN mkdir -p /logs/nginx && mkdir -p /data
 
-RUN pip3 install --no-cache --upgrade pip
+RUN pip install --no-cache --upgrade pip
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
@@ -28,4 +27,5 @@ COPY bin/start.sh /src/bin/start.sh
 
 CMD /src/bin/start.sh 
 
+VOLUME /logs
 VOLUME /data
