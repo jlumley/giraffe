@@ -13,8 +13,6 @@ gcc \
 libc-dev \
 pcre-dev
 
-RUN mkdir -p /logs/nginx && mkdir -p /data
-
 RUN pip install --no-cache --upgrade pip
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
