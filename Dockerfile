@@ -1,4 +1,4 @@
-FROM alpine
+FROM python:3.9-alpine
 
 LABEL maintainer="Jeremy Lumley <jeremy.lumley96@gmail.com>"
 
@@ -6,21 +6,26 @@ RUN apk update && apk upgrade
 
 RUN apk add --no-cache \
 sqlite \
-curl
-RUN apk add --no-cache python3 && ln -sf python3 /usr/bin/python
-RUN python3 -m ensurepip
+curl \
+nginx \
+linux-headers \
+gcc \
+libc-dev \
+pcre-dev
 
-RUN pip3 install --no-cache --upgrade pip setuptools
+#RUN apk add --no-cache python3 && ln -sf python3 /usr/bin/python
+#RUN python3 -m ensurepip
+
+RUN pip3 install --no-cache --upgrade pip
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
+# copy nginx conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY app /src/app 
 
-# copy src 
-ARG FLASK_DIR="/src/giraffe-flask-app"
-RUN mkdir -p $FLASK_DIR
-COPY flask_app.py ${FLASK_DIR}/flask_app.py
-COPY giraffe_budget ${FLASK_DIR}/giraffe_budget
+COPY bin/start.sh /src/bin/start.sh
 
-CMD python /src/giraffe-flask-app/flask_app.py
+CMD /src/bin/start.sh 
 
 VOLUME /data
