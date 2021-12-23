@@ -26,3 +26,4 @@ def close_db():
     if db:
         db.close()
 
+

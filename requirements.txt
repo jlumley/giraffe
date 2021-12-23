@@ -1,2 +1,3 @@
 Flask==2.0.1
-uwsgi==2.0.19.1
+Flask-expects-json==1.7.0
+Uwsgi==2.0.19.1
