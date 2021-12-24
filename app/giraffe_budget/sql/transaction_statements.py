@@ -6,3 +6,6 @@ VALUES (:account_id, :category_id, :payee_id, :date, :memo,
 :cleared, 0, :amount)
 RETURNING id;
 '''
+
+PUT_TRANSACTION_UPDATE_STATEMENT = '''UPDATE transactions
+SET id = id'''

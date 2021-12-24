@@ -81,9 +81,10 @@ def get_transactions(
     )
     return make_response(jsonify(transactions), 200)
 
+
 @transaction.route('/create', methods=('POST',))
 @expects_json(POST_TRANSACTION_CREATE_SCHEMA)
-def create_account():
+def create_transaction():
     '''Create new transaction 
     '''
     data = request.get_json()
@@ -91,7 +92,7 @@ def create_account():
         'account_id': data.get('account_id'),
         'category_id': data.get('category_id'),
         'payee_id': data.get('payee_id'),
-        'date': data.get('date'),
+        'date': time_utils.datestr_to_timestamp(data.get('date')),
         'memo': data.get('memo'),
         'cleared': int(data.get('cleared')),
         'amount': data.get('amount')
@@ -102,6 +103,46 @@ def create_account():
         commit=True
     )
     return make_response(jsonify(transaction[0]), 201)
+
+@transaction.route('/update/<transaction_id>', methods=('PUT',))
+@expects_json(PUT_TRANSACTION_UPDATE_SCHEMA)
+def update_transaction(transaction_id):
+    '''Update transaction 
+    '''
+    data = request.get_json()
+    update_statement = PUT_TRANSACTION_UPDATE_STATEMENT
+    update_vars = tuple()
+    if 'account_id' in data.keys():
+        update_statement += ', account_id = ?'
+        update_vars += (data['account_id'],)
+    if 'category_id' in data.keys():
+        update_statement += ', category_id = ?'
+        update_vars += (data['category_id'],)
+    if 'payee_id' in data.keys():
+        update_statement += ', payee_id = ?'
+        update_vars += (data['payee_id'],)
+    if 'date' in data.keys():
+        update_statement += ', date = ?'
+        update_vars += (time_utils.datestr_to_timestamp(data['date']),)
+    if 'memo' in data.keys():
+        update_statement += ', memo = ?'
+        update_vars += (data['memo'],)
+    if 'amount' in data.keys():
+        update_statement += ', amount = ?'
+        update_vars += (data['amount'],)
+    if 'cleared' in data.keys():
+        update_statement += ', cleared = ?'
+        update_vars += (to_sqlite_bool(data['cleared']),)
+    
+    update_statement += 'WHERE id = ? RETURNING id;'
+    update_vars += (transaction_id,)
+
+    transaction = db_utils.execute_statement(
+        update_statement,
+        update_vars, 
+        commit=True
+    )
+    return make_response(jsonify(transaction[0]), 200)
 
 
 
