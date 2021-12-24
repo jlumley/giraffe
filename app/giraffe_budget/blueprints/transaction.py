@@ -144,6 +144,20 @@ def update_transaction(transaction_id):
     )
     return make_response(jsonify(transaction[0]), 200)
 
+@transaction.route('/delete/<transaction_id>', methods=('DELETE',))
+def delete_transaction(transaction_id):
+    '''Delete transaction 
+    '''
+    db_utils.execute_statement(
+        DELETE_TRANSACTION_STATEMENT,
+        {
+            'transaction_id': transaction_id
+        }, 
+        commit=True
+    )
+    return make_response(jsonify('success'), 200)
+
+
 
 
 def to_sqlite_bool(value):
