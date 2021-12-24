@@ -43,3 +43,10 @@ FROM transactions
 WHERE cleared = 1
 AND account_id = :id
 '''
+
+GET_ACCOUNT_UNCLEARED_BALANCE = '''SELECT SUM(amount) AS balance 
+FROM transactions
+WHERE cleared = 0
+AND account_id = :id
+'''
+

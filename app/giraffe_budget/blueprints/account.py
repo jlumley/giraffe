@@ -16,7 +16,8 @@ def get_accounts():
     accounts = db_utils.execute_statement(GET_ACCOUNT_STATEMENT)
     accounts = db_utils.int_to_bool(accounts, ['hidden', 'credit_account'])
     for account in accounts:
-        account['balance'] = get_account_balance(account['id'])
+        account['cleared_balance'] = get_account_cleared_balance(account['id'])
+        account['uncleared_balance'] = get_account_uncleared_balance(account['id'])
     return make_response(jsonify(accounts), 200) 
 
 
@@ -81,7 +82,7 @@ def reconcile_account(account_id):
     '''
     assert account_id == request.view_args['account_id']
     data = request.get_json()
-    current_balance = get_account_balance(account_id)
+    current_balance = get_account_cleared_balance(account_id)
     
     db_utils.execute_statement(
         PUT_ACCOUNT_RECONCILE_TRANSACTIONS_STATEMENT,
@@ -113,12 +114,12 @@ def reconcile_account(account_id):
     return make_response(
         jsonify({
             'id' : account_id,
-            'balance': get_account_balance(account_id)
+            'balance': get_account_cleared_balance(account_id)
         }), 200)
 
 
 
-def get_account_balance(account_id):
+def get_account_cleared_balance(account_id):
     ''' Get the cleared balance for an account
     '''
     
@@ -128,7 +129,19 @@ def get_account_balance(account_id):
             'id': account_id
         }
     )
+    return account[0].get('balance', 0.00)
+
+
+def get_account_uncleared_balance(account_id):
+    ''' Get the uncleared balance for an account
+    '''
     
-    return account[0]['balance']
+    account = db_utils.execute_statement(
+        GET_ACCOUNT_UNCLEARED_BALANCE,
+        {
+            'id': account_id
+        }
+    )
+    return account[0].get('balance', 0.00)
 
 

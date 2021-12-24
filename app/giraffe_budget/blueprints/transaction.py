@@ -4,17 +4,80 @@ from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
 
 from .. import db_utils
+from .. import time_utils
 from ..schemas.transaction_schema import *
 from ..sql.transaction_statements import *
 
 transaction = Blueprint('transaction', __name__, url_prefix='/transaction')
 
-@transaction.route('', methods=('GET',))
-def get_transactions():
+@transaction.route('', 
+    methods=('GET',),
+    defaults={
+        'accounts': None,
+        'categories': None,
+        'payees': None,
+        'before': None,
+        'after': None,
+        'cleared': None,
+        'reconciled': None,
+    })
+def get_transactions(
+    accounts,
+    categories,
+    payees,
+    before,
+    after,
+    cleared,
+    reconciled):
     '''Get all transactions
     '''
+    accounts    = request.args.get('accounts', accounts)
+    categories  = request.args.get('categories', categories)
+    payees      = request.args.get('payees', payees)
+    before      = request.args.get('before', before)
+    after       = request.args.get('after', after)
+    cleared     = request.args.get('cleared', cleared)
+    reconciled  = request.args.get('reconciled', reconciled)
+
+    query_statement = GET_TRANSACTION_STATEMENT
+    query_vars = tuple()
+
+    # build query statement
+    if accounts is not None:
+        query_statement += (' AND account_id IN (%s)' %
+            ','.join('?'*len(accounts.split(','))))
+        query_vars += tuple(accounts.split(','))
+  
+    if categories is not None:
+        query_statement += (' AND category_id IN (%s)' %
+            ','.join('?'*len(categories.split(','))))
+        query_vars += tuple(categories.split(','))
+
+    if payees is not None:
+        query_statement += (' AND payee_id IN (%s)' %
+            ','.join('?'*len(payees.split(','))))
+        query_vars += tuple(payees.split(','))
+    
+    if before is not None:
+        query_statement += (' AND date < ?')
+        query_vars += (time_utils.datestr_to_timestamp(before),)
+
+    if after is not None:
+        query_statement += (' AND date > ?')
+        query_vars += (time_utils.datestr_to_timestamp(after),)
+    
+    if cleared is not None:
+        query_statement += (' AND cleared = ?')
+        query_vars += (to_sqlite_bool(cleared),)
+
+    if reconciled is not None:
+        query_statement += (' AND reconciled = ?')
+        query_vars += (to_sqlite_bool(reconciled),)
+
+
     transactions = db_utils.execute_statement(
-        GET_TRANSACTION_STATEMENT
+        query_statement,
+        query_vars
     )
     return make_response(jsonify(transactions), 200)
 
@@ -42,7 +105,14 @@ def create_account():
 
 
 
-
+def to_sqlite_bool(value):
+    '''quick and dirty function to handle
+    boolean request params
+    '''
+    if value.lower() in ('t', 'true', 'yes', 'y'):
+        return 1
+    else:
+        return 0
 
 
 
