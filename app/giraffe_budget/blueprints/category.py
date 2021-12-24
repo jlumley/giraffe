@@ -1,3 +1,5 @@
+import time
+
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
 
@@ -41,6 +43,8 @@ def create_category():
 def update_cateogry(category_id):
     '''Update Category
     '''
+    assert category_id == request.view_args['category_id']
+ 
     data = request.get_json()
     update_statement = PUT_CATEGORY_UPDATE_STATEMENT
     update_vars = tuple()
@@ -63,6 +67,87 @@ def update_cateogry(category_id):
         commit=True
     )
     return make_response(jsonify(category[0]), 200)
+
+@category.route('/balance/<category_id>', methods=('GET',))
+def get_category_balance(category_id):
+    '''Get category balance
+    '''
+    assert category_id == request.view_args['category_id']
+ 
+    transactions = db_utils.execute_statement(
+        GET_CATEGORY_TRANSACTIONS,
+        {
+            'category_id': category_id,
+            'now': time.time()
+        }
+    )
+ 
+    assignments = db_utils.execute_statement(
+        GET_CATEGORY_ASSIGNMENTS,
+        {
+            'category_id': category_id,
+            'now': time.time()
+        }
+    )
+
+    assigned = assignments[0]['amount']
+    spent = transactions[0]['amount']
+    if not assigned:
+        assigned = 0.00
+    if not spent:
+        spent = 0.00
+    balance =  (assigned - spent)
+    return make_response(
+        jsonify({
+            'category_id': category_id,
+            'balance': balance
+        }),
+        200
+    )
+
+
+
+@category.route('/assign/<category_id>', methods=('PUT',))
+@expects_json(PUT_CATEGORY_ASSIGN_SCHEMA)
+def category_assign(category_id):
+    '''Assign money to category
+    '''
+    assert category_id == request.view_args['category_id']
+ 
+    data = request.get_json()
+    date = time_utils.datestr_to_timestamp(data['date'])
+    db_utils.execute_statement(
+        PUT_CATEGORY_ASSIGN_STATEMENT,
+        {
+            'category_id': category_id,
+            'amount': abs(data['amount']),
+            'date': date
+        },
+        commit=True
+    )
+    
+    return get_category_balance(category_id)
+
+@category.route('/unassign/<category_id>', methods=('PUT',))
+@expects_json(PUT_CATEGORY_UNASSIGN_SCHEMA)
+def category_unassign(category_id):
+    '''Unassign money from category
+    '''
+    assert category_id == request.view_args['category_id']
+ 
+    data = request.get_json()
+    date = time_utils.datestr_to_timestamp(data['date'])
+    db_utils.execute_statement(
+        PUT_CATEGORY_UNASSIGN_STATEMENT,
+        {
+            'category_id': category_id,
+            'amount': -1 * abs(data['amount']),
+            'date': date
+        },
+        commit=True
+    )
+    return get_category_balance(category_id)
+
 
 #@category.route('/delete/<category_id>', methods=('DELETE',))
 #def delete_category(category_id):

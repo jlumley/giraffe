@@ -88,11 +88,12 @@ def create_transaction():
     '''Create new transaction 
     '''
     data = request.get_json()
+    date = time_utils.datestr_to_timestamp(data['date'])
     insert_data = {
         'account_id': data.get('account_id'),
         'category_id': data.get('category_id'),
         'payee_id': data.get('payee_id'),
-        'date': time_utils.datestr_to_timestamp(data.get('date')),
+        'date': date,
         'memo': data.get('memo'),
         'cleared': int(data.get('cleared')),
         'amount': data.get('amount')
