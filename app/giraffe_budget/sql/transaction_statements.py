@@ -9,3 +9,6 @@ RETURNING id;
 
 PUT_TRANSACTION_UPDATE_STATEMENT = '''UPDATE transactions
 SET id = id'''
+
+DELETE_TRANSACTION_STATEMENT = '''DELETE FROM transactions
+WHERE id = :transaction_id;'''
