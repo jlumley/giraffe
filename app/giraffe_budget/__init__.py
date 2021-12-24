@@ -38,7 +38,7 @@ def main():
     app.register_blueprint(account.account)    
     app.register_blueprint(transaction.transaction)
     app.register_blueprint(category.category)
-
+    app.register_blueprint(payee.payee)
 
 main()
 
