@@ -6,8 +6,32 @@ VALUES (:name, :category_group, :notes)
 RETURNING id;
 '''
 
-PUT_TRANSACTION_UPDATE_STATEMENT = '''UPDATE transactions
-SET id = id'''
+PUT_CATEGORY_UPDATE_STATEMENT = '''UPDATE categories
+SET id = id
+'''
 
-DELETE_TRANSACTION_STATEMENT = '''DELETE FROM transactions
-WHERE id = :transaction_id;'''
+
+DELETE_CATEGORY_STATEMENT = '''DELETE FROM categories
+WHERE id = :category_id;
+'''
+
+GET_CATEGORY_TRANSACTIONS = '''SELECT 
+SUM(amount) AS amount FROM transactions 
+WHERE date < :now
+AND category_id = :category_id;
+'''
+
+GET_CATEGORY_ASSIGNMENTS = '''SELECT
+SUM(amount) AS amount FROM assignments 
+WHERE date < :now
+AND category_id = :category_id;
+'''
+PUT_CATEGORY_ASSIGN_STATEMENT = '''INSERT INTO assignments
+(category_id, amount, date)
+VALUES (:category_id, :amount, :date);
+'''
+
+PUT_CATEGORY_UNASSIGN_STATEMENT = '''INSERT INTO assignments
+(category_id, amount, date)
+VALUES (:category_id, :amount, :date);
+'''
