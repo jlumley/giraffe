@@ -36,7 +36,9 @@ def main():
         app.logger.info('Initializing database')
         init_db(app)
     app.register_blueprint(account.account)    
-    app.register_blueprint(transaction.transaction) 
+    app.register_blueprint(transaction.transaction)
+    app.register_blueprint(category.category)
+
 
 main()
 
