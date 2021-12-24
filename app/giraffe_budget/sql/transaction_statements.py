@@ -1,5 +1,4 @@
-GET_TRANSACTION_STATEMENT = ''' SELECT * FROM transactions;
-'''
+GET_TRANSACTION_STATEMENT = ''' SELECT * FROM transactions WHERE True'''
 
 POST_TRANSACTION_CREATE_STATEMENT = '''INSERT INTO transactions
 (account_id, category_id, payee_id, date, memo, cleared, reconciled, amount)
