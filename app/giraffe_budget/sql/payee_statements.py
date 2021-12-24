@@ -1,0 +1,13 @@
+GET_PAYEE_STATEMENT = ''' SELECT * FROM payees;'''
+
+POST_PAYEE_CREATE_STATEMENT = '''INSERT INTO payees
+(name)
+VALUES (:name)
+RETURNING id;
+'''
+
+PUT_PAYEE_UPDATE_STATEMENT = '''UPDATE payees
+SET id = id'''
+
+DELETE_PAYEE_STATEMENT = '''DELETE FROM payees
+WHERE id = :payee_id;'''
