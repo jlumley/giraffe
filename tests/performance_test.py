@@ -7,7 +7,7 @@ import time
 num_categories = 50
 num_accounts = 20
 num_payees = 500
-num_transactions = 100
+num_transactions = 10000
 
 
 def main():
@@ -105,6 +105,25 @@ def main():
     after_resp = json.loads(r)
     print(f"Category balance after spending: ${after_resp['balance']}")
     print(f"Difference: ${round(before_resp['balance']-after_resp['balance'],2)}")
+
+    
+    for i in range(num_accounts, num_accounts+num_transactions+1):
+        r = requests.delete(
+            f'http://localhost/api/transaction/delete/{i}'
+        )
+        #print(r.content)
+
+    
+    r = requests.get('http://localhost/api/transaction').content
+    r = json.loads(r)
+    #print(r)
+
+    r = requests.get('http://localhost/api/account').content
+    r = json.loads(r)[0]
+    #print(r) 
+    r = requests.get('http://localhost/api/category/balance/1').content
+    r = json.loads(r)
+    print(f"Category balance after deleting transactions: ${r['balance']}")
 
 if __name__ == '__main__':
     main()
