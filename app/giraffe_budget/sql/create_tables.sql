@@ -4,8 +4,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   notes text,
   hidden integer,
   created_date integer,
-  reconciled_date integer,
-  credit_account integer
+  reconciled_date integer
 );
 
 CREATE TABLE IF NOT EXISTS categories (
@@ -31,7 +30,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   memo text,
   reconciled integer,
   cleared integer,
-  amount real,
+  amount int,
   FOREIGN KEY (account_id) REFERENCES accounts (id),
   FOREIGN KEY (category_id) REFERENCES categories (id),
   FOREIGN KEY (payee_id) REFERENCES payees (id)
@@ -39,7 +38,7 @@ CREATE TABLE IF NOT EXISTS transactions (
 
 CREATE TABLE IF NOT EXISTS assignments (
   date integer,
-  amount real,
+  amount int,
   category_id integer,
   FOREIGN KEY (category_id) REFERENCES categories (id) 
 );

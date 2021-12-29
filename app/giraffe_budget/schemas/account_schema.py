@@ -7,7 +7,7 @@ POST_ACCOUNT_CREATE_SCHEMA = {
         'notes' : {'type': 'string'},
         'starting_balance' : {'type': 'number'}
     },
-    'required' : ['name', 'starting_balance']
+    'required' : ['name']
 }
 
 PUT_ACCOUNT_RECONCILE_SCHEMA = {

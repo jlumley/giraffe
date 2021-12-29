@@ -11,7 +11,7 @@ payee = Blueprint('payee', __name__, url_prefix='/payee')
     methods=('GET',))
 def get_payees():
 
-    payees = db_utils.execute_statement(
+    payees = db_utils.execute(
         GET_PAYEE_STATEMENT
     )
     return make_response(jsonify(payees), 200)
@@ -26,7 +26,7 @@ def create_payee():
     insert_data = {
         'name': data.get('name'),
     }
-    payee = db_utils.execute_statement(
+    payee = db_utils.execute(
         POST_PAYEE_CREATE_STATEMENT, 
         insert_data, 
         commit=True
@@ -48,7 +48,7 @@ def update_payee(payee_id):
     update_statement += 'WHERE id = ? RETURNING id;'
     update_vars += (payee_id,)
 
-    payee = db_utils.execute_statement(
+    payee = db_utils.execute(
         update_statement,
         update_vars, 
         commit=True
@@ -59,7 +59,7 @@ def update_payee(payee_id):
 def delete_payee(payee_id):
     '''Delete payee 
     '''
-    db_utils.execute_statement(
+    db_utils.execute(
         DELETE_PAYEE_STATEMENT,
         {
             'payee_id': payee_id

@@ -1,8 +1,8 @@
 GET_ACCOUNT_STATEMENT = '''SELECT * FROM accounts;'''
 
 POST_ACCOUNT_CREATE_STATEMENT = '''INSERT INTO accounts
-(name, notes, credit_account, created_date, reconciled_date, hidden)
-VALUES (:name, :notes, :credit, :now, :now, 0)
+(name, notes, created_date, reconciled_date, hidden)
+VALUES (:name, :notes, :now, :now, 0)
 RETURNING id, name;
 '''
 

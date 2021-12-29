@@ -56,7 +56,7 @@ def int_to_bool(rows, cols):
     
     return new_rows
 
-def execute_statement(stmt, stmt_vars=dict(), commit=False):
+def execute(stmt, stmt_vars=dict(), commit=False):
     '''Execute a valid SQL statement
     Args:
         stmt        : string
@@ -77,7 +77,7 @@ def execute_statement(stmt, stmt_vars=dict(), commit=False):
 
     except sqlite3.Error as e:
         current_app.logger.error(e)
-        return e
+        raise e
 
 
 def get_db():

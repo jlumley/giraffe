@@ -3,8 +3,7 @@ import time
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
 
-from .. import db_utils
-from .. import time_utils
+from .. import db_utils, time_utils, money_utils
 from ..schemas.transaction_schema import *
 from ..sql.transaction_statements import *
 
@@ -75,10 +74,12 @@ def get_transactions(
         query_vars += (to_sqlite_bool(reconciled),)
 
 
-    transactions = db_utils.execute_statement(
+    transactions = db_utils.execute(
         query_statement,
         query_vars
     )
+    for t in transactions:
+        t['amount'] = money_utils.cents_to_money(t['amount'])
     return make_response(jsonify(transactions), 200)
 
 
@@ -96,9 +97,9 @@ def create_transaction():
         'date': date,
         'memo': data.get('memo'),
         'cleared': int(data.get('cleared')),
-        'amount': data.get('amount')
+        'amount': money_utils.money_to_cents(data.get('amount'))
     }
-    transaction = db_utils.execute_statement(
+    transaction = db_utils.execute(
         POST_TRANSACTION_CREATE_STATEMENT, 
         insert_data, 
         commit=True
@@ -130,7 +131,7 @@ def update_transaction(transaction_id):
         update_vars += (data['memo'],)
     if 'amount' in data.keys():
         update_statement += ', amount = ?'
-        update_vars += (data['amount'],)
+        update_vars += (money_utils.money_to_cents(data['amount']),)
     if 'cleared' in data.keys():
         update_statement += ', cleared = ?'
         update_vars += (to_sqlite_bool(data['cleared']),)
@@ -138,7 +139,7 @@ def update_transaction(transaction_id):
     update_statement += 'WHERE id = ? RETURNING id;'
     update_vars += (transaction_id,)
 
-    transaction = db_utils.execute_statement(
+    transaction = db_utils.execute(
         update_statement,
         update_vars, 
         commit=True
@@ -149,7 +150,7 @@ def update_transaction(transaction_id):
 def delete_transaction(transaction_id):
     '''Delete transaction 
     '''
-    db_utils.execute_statement(
+    db_utils.execute(
         DELETE_TRANSACTION_STATEMENT,
         {
             'transaction_id': transaction_id

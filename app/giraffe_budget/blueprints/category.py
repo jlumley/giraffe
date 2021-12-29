@@ -3,8 +3,7 @@ import time
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
 
-from .. import db_utils
-from .. import time_utils
+from .. import db_utils, time_utils, money_utils
 from ..schemas.category_schema import *
 from ..sql.category_statements import *
 
@@ -14,7 +13,7 @@ category = Blueprint('category', __name__, url_prefix='/category')
 def get_categories():
     '''Get all categories
     '''
-    categories = db_utils.execute_statement(
+    categories = db_utils.execute(
         GET_CATEGORY_STATEMENT
     )
     return make_response(jsonify(categories), 200)
@@ -31,7 +30,7 @@ def create_category():
         'category_group': data.get('category_group'),
         'notes': data.get('notes')
     }
-    category = db_utils.execute_statement(
+    category = db_utils.execute(
         POST_CATEGORY_CREATE_STATEMENT,
         insert_data, 
         commit=True
@@ -61,7 +60,7 @@ def update_cateogry(category_id):
     update_statement += 'WHERE id = ? RETURNING id;'
     update_vars += (category_id,)
 
-    category = db_utils.execute_statement(
+    category = db_utils.execute(
         update_statement,
         update_vars, 
         commit=True
@@ -73,8 +72,9 @@ def get_category_balance(category_id):
     '''Get category balance
     '''
     assert category_id == request.view_args['category_id']
- 
-    transactions = db_utils.execute_statement(
+    
+
+    transactions = db_utils.execute(
         GET_CATEGORY_TRANSACTIONS,
         {
             'category_id': category_id,
@@ -82,7 +82,7 @@ def get_category_balance(category_id):
         }
     )
  
-    assignments = db_utils.execute_statement(
+    assignments = db_utils.execute(
         GET_CATEGORY_ASSIGNMENTS,
         {
             'category_id': category_id,
@@ -90,13 +90,10 @@ def get_category_balance(category_id):
         }
     )
 
-    assigned = assignments[0]['amount']
-    spent = transactions[0]['amount']
-    if not assigned:
-        assigned = 0.00
-    if not spent:
-        spent = 0.00
-    balance =  (assigned - spent)
+    assigned = money_utils.cents_to_money(assignments[0]['amount'])
+    spent = money_utils.cents_to_money(transactions[0]['amount'])
+    
+    balance =  (assigned + spent)
     return make_response(
         jsonify({
             'category_id': category_id,
@@ -116,11 +113,11 @@ def category_assign(category_id):
  
     data = request.get_json()
     date = time_utils.datestr_to_timestamp(data['date'])
-    db_utils.execute_statement(
+    db_utils.execute(
         PUT_CATEGORY_ASSIGN_STATEMENT,
         {
             'category_id': category_id,
-            'amount': abs(data['amount']),
+            'amount': abs(money_utils.money_to_cents(data['amount'])),
             'date': date
         },
         commit=True
@@ -137,11 +134,11 @@ def category_unassign(category_id):
  
     data = request.get_json()
     date = time_utils.datestr_to_timestamp(data['date'])
-    db_utils.execute_statement(
+    db_utils.execute(
         PUT_CATEGORY_UNASSIGN_STATEMENT,
         {
             'category_id': category_id,
-            'amount': -1 * abs(data['amount']),
+            'amount': -1 * abs(money_utils.money_to_cents(data['amount'])),
             'date': date
         },
         commit=True
@@ -153,7 +150,7 @@ def category_unassign(category_id):
 #def delete_category(category_id):
 #    '''Delete Category
 #    '''
-#    db_utils.execute_statement(
+#    db_utils.execute(
 #        DELETE_CATEGORY_STATEMENT,
 #        {
 #            'category_id': category_id
