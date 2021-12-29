@@ -26,6 +26,7 @@ SUM(amount) AS amount FROM assignments
 WHERE date < :now
 AND category_id = :category_id;
 '''
+
 PUT_CATEGORY_ASSIGN_STATEMENT = '''INSERT INTO assignments
 (category_id, amount, date)
 VALUES (:category_id, :amount, :date);
