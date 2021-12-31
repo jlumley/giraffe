@@ -10,24 +10,24 @@ PUT_CATEGORY_UPDATE_STATEMENT = """UPDATE categories
 SET id = id
 """
 
-GET_GATEGORY_TARGET_STATEMENT = """SELECT
+GET_CATEGORY_TARGET_STATEMENT = """SELECT
 target_type,
 target_amount,
 target_date
 FROM categories
-WHERE id = :id;
+WHERE id = :category_id;
 """
 
 PUT_CATEGORY_UPDATE_TARGET_STATEMENT = """UPDATE categories
-SET id = id
-target_creation_date = ?
+SET id = id,
+target_type = :target_type,
+target_amount = :target_amount
 """
 
 DELETE_CATEGORY_TARGET_STATMENT = """ UPDATE categories
 SET target_type=null,
 target_date=null,
 target_amount=null,
-target_creation_date=null,
 WHERE id = :category_id;
 """
 

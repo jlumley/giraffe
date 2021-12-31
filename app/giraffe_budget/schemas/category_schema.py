@@ -25,6 +25,7 @@ PUT_CATEGORY_UPDATE_TARGET_SCHEMA = {
         "target_amount": {"type": "number"},
         "target_date": {"type": "string"},
     },
+    "required": ["target_type"],
 }
 PUT_CATEGORY_ASSIGN_SCHEMA = {
     "type": "object",
