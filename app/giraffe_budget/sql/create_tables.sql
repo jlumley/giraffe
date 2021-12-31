@@ -27,7 +27,6 @@ CREATE TABLE IF NOT EXISTS payees (
 CREATE TABLE IF NOT EXISTS transactions (
   id integer PRIMARY KEY,
   account_id integer NOT NULL,
-  category_id integer,
   payee_id integer,
   date integer,
   memo text,
@@ -35,8 +34,16 @@ CREATE TABLE IF NOT EXISTS transactions (
   cleared integer,
   amount int,
   FOREIGN KEY (account_id) REFERENCES accounts (id),
-  FOREIGN KEY (category_id) REFERENCES categories (id),
   FOREIGN KEY (payee_id) REFERENCES payees (id)
+);
+
+CREATE TABLE IF NOT EXISTS transaction_categories (
+  transaction_id integer,
+  category_id integer,
+  amount integer,
+  PRIMARY KEY (transaction_id, category_id),
+  FOREIGN KEY (transaction_id) REFERENCES transactions (id),
+  FOREIGN KEY (category_id) REFERENCES categories (id)
 );
 
 CREATE TABLE IF NOT EXISTS assignments (

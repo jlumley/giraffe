@@ -36,9 +36,11 @@ WHERE id = :category_id;
 """
 
 GET_CATEGORY_TRANSACTIONS = """SELECT
-SUM(amount) AS amount FROM transactions
-WHERE date < :now
-AND category_id = :category_id;
+SUM(amount) AS amount FROM transaction_categories
+WHERE category_id = :category_id
+AND transaction_id IN (
+SELECT id FROM transactions WHERE date < :now
+);
 """
 
 GET_CATEGORY_ASSIGNMENTS = """SELECT
