@@ -10,6 +10,9 @@ CREATE TABLE IF NOT EXISTS accounts (
 CREATE TABLE IF NOT EXISTS categories (
   id integer PRIMARY KEY,
   name text NOT NULL,
+  target_type text,
+  target_amount integer,
+  target_date integer,
   category_group text NOT NULL,
   notes text
 );
@@ -40,5 +43,5 @@ CREATE TABLE IF NOT EXISTS assignments (
   date integer,
   amount int,
   category_id integer,
-  FOREIGN KEY (category_id) REFERENCES categories (id) 
+  FOREIGN KEY (category_id) REFERENCES categories (id)
 );

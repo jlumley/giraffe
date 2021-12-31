@@ -1,2 +1,2 @@
 # giraffe
-Simple self-hosted zero-based budgeting app 
+Simple self-hosted zero-based budgeting app

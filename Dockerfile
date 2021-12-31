@@ -14,16 +14,18 @@ libc-dev \
 pcre-dev
 
 RUN pip install --no-cache --upgrade pip
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install \
+Flask==2.0.1 \
+Flask-expects-json==1.7.0 \
+Uwsgi==2.0.19.1
 
 # copy nginx conf
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
-COPY app /src/app 
+COPY app /src/app
 
 COPY bin/start.sh /src/bin/start.sh
 
-CMD /src/bin/start.sh 
+CMD /src/bin/start.sh
 
 VOLUME /logs
 VOLUME /data
