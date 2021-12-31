@@ -114,28 +114,46 @@ def delete_cateogry_target(category_id):
 
 def get_category_target_requirement(category_id, timestamp=time.time()):
     """Get target requirement for this month"""
-    required_amounts = {"monthly_target": 0.00, "assigned_this_month": 0.00}
+    monthly_target = 0
+    assigned_this_month = 0
+    required_amounts = {"monthly_target": 0, "assigned_this_month": 0}
     target = db_utils.execute(
         GET_CATEGORY_TARGET_STATEMENT, {"category_id": category_id}
     )
     target = target[0]
 
-    date = datetime.fromtimestamp(timestamp)
-    date.replace(day=1, hour=0, minute=0, second=0)
-    month_start = date.now()
-    month_start_transactions = get_category_assignments_sum(category_id, month_start)
-    month_start_assignments = get_category_transactions_sum(category_id, month_start)
+    month_start = datetime.fromtimestamp(timestamp)
+    month_start.replace(day=1, hour=0, minute=0, second=0)
+
+    month_start_transactions = get_category_assignments_sum(
+        category_id, month_start.now()
+    )
+    month_start_assignments = get_category_transactions_sum(
+        category_id, month_start.now()
+    )
     current_transactions = get_category_assignments_sum(category_id, timestamp)
     current_assignments = get_category_transactions_sum(category_id, timestamp)
+
+    # current amount assigned this month
+    assigned_this_month = current_assignments - month_start_assignments
 
     if not target["target_type"]:
         pass
     elif target["target_type"] == "monthly_target":
-        required_amounts["monthly_target"] = target["target_amount"]
-        # required_amounts['assigned_this_month'] =
-    else:
-        pass
-    return money_utils.cents_to_money(required_amount)
+        monthly_target = target["target_amount"]
+
+    elif target["target_type"] == "savings_target":
+        target_date = datestamp.fromtimestamp(target["target_date"])
+        months_left = time_utils.diff_month(target_date, months_left) + 1
+        monthly_target = (
+            target["target_amount"]
+            - get_gategory_balance(category_id, month_start.now())
+        ) / months_left - assigned_this_month
+
+    return {
+        "montly_target": money_utils.cents_to_money(month_target),
+        "assigned_this_month": money_utils.cents_to_money(assigned_this_month),
+    }
 
 
 @category.route("/balance/<category_id>", methods=("GET",))
