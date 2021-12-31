@@ -10,7 +10,7 @@ from ..sql.category_statements import *
 
 category = Blueprint("category", __name__, url_prefix="/category")
 
-ALLOWED_TARGET_TYPES = ["monthly_balance", "taget_balance"]
+ALLOWED_TARGET_TYPES = ["monthly_savings", "savings_target", "spending_target"]
 
 
 @category.route("", methods=("GET",))
@@ -19,7 +19,11 @@ def get_categories():
     categories = db_utils.execute(GET_CATEGORY_STATEMENT)
     for c in categories:
         c["balance"] = get_category_balance(c["id"])
-
+        monthly_target, assigned_this_month = get_category_target_requirement(c["id"])
+        c["monthly_target"] = monthly_target
+        c["assigned_this_month"] = assigned_this_month
+        c["target_amount"] = money_utils.cents_to_money(c["target_amount"])
+        c["target_date"] = time_utils.timestamp_to_datestr(c["target_date"])
     return make_response(jsonify(categories), 200)
 
 
@@ -72,28 +76,33 @@ def update_cateogry_target(category_id):
     assert category_id == request.view_args["category_id"]
 
     data = request.get_json()
-    update_statement = PUT_CATEGORY_UPDATE_TARGET_STATEMENT
-    update_vars = (time.time(),)
-    if "target_type" in data.keys():
-        if data["taget_type"] not in ALLOWED_TARGET_TYPES:
-            return make_response(
-                jsonify(
-                    f"Target type not allow, must be one of"
-                    f'{",".join(ALLOWED_TARGET_TYPES)}'
-                ),
-                400,
-            )
-        update_statement += ", target_type = ?"
-        update_vars += (data["target_type"],)
-    if "target_amount" in data.keys():
-        update_statement += ", target_amount = ?"
-        update_vars += (data["target_amount"],)
-    if "target_date" in data.keys():
-        update_statement += ", target_date = ?"
-        update_vars += (data["target_date"],)
+    if data["target_type"] not in ALLOWED_TARGET_TYPES:
+        return make_response(
+            jsonify(
+                f"Target type not allow, must be one of"
+                f"{','.join(ALLOWED_TARGET_TYPES)}"
+            ),
+            400,
+        )
+    if not data["target_amount"]:
+        return make_response(jsonify("Missing target amount"), 400)
 
-    update_statement += "WHERE id = ? RETURNING id;"
-    update_vars += (category_id,)
+    update_statement = PUT_CATEGORY_UPDATE_TARGET_STATEMENT
+    update_vars = {
+        "target_amount": money_utils.money_to_cents(data["target_amount"]),
+        "target_type": data["target_type"],
+    }
+    if "target_date" in data.keys() and data["target_type"] in ["savings_target"]:
+        if not data["target_date"]:
+            return make_response(jsonify("Missing target date"), 400)
+
+        update_statement += ", target_date = :target_date "
+        update_vars["target_date"] = time_utils.datestr_to_timestamp(
+            data["target_date"]
+        )
+
+    update_statement += "WHERE id = :category_id RETURNING id;"
+    update_vars["category_id"] = category_id
 
     category = db_utils.execute(update_statement, update_vars, commit=True)
     return make_response(jsonify(category[0]), 200)
@@ -123,52 +132,63 @@ def get_category_target_requirement(category_id, timestamp=time.time()):
     target = target[0]
 
     month_start = datetime.fromtimestamp(timestamp)
-    month_start.replace(day=1, hour=0, minute=0, second=0)
+    month_start = month_start.replace(day=1, hour=0, minute=0, second=0)
 
-    month_start_transactions = get_category_assignments_sum(
-        category_id, month_start.now()
+    month_start_assignments = get_category_assignments_sum(
+        category_id, timestamp=datetime.timestamp(month_start)
     )
-    month_start_assignments = get_category_transactions_sum(
-        category_id, month_start.now()
+    month_start_transactions = get_category_transactions_sum(
+        category_id, timestamp=datetime.timestamp(month_start)
     )
-    current_transactions = get_category_assignments_sum(category_id, timestamp)
-    current_assignments = get_category_transactions_sum(category_id, timestamp)
+    current_assignments = get_category_assignments_sum(category_id, timestamp=timestamp)
+    current_transactions = get_category_transactions_sum(
+        category_id, timestamp=timestamp
+    )
 
     # current amount assigned this month
     assigned_this_month = current_assignments - month_start_assignments
 
-    if not target["target_type"]:
-        pass
-    elif target["target_type"] == "monthly_target":
+    if target["target_type"] == "monthly_savings":
         monthly_target = target["target_amount"]
 
     elif target["target_type"] == "savings_target":
-        target_date = datestamp.fromtimestamp(target["target_date"])
-        months_left = time_utils.diff_month(target_date, months_left) + 1
+        target_date = datetime.fromtimestamp(target["target_date"])
+        months_left = time_utils.diff_month(target_date, month_start) + 1
         monthly_target = (
             target["target_amount"]
-            - get_gategory_balance(category_id, month_start.now())
-        ) / months_left - assigned_this_month
+            - get_category_balance(category_id, datetime.timestamp(month_start))
+        ) / months_left
 
-    return {
-        "montly_target": money_utils.cents_to_money(month_target),
-        "assigned_this_month": money_utils.cents_to_money(assigned_this_month),
-    }
+    elif target["target_type"] == "spending_target":
+        pass
+    else:
+        pass
+    return (
+        money_utils.cents_to_money(monthly_target),
+        money_utils.cents_to_money(assigned_this_month),
+    )
 
 
 @category.route("/balance/<category_id>", methods=("GET",))
-def get_category_balance(category_id, timestamp=time.time()):
+def _get_category_balance(category_id, timestamp=time.time()):
     """Get category balance at a given timestamp"""
     assert category_id == request.view_args["category_id"]
 
-    total_assigned = get_category_assignments_sum(category_id, timestamp)
-    total_transactions = get_category_transactions_sum(category_id, timestamp)
+    balance = get_category_balance(category_id, timestamp)
 
-    assigned = money_utils.cents_to_money(total_assigned)
-    spent = money_utils.cents_to_money(total_transactions)
-
-    balance = assigned + spent
     return make_response(jsonify({"category_id": category_id, "balance": balance}), 200)
+
+
+def get_category_balance(category_id, timestamp=time.time()):
+    """Get the Category balance at a given timestamp
+    """
+
+    total_assigned = get_category_assignments_sum(category_id, timestamp)
+    total_transacted = get_category_transactions_sum(category_id, timestamp)
+
+    balance = total_assigned + total_transacted
+
+    return money_utils.cents_to_money(balance)
 
 
 @category.route("/assign/<category_id>", methods=("PUT",))
@@ -189,7 +209,7 @@ def category_assign(category_id):
         commit=True,
     )
 
-    return get_category_balance(category_id)
+    return make_response(jsonify({"balance": get_category_balance(category_id)}), 200)
 
 
 @category.route("/unassign/<category_id>", methods=("PUT",))
@@ -209,7 +229,7 @@ def category_unassign(category_id):
         },
         commit=True,
     )
-    return get_category_balance(category_id)
+    return make_response(jsonify({"balance": get_category_balance(category_id)}), 200)
 
 
 def get_category_assignments_sum(category_id, timestamp=time.time()):
@@ -217,7 +237,11 @@ def get_category_assignments_sum(category_id, timestamp=time.time()):
     assigned_cents = db_utils.execute(
         GET_CATEGORY_ASSIGNMENTS, {"category_id": category_id, "now": timestamp}
     )
-    return assigned_cents[0]["amount"]
+    assigned = 0
+    if assigned_cents[0]["amount"]:
+        assigned = assigned_cents[0]["amount"]
+
+    return assigned
 
 
 def get_category_transactions_sum(category_id, timestamp=time.time()):
@@ -225,7 +249,11 @@ def get_category_transactions_sum(category_id, timestamp=time.time()):
     transacted_cents = db_utils.execute(
         GET_CATEGORY_TRANSACTIONS, {"category_id": category_id, "now": timestamp}
     )
-    return transacted_cents[0]["amount"]
+    transacted = 0
+    if transacted_cents[0]["amount"]:
+        transacted = transacted_cents[0]["amount"]
+
+    return transacted
 
 
 # @category.route('/delete/<category_id>', methods=('DELETE',))

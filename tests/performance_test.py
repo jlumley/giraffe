@@ -4,10 +4,10 @@ import requests
 import uuid
 import time
 
-num_categories = 50
-num_accounts = 20
-num_payees = 500
-num_transactions = 100
+num_categories = 2
+num_accounts = 2
+num_payees = 2
+num_transactions = 4
 
 
 def main():
@@ -37,26 +37,46 @@ def main():
         # print(r.content)
 
     # fund accounts
-    for i in range(num_accounts):
+    for i in range(1, num_accounts + 1):
         transaction = dict(
             payee_id=1,
             account_id=i,
             memo="Income",
             cleared=True,
-            date="12-10-2001",
-            amount=100000000,
+            date="2021-12-04",
+            amount=10000,
         )
         requests.post("http://localhost/api/transaction/create", json=transaction)
 
     # fund categories
-    for i in range(num_categories):
+    for i in range(1, num_categories + 1):
+        if i % 2 == 0:
+            r = requests.put(
+                f"http://localhost/api/category/update/{i}/target",
+                json=dict(target_type="monthly_savings", target_amount=500.00),
+            )
+        else:
+            r = requests.put(
+                f"http://localhost/api/category/update/{i}/target",
+                json=dict(
+                    target_type="savings_target",
+                    target_amount=535.67,
+                    target_date="2022-04-02",
+                ),
+            )
+        print(r.content)
         r = requests.put(
             f"http://localhost/api/category/assign/{i}",
-            json=dict(amount=1000000.00, date="12-10-2001"),
+            json=dict(amount=100.00, date="2021-12-05"),
         )
+        print(r.content)
     r = requests.get("http://localhost/api/category/balance/1").content
     before_resp = json.loads(r)
     print(f"Category balance before spending: ${before_resp['balance']}")
+
+    r = requests.get("http://localhost/api/category").content
+    r = json.loads(r)
+    print(r)
 
     # Spend Spend Spend
     amount_spent = 0.00
@@ -69,7 +89,7 @@ def main():
             category_id=1,
             memo="Spend spend spend",
             cleared=True,
-            date="12-08-2011",
+            date="2021-12-06",
             amount=amount,
         )
         r = requests.post("http://localhost/api/transaction/create", json=transaction)
@@ -97,6 +117,10 @@ def main():
     r = requests.get("http://localhost/api/category/balance/1").content
     r = json.loads(r)
     print(f"Category balance after deleting transactions: ${r['balance']}")
+
+    r = requests.get("http://localhost/api/category").content
+    r = json.loads(r)
+    print(r)
 
 
 if __name__ == "__main__":

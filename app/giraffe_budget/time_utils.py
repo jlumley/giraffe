@@ -4,7 +4,15 @@ from datetime import datetime
 
 
 def datestr_to_timestamp(datestring):
-    return time.mktime(datetime.strptime(datestring, "%d-%m-%Y").timetuple())
+    if not datestring:
+        return None
+    return time.mktime(datetime.strptime(datestring, "%Y-%m-%d").timetuple())
+
+
+def timestamp_to_datestr(timestamp):
+    if not timestamp:
+        return None
+    return datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
 
 
 def diff_month(d1, d2):
