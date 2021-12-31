@@ -26,19 +26,19 @@ def after_each_request(response):
 
     return response
 
+
 def main():
-    '''Instatiate Flask app and Create/Migrate Database
-    '''
-   
+    """Instatiate Flask app and Create/Migrate Database"""
+
     setup_logger()
     app.before_request_func = []
     with app.app_context():
-        app.logger.info('Initializing database')
+        app.logger.info("Initializing database")
         init_db(app)
-    app.register_blueprint(account.account)    
+    app.register_blueprint(account.account)
     app.register_blueprint(transaction.transaction)
     app.register_blueprint(category.category)
     app.register_blueprint(payee.payee)
 
-main()
 
+main()

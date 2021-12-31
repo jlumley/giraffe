@@ -1,19 +1,15 @@
-
-
 POST_ACCOUNT_CREATE_SCHEMA = {
-    'type': 'object',
-    'properties': {
-        'name' : {'type': 'string'},
-        'notes' : {'type': 'string'},
-        'starting_balance' : {'type': 'number'}
+    "type": "object",
+    "properties": {
+        "name": {"type": "string"},
+        "notes": {"type": "string"},
+        "starting_balance": {"type": "number"},
     },
-    'required' : ['name']
+    "required": ["name"],
 }
 
 PUT_ACCOUNT_RECONCILE_SCHEMA = {
-    'type': 'object',
-    'properties': {
-        'balance' : {'type': 'number'}
-    },
-    'required' : ['balance']
+    "type": "object",
+    "properties": {"balance": {"type": "number"}},
+    "required": ["balance"],
 }
