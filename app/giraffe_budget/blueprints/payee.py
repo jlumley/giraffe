@@ -1,7 +1,7 @@
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
 
-from .. import db_utils
+from ..utils import db_utils
 from ..schemas.payee_schema import *
 from ..sql.payee_statements import *
 
