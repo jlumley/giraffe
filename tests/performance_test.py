@@ -43,7 +43,7 @@ def main():
             account_id=i,
             memo="Income",
             cleared=True,
-            date="2021-12-04",
+            date="2021-12-044",
             amount=10000,
         )
         requests.post("http://localhost/api/transaction/create", json=transaction)

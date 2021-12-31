@@ -2,7 +2,7 @@ import logging
 import sqlite3
 
 from .blueprints import account, category, transaction, payee
-from .db_utils import *
+from .utils.db_utils import *
 from flask import Flask, g, current_app
 
 app = Flask(__name__)
