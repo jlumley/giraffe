@@ -154,19 +154,19 @@ def get_category_target_requirement(category_id, timestamp=time.time()):
     elif target["target_type"] == "savings_target":
         target_date = datetime.fromtimestamp(target["target_date"])
         months_left = time_utils.diff_month(target_date, month_start) + 1
-        monthly_target = (
-            target["target_amount"]
-            - get_category_balance(category_id, datetime.timestamp(month_start))
-        ) / months_left
+        monthly_target = int(
+            (
+                target["target_amount"]
+                - get_category_balance(category_id, datetime.timestamp(month_start))
+            )
+            / months_left
+        )
 
     elif target["target_type"] == "spending_target":
         pass
     else:
         pass
-    return (
-        money_utils.cents_to_money(monthly_target),
-        money_utils.cents_to_money(assigned_this_month),
-    )
+    return (monthly_target, assigned_this_month)
 
 
 @category.route("/balance/<category_id>", methods=("GET",))
@@ -186,9 +186,7 @@ def get_category_balance(category_id, timestamp=time.time()):
     total_assigned = get_category_assignments_sum(category_id, timestamp)
     total_transacted = get_category_transactions_sum(category_id, timestamp)
 
-    balance = total_assigned + total_transacted
-
-    return money_utils.cents_to_money(balance)
+    return total_assigned + total_transacted
 
 
 @category.route("/assign/<category_id>", methods=("PUT",))
@@ -201,11 +199,7 @@ def category_assign(category_id):
     date = time_utils.datestr_to_timestamp(data["date"])
     db_utils.execute(
         PUT_CATEGORY_ASSIGN_STATEMENT,
-        {
-            "category_id": category_id,
-            "amount": abs(money_utils.money_to_cents(data["amount"])),
-            "date": date,
-        },
+        {"category_id": category_id, "amount": abs(data["amount"]), "date": date},
         commit=True,
     )
 
@@ -222,11 +216,7 @@ def category_unassign(category_id):
     date = time_utils.datestr_to_timestamp(data["date"])
     db_utils.execute(
         PUT_CATEGORY_UNASSIGN_STATEMENT,
-        {
-            "category_id": category_id,
-            "amount": -1 * abs(money_utils.money_to_cents(data["amount"])),
-            "date": date,
-        },
+        {"category_id": category_id, "amount": -1 * abs(data["amount"]), "date": date},
         commit=True,
     )
     return make_response(jsonify({"balance": get_category_balance(category_id)}), 200)

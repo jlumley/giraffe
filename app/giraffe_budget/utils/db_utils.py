@@ -71,7 +71,7 @@ def execute(stmt, stmt_vars=dict(), commit=False):
         sql response
     """
     try:
-        #        current_app.logger.debug(stmt)
+        current_app.logger.debug(stmt)
         g.db_cur.execute(stmt, stmt_vars)
         entries = g.db_cur.fetchall()
 

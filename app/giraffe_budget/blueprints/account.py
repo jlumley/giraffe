@@ -30,7 +30,7 @@ def create_account():
         "name": data.get("name"),
         "notes": data.get("notes"),
         "now": time.time(),
-        "balance": data.get("starting_balance", 0.00),
+        "balance": data.get("starting_balance", 0),
     }
     account = db_utils.execute(POST_ACCOUNT_CREATE_STATEMENT, insert_data, commit=True)
     return make_response(jsonify(account[0]), 201)
@@ -98,14 +98,11 @@ def get_account_cleared_balance(account_id):
     """Get the cleared balance for an account"""
 
     account = db_utils.execute(GET_ACCOUNT_CLEARED_BALANCE, {"id": account_id})
-    balance = account[0].get("balance")
-
-    return money_utils.cents_to_money(balance)
+    return account[0].get("balance")
 
 
 def get_account_uncleared_balance(account_id):
     """Get the uncleared balance for an account"""
 
     account = db_utils.execute(GET_ACCOUNT_UNCLEARED_BALANCE, {"id": account_id})
-    balance = account[0].get("balance")
-    return money_utils.cents_to_money(balance)
+    return account[0].get("balance")

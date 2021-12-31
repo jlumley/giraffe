@@ -4,10 +4,10 @@ import requests
 import uuid
 import time
 
-num_categories = 2
-num_accounts = 2
-num_payees = 2
-num_transactions = 4
+num_categories = 20
+num_accounts = 20
+num_payees = 20
+num_transactions = 500
 
 
 def main():
@@ -43,50 +43,52 @@ def main():
             account_id=i,
             memo="Income",
             cleared=True,
-            date="2021-12-044",
-            amount=10000,
+            date="2021-12-04",
+            amount=1000000,
         )
-        requests.post("http://localhost/api/transaction/create", json=transaction)
-
+        r = requests.post("http://localhost/api/transaction/create", json=transaction)
+        # print(r.content)
     # fund categories
     for i in range(1, num_categories + 1):
         if i % 2 == 0:
             r = requests.put(
                 f"http://localhost/api/category/update/{i}/target",
-                json=dict(target_type="monthly_savings", target_amount=500.00),
+                json=dict(target_type="monthly_savings", target_amount=50000),
             )
         else:
             r = requests.put(
                 f"http://localhost/api/category/update/{i}/target",
                 json=dict(
                     target_type="savings_target",
-                    target_amount=535.67,
+                    target_amount=53567,
                     target_date="2022-04-02",
                 ),
             )
-        print(r.content)
+
+        # print(r.content)
         r = requests.put(
             f"http://localhost/api/category/assign/{i}",
-            json=dict(amount=100.00, date="2021-12-05"),
+            json=dict(amount=10000, date="2021-12-05"),
         )
-        print(r.content)
+
+        # print(r.content)
     r = requests.get("http://localhost/api/category/balance/1").content
     before_resp = json.loads(r)
     print(f"Category balance before spending: ${before_resp['balance']}")
 
     r = requests.get("http://localhost/api/category").content
     r = json.loads(r)
-    print(r)
+    # print(r)
 
     # Spend Spend Spend
-    amount_spent = 0.00
+    amount_spent = 0
     for i in range(num_transactions):
-        amount = round(random.uniform(0.01, 15.00), 2) * -1
-        amount_spent += int(amount * 100)
+        amount = int(random.randint(0, 1500) * -1)
+        amount_spent += int(amount)
         transaction = dict(
             payee_id=1,
             account_id=1,
-            category_id=1,
+            categories=[dict(category_id=1, amount=amount)],
             memo="Spend spend spend",
             cleared=True,
             date="2021-12-06",
@@ -95,7 +97,7 @@ def main():
         r = requests.post("http://localhost/api/transaction/create", json=transaction)
         # print(r.content)
 
-    print(f"Amount spent: ${round(amount_spent/100,2)}")
+    print(f"Amount spent: ${amount_spent}")
     # print(requests.get('http://localhost/api/account').content[0])
 
     r = requests.get("http://localhost/api/category/balance/1").content
@@ -120,7 +122,7 @@ def main():
 
     r = requests.get("http://localhost/api/category").content
     r = json.loads(r)
-    print(r)
+    # print(r)
 
 
 if __name__ == "__main__":

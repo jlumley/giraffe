@@ -22,19 +22,19 @@ PUT_CATEGORY_UPDATE_TARGET_SCHEMA = {
     "type": "object",
     "properties": {
         "target_type": {"type": "string"},
-        "target_amount": {"type": "number"},
+        "target_amount": {"type": "integer"},
         "target_date": {"type": "string"},
     },
     "required": ["target_type"],
 }
 PUT_CATEGORY_ASSIGN_SCHEMA = {
     "type": "object",
-    "properties": {"amount": {"type": "number"}, "date": {"type": "string"}},
+    "properties": {"amount": {"type": "integer"}, "date": {"type": "string"}},
     "required": ["amount", "date"],
 }
 
 PUT_CATEGORY_UNASSIGN_SCHEMA = {
     "type": "object",
-    "properties": {"amount": {"type": "number"}, "date": {"type": "string"}},
+    "properties": {"amount": {"type": "integer"}, "date": {"type": "string"}},
     "required": ["amount", "date"],
 }
