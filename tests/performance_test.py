@@ -4,10 +4,10 @@ import requests
 import uuid
 import time
 
-num_categories = 20
-num_accounts = 20
-num_payees = 20
-num_transactions = 500
+num_categories = 500
+num_accounts = 50
+num_payees = 500
+num_transactions = 5000
 
 
 def main():
@@ -106,8 +106,9 @@ def main():
     print(f"Difference: ${round(before_resp['balance']-after_resp['balance'],2)}")
 
     for i in range(num_accounts, num_accounts + num_transactions + 1):
-        r = requests.delete(f"http://localhost/api/transaction/delete/{i}")
+        # r = requests.delete(f"http://localhost/api/transaction/delete/{i}")
         # print(r.content)
+        pass
 
     r = requests.get("http://localhost/api/transaction").content
     r = json.loads(r)
