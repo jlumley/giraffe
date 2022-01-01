@@ -4,10 +4,10 @@ import requests
 import uuid
 import time
 
-num_categories = 500
-num_accounts = 100
-num_payees = 500
-num_transactions = 5000
+num_categories = 100
+num_accounts = 20
+num_payees = 200
+num_transactions = 10000
 
 
 def main():
@@ -74,7 +74,7 @@ def main():
     #   print(r.content)
     r = requests.get("http://localhost/api/category/1/2021-12-31").content
     before_resp = json.loads(r)
-    print(f"Category balance before spending: ${before_resp['balance']}")
+    print(f"Category balance before spending: ${before_resp[0]['balance']}")
 
     r = requests.get("http://localhost/api/category/2021-12-31").content
     r = json.loads(r)
@@ -103,8 +103,8 @@ def main():
 
     r = requests.get("http://localhost/api/category/1/2021-12-31").content
     after_resp = json.loads(r)
-    print(f"Category balance after spending: ${after_resp['balance']}")
-    print(f"Difference: ${round(before_resp['balance']-after_resp['balance'],2)}")
+    print(f"Category balance after spending: ${after_resp[0]['balance']}")
+    print(f"Difference: ${round(before_resp[0]['balance']-after_resp[0]['balance'],2)}")
 
     for i in range(num_accounts, num_accounts + num_transactions + 1):
         # r = requests.delete(f"http://localhost/api/transaction/delete/{i}")
@@ -120,7 +120,7 @@ def main():
     # print(r)
     r = requests.get("http://localhost/api/category/1/2021-12-31").content
     r = json.loads(r)
-    print(f"Category balance after deleting transactions: ${r['balance']}")
+    print(f"Category balance after deleting transactions: ${r[0]['balance']}")
 
     r = requests.get("http://localhost/api/category/2021-12-31").content
     r = json.loads(r)

@@ -378,4 +378,4 @@ def get_category(category_id, sql_date):
         c["monthly_target"] = target_data["monthly_target"]
         c["assigned_this_month"] = target_data["assigned_this_month"]
 
-    return c
+    return categories
