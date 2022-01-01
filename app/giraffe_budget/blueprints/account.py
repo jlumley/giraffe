@@ -15,11 +15,7 @@ account = Blueprint("account", __name__, url_prefix="/account")
 @account.route("", methods=("GET",))
 def get_accounts():
     """Fetch all accounts"""
-    accounts = db_utils.execute(GET_ALL_ACCOUNTS)
-    accounts = db_utils.int_to_bool(accounts, ["hidden", "credit_account"])
-    for account in accounts:
-        account["cleared_balance"] = get_account_cleared_balance(account["id"])
-        account["uncleared_balance"] = get_account_uncleared_balance(account["id"])
+    accounts = get_accounts()
     return make_response(jsonify(accounts), 200)
 
 
@@ -30,13 +26,13 @@ def create_account():
     data = request.get_json()
     starting_balance = data.get("starting_balance", 0)
     date = time_utils.datestr_to_sqlite_date(data.get("date"))
-    insert_data = {"name": data.get("name"), "notes": data.get("notes"), "now": date}
-    account = db_utils.execute(POST_ACCOUNT_CREATE, insert_data, commit=True)
-    # Creating starting balance transaction
-    transaction.create_transaction(
-        account[0]["id"], starting_balance, date, True, memo="Starting Balance"
+    account = create_account(
+        data.get("name"),
+        date,
+        notes=data.get("notes"),
+        starting_balance=starting_balance,
     )
-    return make_response(jsonify(account[0]), 201)
+    return make_response(jsonify(account), 201)
 
 
 @account.route("/hide/<account_id>", methods=("GET",))
@@ -44,10 +40,9 @@ def hide_account(account_id):
     """Hide an account"""
     assert account_id == request.view_args["account_id"]
 
-    accounts = db_utils.execute(PUT_ACCOUNT_HIDE, {"id": account_id}, commit=True)
-    accounts = db_utils.int_to_bool(accounts, ["hidden"])
+    account = hide_account(account_id, True)
 
-    return make_response(jsonify(accounts[0]), 200)
+    return make_response(jsonify(account), 200)
 
 
 @account.route("/unhide/<account_id>", methods=("GET",))
@@ -55,52 +50,147 @@ def unhide_account(account_id):
     """Unhide an account"""
     assert account_id == request.view_args["account_id"]
 
-    accounts = db_utils.execute(PUT_ACCOUNT_UNHIDE, {"id": account_id}, commit=True)
-    accounts = db_utils.int_to_bool(accounts, ["hidden"])
+    account = hide_account(account_id, False)
 
-    return make_response(jsonify(accounts[0]), 200)
+    return make_response(jsonify(account), 200)
 
 
 @account.route("/reconcile/<account_id>", methods=("PUT",))
 @expects_json(PUT_ACCOUNT_RECONCILE_SCHEMA)
-def reconcile_account(account_id):
+def _reconcile_account(account_id):
     """Set all cleared transactions associated
     with this account as reconciled and set the
     reconciled_date to now
     """
     assert account_id == request.view_args["account_id"]
     data = request.get_json()
-    current_balance = get_account_cleared_balance(account_id)
     date = time_utils.datestr_to_sqlite_date(data.get("date"))
+    balance = data.get("balance")
 
-    db_utils.execute(PUT_ACCOUNT_RECONCILE_TRANSACTIONS, {"id": account_id})
-    db_utils.execute(
-        PUT_ACCOUNT_RECONCILE, {"id": account_id, "now": date}, commit=True
+    account = reconcile_account(account_id, date, balance)
+
+    return make_response(jsonify(account), 200)
+
+
+def get_accounts():
+    """fetch all accounts
+
+    Returns:
+        list: list of all accounts
+    """
+    account_ids = db_utils.execute(GET_ALL_ACCOUNTS)
+    accounts = []
+    for a in account_ids:
+        accounts += get_account(a["id"])
+
+    return accounts
+
+
+def get_account(account_id):
+    """fetch an account
+
+    Args:
+        account_id (int): account id
+
+    Returns:
+        dict: accounts dict
+    """
+    accounts = db_utils.execute(GET_ACCOUNT, {"account_id": account_id})
+    accounts = db_utils.int_to_bool(accounts, ["hidden"])
+    for a in accounts:
+        a["cleared_balance"] = get_account_balance(a["id"])
+        a["uncleared_balance"] = get_account_balance(a["id"], cleared=False)
+
+    return accounts
+
+
+def create_account(name, date, notes=None, starting_balance=0):
+    """create new account
+
+    Args:
+        name (str): account name
+        date (int): creation date
+        notes (str, optional): notes for account. Defaults to None.
+        starting_balance (int, optional): starting blanace. Defaults to 0.
+
+    Returns:
+        dict: account dict
+    """
+    account = db_utils.execute(
+        CREATE_ACCOUNT, {"name": name, "notes": notes, "date": date}, commit=True
     )
+    # Creating starting balance transaction
+    transaction.create_transaction(
+        account[0]["id"], starting_balance, date, True, memo="Starting Balance"
+    )
+    return get_account(account[0]["id"])
 
-    if data["balance"] != current_balance:
+
+def hide_account(account_id, hide=True):
+    """hide or unhide account
+
+    Args:
+        account_id (int): account id
+        hide (bool, optional): hidden value. Defaults to True.
+
+    Returns:
+        dict: account dict
+    """
+
+    accounts = db_utils.execute(
+        HIDE_ACCOUNT, {"id": account_id, "hide": int(hide)}, commit=True
+    )
+    accounts = db_utils.int_to_bool(accounts, ["hidden"])
+
+    return get_account(account_id)
+
+
+def reconcile_account(acccount_id, balance, date):
+    """reconcile account, creating neccessary transactions
+
+    Args:
+        acccount_id (int): account id
+        balance (int): current account balance
+        date (int): date of reconciliation (YYYMMDD)
+
+    Returns:
+        dict: new reconciled account balance
+    """
+
+    current_balance = get_account_balance(account_id)
+    if balance != current_balance:
         # Add transaction to match balance
-        db_utils.execute(
-            PUT_ACCOUNT_RECONCILE_AUTO_TRANSACTION,
-            {"id": account_id, "balance": data["balance"], "now": date},
-            commit=True,
+        transaction.create_transaction(
+            account_id,
+            balance - current_balance,
+            date,
+            True,
+            memo="Reconciliation Transaction",
         )
 
-    return make_response(
-        jsonify({"id": account_id, "balance": get_account_cleared_balance(account_id)}),
-        200,
+    # mark cleared transactions as reconciled
+    db_utils.execute(RECONCILE_ACCOUNT_TRANSACTIONS, {"id": account_id})
+    # mark account as reconciled
+    db_utils.execute(RECONCILE_ACCOUNT, {"id": account_id, "now": date}, commit=True)
+
+    return get_account(account_id)
+
+
+def get_account_balance(account_id, cleared=True):
+    """Get the cleard/uncleared balance for an account
+
+    Args:
+        account_id (int): account id
+        cleared (bool): get cleared or uncleared balance
+
+    Returns:
+        int: sum of all cleared transactions
+    """
+
+    account = db_utils.execute(
+        GET_ACCOUNT_BALANCE, {"id": account_id, "cleared": int(cleared)}
     )
-
-
-def get_account_cleared_balance(account_id):
-    """Get the cleared balance for an account"""
-
-    account = db_utils.execute(GET_ACCOUNT_CLEARED_BALANCE, {"id": account_id})
-    return account[0].get("balance")
-
-
-def get_account_uncleared_balance(account_id):
-    """Get the uncleared balance for an account"""
-
-    account = db_utils.execute(GET_ACCOUNT_UNCLEARED_BALANCE, {"id": account_id})
-    return account[0].get("balance")
+    balance = account[0].get("balance")
+    if not balance:
+        balance = 0
+    return balance

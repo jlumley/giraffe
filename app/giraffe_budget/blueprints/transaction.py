@@ -106,8 +106,8 @@ def update_transaction(transaction_id):
 @transaction.route("/delete/<transaction_id>", methods=("DELETE",))
 def _delete_transaction(transaction_id):
     """Delete transaction"""
-    _deleted_id = delete_transaction(transaction_id)
-    return make_response(jsonify({"id": _deleted_id}), 200)
+    deleted_id = delete_transaction(transaction_id)
+    return make_response(jsonify({"id": deleted_id}), 200)
 
 
 def delete_transaction(transaction_id):
@@ -161,7 +161,7 @@ def update_transaction(
         "date": date,
         "memo": memo,
         "amount": amount,
-        "cleared": to_sqlite_bool(data["cleared"]),
+        "cleared": db_utils.to_sqlite_bool(data["cleared"]),
         "categories": categories,
     }
     if account_id:
@@ -293,11 +293,11 @@ def get_transactions(
 
     if cleared is not None:
         query += " AND cleared = ?"
-        query_vars += (to_sqlite_bool(cleared),)
+        query_vars += (db_utils.to_sqlite_bool(cleared),)
 
     if reconciled is not None:
         query += " AND reconciled = ?"
-        query_vars += (to_sqlite_bool(reconciled),)
+        query_vars += (db_utils.to_sqlite_bool(reconciled),)
 
     query += " LIMIT ?;"
     query_vars += (limit,)
@@ -305,7 +305,7 @@ def get_transactions(
     # fetching transaction data
     transactions = []
     for t in transaction_ids:
-        transactions.append(get_transaction(t["id"]))
+        transactions += get_transaction(t["id"])
 
     return transactions
 
@@ -320,26 +320,12 @@ def get_transaction(transaction_id):
         dict: transaction dict
     """
 
-    transaction = db_utils.execute(GET_TRANSACTION, {"transaction_id": transaction_id})
+    transactions = db_utils.execute(GET_TRANSACTION, {"transaction_id": transaction_id})
     categories = db_utils.execute(
         GET_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}
     )
-    transaction = transaction[0]
-    transaction["categories"] = categories
-    transaction["date"] = time_utils.sqlite_date_to_datestr(transaction["date"])
-    return transaction
-
-
-def to_sqlite_bool(value):
-    """Convert string value to int boolean
-
-    Args:
-        value (str): string value to convert
-
-    Returns:
-        int: boolean value as an int
-    """
-    if value.lower() in ("t", "true", "yes", "y"):
-        return 1
-    else:
-        return 0
+    transactions = db_utils.int_to_bool(transactions, ["cleared", "reconciled"])
+    for t in transactions:
+        t["categories"] = categories
+        t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
+    return transactions
