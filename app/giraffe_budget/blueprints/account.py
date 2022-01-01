@@ -5,7 +5,7 @@ from flask_expects_json import expects_json
 
 from . import transaction
 
-from ..utils import db_utils, money_utils, request_utils
+from ..utils import db_utils, money_utils, time_utils
 from ..schemas.account_schema import *
 from ..sql.account_statements import *
 
@@ -29,15 +29,12 @@ def create_account():
     """Create new account"""
     data = request.get_json()
     starting_balance = data.get("starting_balance", 0)
-    insert_data = {
-        "name": data.get("name"),
-        "notes": data.get("notes"),
-        "now": time.time(),
-    }
+    date = time_utils.datestr_to_sqlite_date(data.get("date"))
+    insert_data = {"name": data.get("name"), "notes": data.get("notes"), "now": date}
     account = db_utils.execute(POST_ACCOUNT_CREATE, insert_data, commit=True)
     # Creating starting balance transaction
     transaction.create_transaction(
-        account[0]["id"], starting_balance, time.time(), True, memo="Starting Balance"
+        account[0]["id"], starting_balance, date, True, memo="Starting Balance"
     )
     return make_response(jsonify(account[0]), 201)
 
@@ -74,17 +71,18 @@ def reconcile_account(account_id):
     assert account_id == request.view_args["account_id"]
     data = request.get_json()
     current_balance = get_account_cleared_balance(account_id)
+    date = time_utils.datestr_to_sqlite_date(data.get("date"))
 
     db_utils.execute(PUT_ACCOUNT_RECONCILE_TRANSACTIONS, {"id": account_id})
     db_utils.execute(
-        PUT_ACCOUNT_RECONCILE, {"id": account_id, "now": time.time()}, commit=True
+        PUT_ACCOUNT_RECONCILE, {"id": account_id, "now": date}, commit=True
     )
 
     if data["balance"] != current_balance:
         # Add transaction to match balance
         db_utils.execute(
             PUT_ACCOUNT_RECONCILE_AUTO_TRANSACTION,
-            {"id": account_id, "balance": data["balance"], "now": time.time()},
+            {"id": account_id, "balance": data["balance"], "now": date},
             commit=True,
         )
 

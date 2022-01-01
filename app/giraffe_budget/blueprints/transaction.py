@@ -22,9 +22,12 @@ transaction = Blueprint("transaction", __name__, url_prefix="/transaction")
         "after": None,
         "cleared": None,
         "reconciled": None,
+        "limit": 1000,
     },
 )
-def _get_transactions(accounts, categories, payees, before, after, cleared, reconciled):
+def _get_transactions(
+    accounts, categories, payees, before, after, cleared, reconciled, limit
+):
     """Get all transactions"""
     accounts = request.args.get("accounts", accounts)
     categories = request.args.get("categories", categories)
@@ -33,6 +36,7 @@ def _get_transactions(accounts, categories, payees, before, after, cleared, reco
     after = request.args.get("after", after)
     cleared = request.args.get("cleared", cleared)
     reconciled = request.args.get("reconciled", reconciled)
+    limit = request.args.get("limit", limit)
 
     if accounts:
         accounts = accounts.split(",")
@@ -45,10 +49,11 @@ def _get_transactions(accounts, categories, payees, before, after, cleared, reco
         accounts,
         categories,
         payees,
-        time_utils.datestr_to_timestamp(before),
-        time_utils.datestr_to_timestamp(after),
+        time_utils.datestr_to_sqlite_date(before),
+        time_utils.datestr_to_sqlite_date(after),
         cleared,
         reconciled,
+        limit,
     )
 
     return make_response(jsonify(transactions), 200)
@@ -64,7 +69,7 @@ def _create_transaction():
         transaction_id = create_transaction(
             data.get("account_id"),
             data.get("amount"),
-            time_utils.datestr_to_timestamp(data.get("date")),
+            time_utils.datestr_to_sqlite_date(data.get("date")),
             int(data.get("cleared")),
             payee_id=data.get("payee_id"),
             memo=data.get("memo"),
@@ -91,7 +96,7 @@ def update_transaction(transaction_id):
         update_vars += (data["payee_id"],)
     if "date" in data.keys():
         update_statement += ", date = ?"
-        update_vars += (time_utils.datestr_to_timestamp(data["date"]),)
+        update_vars += (time_utils.datestr_to_sqlite_date(data["date"]),)
     if "memo" in data.keys():
         update_statement += ", memo = ?"
         update_vars += (data["memo"],)
@@ -197,17 +202,20 @@ def create_transaction(
     return transaction[0]["id"]
 
 
-def get_transactions(accounts, categories, payees, before, after, cleared, reconciled):
+def get_transactions(
+    accounts, categories, payees, before, after, cleared, reconciled, limit
+):
     """Query All transactions
 
     Args:
         accounts (list): list of account ids
-        categories (list): [description]
-        payees ([type]): [description]
-        before ([type]): [description]
-        after ([type]): [description]
-        cleared ([type]): [description]
-        reconciled ([type]): [description]
+        categories (list): list of category ids
+        payees (list): list of payee ids
+        before (int): get transactions before date (YYYYMMDD)
+        after (int): get transactions after date (YYYYMMDD)
+        cleared (bool): get cleared transactions
+        reconciled (bool): get reconciled transactions
+        limit (int): limit number of transactions returned
 
     Returns:
         [type]: [description]
@@ -231,11 +239,11 @@ def get_transactions(accounts, categories, payees, before, after, cleared, recon
         query += f" AND payee_id IN ({','.join('?' * len(payees))})"
         query_vars += tuple(payees)
 
-    if before:
+    if before is not None:
         query += " AND date < ?"
         query_vars += (before,)
 
-    if after:
+    if after is not None:
         query += " AND date > ?"
         query_vars += (after,)
 
@@ -247,6 +255,8 @@ def get_transactions(accounts, categories, payees, before, after, cleared, recon
         query += " AND reconciled = ?"
         query_vars += (to_sqlite_bool(reconciled),)
 
+    query += " LIMIT ?;"
+    query_vars += (limit,)
     transaction_ids = db_utils.execute(query, query_vars)
     # fetching transaction data
     transactions = []
@@ -272,7 +282,7 @@ def get_transaction(transaction_id):
     )
     transaction = transaction[0]
     transaction["categories"] = categories
-    transaction["date"] = time_utils.timestamp_to_datestr(transaction["date"])
+    transaction["date"] = time_utils.sqlite_date_to_datestr(transaction["date"])
     return transaction
 
 
