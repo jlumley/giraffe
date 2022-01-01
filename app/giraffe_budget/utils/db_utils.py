@@ -18,6 +18,21 @@ def dict_factory(cursor, row):
     return d
 
 
+def to_sqlite_bool(value):
+    """Convert string value to int boolean
+
+    Args:
+        value (str): string value to convert
+
+    Returns:
+        int: boolean value as an int
+    """
+    if value.lower() in ("t", "true", "yes", "y"):
+        return 1
+    else:
+        return 0
+
+
 def timestamp_to_datestr(rows, cols):
     """Convert colums to date strings
     Args:

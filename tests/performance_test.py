@@ -4,10 +4,10 @@ import requests
 import uuid
 import time
 
-num_categories = 50
-num_accounts = 10
+num_categories = 500
+num_accounts = 100
 num_payees = 500
-num_transactions = 50
+num_transactions = 5000
 
 
 def main():
@@ -116,7 +116,7 @@ def main():
     # print(r)
 
     r = requests.get("http://localhost/api/account").content
-    r = json.loads(r)[0]
+    r = json.loads(r)
     # print(r)
     r = requests.get("http://localhost/api/category/1/2021-12-31").content
     r = json.loads(r)

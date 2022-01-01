@@ -17,13 +17,10 @@ MAX_INT = 2 ** 31 - 1
 def get_categories(date):
     """Get all categories"""
     assert date == request.view_args["date"]
-    categories = db_utils.execute(GET_ALL_CATEGORIES)
     date = time_utils.datestr_to_sqlite_date(date)
-    resp = []
-    for c in categories:
-        resp.append(get_category(c["id"], date))
+    categories = get_categories(date)
 
-    return make_response(jsonify(resp), 200)
+    return make_response(jsonify(categories), 200)
 
 
 @category.route("/<category_id>/<date>", methods=("GET",))
@@ -344,6 +341,24 @@ def get_category_transactions_sum(category_id, before=MAX_INT, after=0):
     return transacted
 
 
+def get_categories(date):
+    """get all categories
+
+    Args:
+        date (int): sql date (YYYMMDD)
+
+    Returns:
+        list: list of all categories
+    """
+
+    category_ids = db_utils.execute(GET_ALL_CATEGORIES)
+    categories = []
+    for c in category_ids:
+        categories += get_category(c["id"], date)
+
+    return categories
+
+
 def get_category(category_id, sql_date):
     """Fetch a category by id
 
@@ -354,13 +369,13 @@ def get_category(category_id, sql_date):
     Returns:
         dict: category dict
     """
-    category = db_utils.execute(GET_CATEGORY, {"category_id": category_id})
-    c = category[0]
+    categories = db_utils.execute(GET_CATEGORY, {"category_id": category_id})
 
-    target_data = get_category_target_data(category_id, sql_date)
-    c["balance"] = get_category_balance(category_id, sql_date)
-    c["target_date"] = time_utils.sqlite_date_to_datestr(c["target_date"])
-    c["monthly_target"] = target_data["monthly_target"]
-    c["assigned_this_month"] = target_data["assigned_this_month"]
+    for c in categories:
+        target_data = get_category_target_data(category_id, sql_date)
+        c["balance"] = get_category_balance(category_id, sql_date)
+        c["target_date"] = time_utils.sqlite_date_to_datestr(c["target_date"])
+        c["monthly_target"] = target_data["monthly_target"]
+        c["assigned_this_month"] = target_data["assigned_this_month"]
 
     return c
