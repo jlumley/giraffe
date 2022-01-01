@@ -4,10 +4,10 @@ import requests
 import uuid
 import time
 
-num_categories = 500
-num_accounts = 50
+num_categories = 10
+num_accounts = 5
 num_payees = 500
-num_transactions = 5000
+num_transactions = 10000
 
 
 def main():
@@ -44,7 +44,7 @@ def main():
             memo="Income",
             cleared=True,
             date="2021-12-04",
-            amount=1000000,
+            amount=100000000,
         )
         r = requests.post("http://localhost/api/transaction/create", json=transaction)
         # print(r.content)
@@ -68,7 +68,7 @@ def main():
         # print(r.content)
         r = requests.put(
             f"http://localhost/api/category/assign/{i}",
-            json=dict(amount=10000, date="2021-12-05"),
+            json=dict(amount=1000000, date="2021-12-15"),
         )
 
         # print(r.content)
@@ -88,7 +88,7 @@ def main():
         transaction = dict(
             payee_id=1,
             account_id=1,
-            categories=[dict(category_id=1, amount=amount)],
+            categories=[dict(category_id=(i % num_categories), amount=amount)],
             memo="Spend spend spend",
             cleared=True,
             date="2021-12-06",

@@ -52,3 +52,15 @@ CREATE TABLE IF NOT EXISTS assignments (
   category_id integer,
   FOREIGN KEY (category_id) REFERENCES categories (id)
 );
+
+CREATE INDEX IF NOT EXISTS transactions_categories_category_index
+ON transaction_categories(category_id);
+
+CREATE INDEX IF NOT EXISTS transactions_account_index
+ON transactions(account_id);
+
+CREATE INDEX IF NOT EXISTS transactions_payee_index
+ON transactions(payee_id);
+
+CREATE INDEX IF NOT EXISTS assignments_category_index
+ON assignments(category_id);

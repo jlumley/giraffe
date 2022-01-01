@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 
 def setup_logger():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(filename="/logs/flask.log", level=logging.DEBUG)
 
 
 @app.before_request
