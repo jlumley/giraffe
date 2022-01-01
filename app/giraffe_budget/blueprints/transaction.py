@@ -86,49 +86,21 @@ def _create_transaction():
 def update_transaction(transaction_id):
     """Update transaction"""
     data = request.get_json()
-    update_statement = UPDATE_TRANSACTION
-    update_vars = tuple()
-    if "account_id" in data.keys():
-        update_statement += ", account_id = ?"
-        update_vars += (data["account_id"],)
-    if "payee_id" in data.keys():
-        update_statement += ", payee_id = ?"
-        update_vars += (data["payee_id"],)
-    if "date" in data.keys():
-        update_statement += ", date = ?"
-        update_vars += (time_utils.datestr_to_sqlite_date(data["date"]),)
-    if "memo" in data.keys():
-        update_statement += ", memo = ?"
-        update_vars += (data["memo"],)
-    if "amount" in data.keys():
-        update_statement += ", amount = ?"
-        update_vars += (data["amount"],)
-    if "cleared" in data.keys():
-        update_statement += ", cleared = ?"
-        update_vars += (to_sqlite_bool(data["cleared"]),)
-
-    update_statement += "WHERE id = ? RETURNING id;"
-    update_vars += (transaction_id,)
-
-    # update categories
-    if "categories" in data.keys():
-        db_utils.execute(
-            DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}
+    try:
+        transaction = update_transaction(
+            transaction_id,
+            account_id=data.get("account_id"),
+            payee_id=data.get("payee_id"),
+            date=time_utils.datestr_to_sqlite_date(data.get("date")),
+            memo=data.get("memo"),
+            amount=data.get("amount"),
+            cleared=data.get("cleared"),
+            categories=data.get("categories"),
         )
-        for c in data["categories"]:
-            db_utils.execute(
-                POST_TRANSACTION_CATEGORIES,
-                {
-                    "transaction_id": transaction[0]["id"],
-                    "category_id": c["category_id"],
-                    "amount": c["amount"],
-                },
-            )
+    except Exception as e:
+        return make_response(jsonify(e), 400)
 
-    transaction = db_utils.execute(
-        GET_TRANSACTION, {"transaction_id": transaction_id}, commit=True
-    )
-    return make_response(jsonify(transaction[0]), 200)
+    return make_response(jsonify(transaction), 200)
 
 
 @transaction.route("/delete/<transaction_id>", methods=("DELETE",))
@@ -153,6 +125,78 @@ def delete_transaction(transaction_id):
     )
 
     return transaction_id[0]["id"]
+
+
+def update_transaction(
+    transaction_id,
+    account_id=None,
+    payee_id=None,
+    date=None,
+    memo=None,
+    amount=None,
+    cleared=None,
+    categories=[],
+):
+    """update a transaction
+
+    Args:
+        transaction_id (int): transaction_id
+        account_id (int, optional): new account id. Defaults to None.
+        payee_id (int, optional): new payee id. Defaults to None.
+        date (int, optional): new sql date (YYYMMDD). Defaults to None.
+        memo (str, optional): new memo. Defaults to None.
+        amount (int, optional): new amount. Defaults to None.
+        cleared (bool, optional): new cleared value. Defaults to None.
+        categories (list, optional): new categories. Defaults to [].
+
+    Returns:
+        dict: new transaction dict
+    """
+
+    update_statement = UPDATE_TRANSACTION
+    update_vars = {
+        "transaction_id": transaction_id,
+        "account_id": account_id,
+        "payee_id": payee_id,
+        "date": date,
+        "memo": memo,
+        "amount": amount,
+        "cleared": to_sqlite_bool(data["cleared"]),
+        "categories": categories,
+    }
+    if account_id:
+        update_statement += ", account_id = :account_id"
+    if payee_id:
+        update_statement += ", payee_id = :apyee_id"
+    if date:
+        update_statement += ", date = :date"
+    if memo:
+        update_statement += ", memo = :memo"
+    if amount:
+        update_statement += ", amount = :amount"
+    if cleared:
+        update_statement += ", cleared = :cleared"
+
+    update_statement += "WHERE id = :transaction_id RETURNING id;"
+
+    # update categories
+    if categories:
+        db_utils.execute(
+            DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}
+        )
+        for c in data["categories"]:
+            db_utils.execute(
+                POST_TRANSACTION_CATEGORIES,
+                {
+                    "transaction_id": transaction[0]["id"],
+                    "category_id": c["category_id"],
+                    "amount": c["amount"],
+                },
+            )
+
+    transaction = get_transaction(transaction_id)
+
+    return transaction
 
 
 def create_transaction(
