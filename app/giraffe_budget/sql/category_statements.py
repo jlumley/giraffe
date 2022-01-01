@@ -1,16 +1,16 @@
-GET_CATEGORY_STATEMENT = """SELECT * FROM categories;"""
+GET_ALL_CATEGORIES = """SELECT * FROM categories;"""
 
-POST_CATEGORY_CREATE_STATEMENT = """INSERT INTO categories
+POST_CATEGORY_CREATE = """INSERT INTO categories
 (name, category_group, notes)
 VALUES (:name, :category_group, :notes)
 RETURNING id;
 """
 
-PUT_CATEGORY_UPDATE_STATEMENT = """UPDATE categories
+PUT_CATEGORY_UPDATE = """UPDATE categories
 SET id = id
 """
 
-GET_CATEGORY_TARGET_STATEMENT = """SELECT
+GET_CATEGORY_TARGET = """SELECT
 target_type,
 target_amount,
 target_date
@@ -18,7 +18,7 @@ FROM categories
 WHERE id = :category_id;
 """
 
-PUT_CATEGORY_UPDATE_TARGET_STATEMENT = """UPDATE categories
+PUT_CATEGORY_UPDATE_TARGET = """UPDATE categories
 SET id = id,
 target_type = :target_type,
 target_amount = :target_amount
@@ -31,7 +31,7 @@ target_amount=null,
 WHERE id = :category_id;
 """
 
-DELETE_CATEGORY_STATEMENT = """DELETE FROM categories
+DELETE_CATEGORY = """DELETE FROM categories
 WHERE id = :category_id;
 """
 
@@ -49,12 +49,12 @@ WHERE date < :now
 AND category_id = :category_id;
 """
 
-PUT_CATEGORY_ASSIGN_STATEMENT = """INSERT INTO assignments
+PUT_CATEGORY_ASSIGN = """INSERT INTO assignments
 (category_id, amount, date)
 VALUES (:category_id, :amount, :date);
 """
 
-PUT_CATEGORY_UNASSIGN_STATEMENT = """INSERT INTO assignments
+PUT_CATEGORY_UNASSIGN = """INSERT INTO assignments
 (category_id, amount, date)
 VALUES (:category_id, :amount, :date);
 """

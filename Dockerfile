@@ -29,4 +29,4 @@ COPY app /src/app
 
 COPY bin/start.sh /src/bin/start.sh
 
-CMD /src/bin/start.sh
+ENTRYPOINT /src/bin/start.sh
