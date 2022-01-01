@@ -4,10 +4,10 @@ import requests
 import uuid
 import time
 
-num_categories = 1
-num_accounts = 5
+num_categories = 50
+num_accounts = 10
 num_payees = 500
-num_transactions = 20000
+num_transactions = 50
 
 
 def main():
@@ -20,21 +20,21 @@ def main():
         account = dict(name=uuid.uuid4().hex)
         accounts.append(account)
         r = requests.post("http://localhost/api/account/create", json=account)
-        print(r.content)
+        # print(r.content)
 
     # create payees
     for i in range(num_payees):
         payee = dict(name=uuid.uuid4().hex)
         payees.append(payee)
         r = requests.post("http://localhost/api/payee/create", json=payee)
-        print(r.content)
+        # print(r.content)
 
     # create categories
     for i in range(num_categories):
         category = dict(name=uuid.uuid4().hex, group="group1")
         categories.append(category)
         r = requests.post("http://localhost/api/category/create", json=category)
-        print(r.content)
+        # print(r.content)
 
     # fund accounts
     for i in range(1, num_accounts + 1):
@@ -47,7 +47,7 @@ def main():
             amount=100000000,
         )
         r = requests.post("http://localhost/api/transaction/create", json=transaction)
-        print(r.content)
+    # print(r.content)
     # fund categories
     for i in range(1, num_categories + 1):
         if i % 2 == 0:
@@ -65,20 +65,20 @@ def main():
                 ),
             )
 
-        print(r.content)
+        #  print(r.content)
         r = requests.put(
             f"http://localhost/api/category/assign/{i}",
             json=dict(amount=1000000, date="2021-12-15"),
         )
 
-        print(r.content)
+    #   print(r.content)
     r = requests.get("http://localhost/api/category/1/2021-12-31").content
     before_resp = json.loads(r)
     print(f"Category balance before spending: ${before_resp['balance']}")
 
     r = requests.get("http://localhost/api/category/2021-12-31").content
     r = json.loads(r)
-    print(r)
+    # print(r)
 
     # Spend Spend Spend
     amount_spent = 0
