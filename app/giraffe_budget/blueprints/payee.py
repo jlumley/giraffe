@@ -9,20 +9,19 @@ payee = Blueprint("payee", __name__, url_prefix="/payee")
 
 
 @payee.route("", methods=("GET",))
-def get_payees():
-
-    payees = db_utils.execute(GET_PAYEE_STATEMENT)
+def _get_payees():
+    """Get all payees"""
+    payees = get_payees()
     return make_response(jsonify(payees), 200)
 
 
 @payee.route("/create", methods=("POST",))
 @expects_json(POST_PAYEE_CREATE_SCHEMA)
-def create_payee():
+def _create_payee():
     """Create new payee"""
     data = request.get_json()
-    insert_data = {"name": data.get("name")}
-    payee = db_utils.execute(POST_PAYEE_CREATE_STATEMENT, insert_data, commit=True)
-    return make_response(jsonify(payee[0]), 201)
+    payee = create_payee(data.get("name"))
+    return make_response(jsonify(payee), 201)
 
 
 @payee.route("/update/<payee_id>", methods=("PUT",))
@@ -30,21 +29,85 @@ def create_payee():
 def update_payee(payee_id):
     """Update payee"""
     data = request.get_json()
-    update_statement = PUT_PAYEE_UPDATE_STATEMENT
-    update_vars = tuple()
-    if "name" in data.keys():
-        update_statement += ", name = ?"
-        update_vars += (data["name"],)
-
-    update_statement += "WHERE id = ? RETURNING id;"
-    update_vars += (payee_id,)
-
-    payee = db_utils.execute(update_statement, update_vars, commit=True)
-    return make_response(jsonify(payee[0]), 200)
+    payee = update_payee(payee_id, name=data.get("name"))
+    return make_response(jsonify(payee), 200)
 
 
 @payee.route("/delete/<payee_id>", methods=("DELETE",))
 def delete_payee(payee_id):
     """Delete payee"""
-    db_utils.execute(DELETE_PAYEE_STATEMENT, {"payee_id": payee_id}, commit=True)
-    return make_response(jsonify("success"), 200)
+    payee = delete_payee(payee_id)
+    return make_response(jsonify(payee), 200)
+
+
+def get_payees():
+    """Get all Payees
+
+    Returns:
+        list: list of all payes
+    """
+    payee_ids = db_utils.execute(GET_ALL_PAYEES)
+    payees = []
+    for p in payee_ids:
+        payees += get_payee(p["id"])
+
+    return payees
+
+
+def get_payee(payee_id):
+    """Get a Payee by id
+
+    Args:
+        payee_id (int): payee id
+
+    Returns:
+        list: list of payees with id
+    """
+    payee = db_utils.execute(GET_ALL_PAYEES, {"payee_id": payee_id})
+    return payee
+
+
+def create_payee(name):
+    """Create new payee
+
+    Args:
+        name (str): name for new payee
+
+    Returns:
+        list: new payee
+    """
+    payee = db_utils.execute(CREATE_PAYEE, {"name": name}, commit=True)
+    return payee
+
+
+def delete_payee(payee_id):
+    """delete a payee
+
+    Args:
+        payee_id (int): payee id
+
+    Returns:
+        lsit: list of deleted payee ids
+    """
+    payee = db_utils.execute(DELETE_PAYEE, {"payee_id": payee_id}, commit=True)
+    return payee
+
+
+def update_payee(payee_id, name=None):
+    """update a payee
+
+    Args:
+        payee_id (int): payee id
+        name (str, optional): new payee name. Defaults to None.
+
+    Returns:
+        list: new updated payee
+    """
+    query = UPDATE_PAYEE
+
+    if name:
+        query += ", name = :name"
+    query += "WHERE id = :payee_id RETURNING *;"
+
+    payee = db_utils.execute(query, {"payee_id": payee_id, "name": name}, commit=True)
+    return payee

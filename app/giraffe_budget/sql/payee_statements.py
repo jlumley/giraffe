@@ -1,13 +1,19 @@
-GET_PAYEE_STATEMENT = """ SELECT * FROM payees;"""
+GET_ALL_PAYEES = """SELECT id from payees;"""
 
-POST_PAYEE_CREATE_STATEMENT = """INSERT INTO payees
+GET_PAYEE = """ SELECT *
+FROM payees
+WHERE id = :payee_id;"""
+
+CREATE_PAYEE = """INSERT INTO payees
 (name)
 VALUES (:name)
 RETURNING id;
 """
 
-PUT_PAYEE_UPDATE_STATEMENT = """UPDATE payees
-SET id = id"""
+UPDATE_PAYEE = """UPDATE payees
+SET id = id
+RETURNING *;"""
 
-DELETE_PAYEE_STATEMENT = """DELETE FROM payees
-WHERE id = :payee_id;"""
+DELETE_PAYEE = """DELETE FROM payees
+WHERE id = :payee_id
+RETURNING id;"""
