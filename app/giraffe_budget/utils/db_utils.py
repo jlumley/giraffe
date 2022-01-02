@@ -97,7 +97,7 @@ def execute(stmt, stmt_vars=dict(), commit=False):
         return entries
 
     except sqlite3.Error as e:
-        current_app.logger.debug(stmt)
+        current_app.logger.info(stmt)
         current_app.logger.error(e)
         raise e
 
@@ -110,7 +110,8 @@ def get_db():
         Database Connection
     """
     if not "db" in g:
-        g.db = sqlite3.connect("/data/budget.db", detect_types=sqlite3.PARSE_DECLTYPES)
+        db_uri = current_app.config["DATABASE_URI"]
+        g.db = sqlite3.connect(db_uri, detect_types=sqlite3.PARSE_DECLTYPES)
         g.db.row_factory = dict_factory
     return g.db
 

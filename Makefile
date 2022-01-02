@@ -5,7 +5,7 @@ build: ## build docker image
 	docker build . -t giraffe-budget
 
 dev: ## run container interactively
-	docker run  -it -v /tmp/giraffe-budget/data:/data -v /tmp/giraffe-budget/logs:/logs -p 80:80 -p 9596:9596 --name giraffe-budget-dev  giraffe-budget
+	docker run  -it -v /tmp/giraffe-budget/data:/data -v /tmp/giraffe-budget/logs:/logs -p 80:80 -p 9596:9596 -e APP_MODE="DEV" --name giraffe-budget-dev  giraffe-budget
 
 dev-clean: ## cleanup after dev instance
 	docker rm -f giraffe-budget-dev && rm -rf /tmp/giraffe-budget
