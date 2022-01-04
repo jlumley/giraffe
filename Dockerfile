@@ -11,7 +11,9 @@ nginx \
 linux-headers \
 gcc \
 libc-dev \
-pcre-dev
+pcre-dev \
+nodejs \
+npm
 
 RUN pip install --no-cache --upgrade pip
 RUN pip install \
@@ -22,11 +24,14 @@ Uwsgi==2.0.19.1
 VOLUME /data
 VOLUME /logs
 EXPOSE 80
+EXPOSE 3000
 
 # copy nginx conf
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
-COPY app /src/app
 
+COPY app /src/app
 COPY bin/start.sh /src/bin/start.sh
+
+CMD "npm --prefix /src/app/frontend install /src/app/frontend"
 
 ENTRYPOINT /src/bin/start.sh

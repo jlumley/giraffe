@@ -273,9 +273,9 @@ def get_transactions(
 
     if categories:
         query += (
-            f" AND transaction_id IN (SELECT transaction_id from"
+            f" AND id IN (SELECT transaction_id from"
             f" transaction_categories WHERE category_id IN"
-            f" ({','.join('?' * len(categories))})"
+            f" ({','.join('?' * len(categories))}))"
         )
         query_vars += tuple(categories)
 
@@ -284,11 +284,11 @@ def get_transactions(
         query_vars += tuple(payees)
 
     if before is not None:
-        query += " AND date < ?"
+        query += " AND date <= ?"
         query_vars += (before,)
 
     if after is not None:
-        query += " AND date > ?"
+        query += " AND date >= ?"
         query_vars += (after,)
 
     if cleared is not None:
