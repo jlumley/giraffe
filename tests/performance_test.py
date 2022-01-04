@@ -4,10 +4,10 @@ import requests
 import uuid
 import time
 
-num_categories = 100
-num_accounts = 20
-num_payees = 200
-num_transactions = 10000
+num_categories = 10
+num_accounts = 5
+num_payees = 5
+num_transactions = 100
 
 
 def main():
@@ -43,7 +43,7 @@ def main():
             account_id=i,
             memo="Income",
             cleared=True,
-            date="2021-12-04",
+            date="2022-01-01",
             amount=100000000,
         )
         r = requests.post("http://localhost/api/transaction/create", json=transaction)
@@ -68,15 +68,15 @@ def main():
         #  print(r.content)
         r = requests.put(
             f"http://localhost/api/category/assign/{i}",
-            json=dict(amount=1000000, date="2021-12-15"),
+            json=dict(amount=1000000, date="2022-01-02"),
         )
 
     #   print(r.content)
-    r = requests.get("http://localhost/api/category/1/2021-12-31").content
+    r = requests.get("http://localhost/api/category/1/2022-01-01").content
     before_resp = json.loads(r)
     print(f"Category balance before spending: ${before_resp[0]['balance']}")
 
-    r = requests.get("http://localhost/api/category/2021-12-31").content
+    r = requests.get("http://localhost/api/category/2022-01-01").content
     r = json.loads(r)
     # print(r)
 
@@ -92,7 +92,7 @@ def main():
             categories=[dict(category_id=(i % num_categories + 1), amount=amount)],
             memo="Spend spend spend",
             cleared=True,
-            date="2021-12-06",
+            date="2022-01-01",
             amount=amount,
         )
         r = requests.post("http://localhost/api/transaction/create", json=transaction)
@@ -101,7 +101,7 @@ def main():
     print(f"Amount spent: ${amount_spent}")
     # print(requests.get('http://localhost/api/account').content[0])
 
-    r = requests.get("http://localhost/api/category/1/2021-12-31").content
+    r = requests.get("http://localhost/api/category/1/2022-01-01").content
     after_resp = json.loads(r)
     print(f"Category balance after spending: ${after_resp[0]['balance']}")
     print(f"Difference: ${round(before_resp[0]['balance']-after_resp[0]['balance'],2)}")
@@ -118,11 +118,11 @@ def main():
     r = requests.get("http://localhost/api/account").content
     r = json.loads(r)
     # print(r)
-    r = requests.get("http://localhost/api/category/1/2021-12-31").content
+    r = requests.get("http://localhost/api/category/1/2022-01-01").content
     r = json.loads(r)
     print(f"Category balance after deleting transactions: ${r[0]['balance']}")
 
-    r = requests.get("http://localhost/api/category/2021-12-31").content
+    r = requests.get("http://localhost/api/category/2022-01-01").content
     r = json.loads(r)
     # print(r)
 
