@@ -4,10 +4,10 @@ import requests
 import uuid
 import time
 
-num_categories = 100
-num_accounts = 50
-num_payees = 50
-num_transactions = 1000
+num_categories = 5
+num_accounts = 3
+num_payees = 10
+num_transactions = 50
 
 
 def main():
@@ -17,7 +17,7 @@ def main():
 
     # create accounts
     for i in range(num_accounts):
-        account = dict(name=uuid.uuid4().hex)
+        account = dict(name=uuid.uuid4().hex[:4])
         accounts.append(account)
         r = requests.post("http://localhost/api/account/create", json=account)
         # print(r.content)
@@ -31,7 +31,7 @@ def main():
 
     # create categories
     for i in range(num_categories):
-        category = dict(name=uuid.uuid4().hex, group="group1")
+        category = dict(name=uuid.uuid4().hex[:6], group="group1")
         categories.append(category)
         r = requests.post("http://localhost/api/category/create", json=category)
         # print(r.content)
