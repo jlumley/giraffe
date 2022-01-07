@@ -1,6 +1,6 @@
 import React, { useState, useEffect} from 'react'
-import instance from './axois';
-import transactionRequests from './requests/transaction';
+import instance from '../axois';
+import transactionRequests from '../requests/transaction';
 
 function Category({category}) {
     const [transactions, setTransactions] = useState([]);
@@ -41,8 +41,8 @@ function Category({category}) {
         fetchData()
     }, [category]);
 
-    console.log(category);
-    console.log(transactions);
+//    console.log(category);
+//    console.log(transactions);
 
     return (
         <div>

@@ -5,11 +5,11 @@ build: ## build docker image
 	docker build . -t giraffe-budget
 
 dev: ## run container interactively
-	docker run  -it -v /tmp/giraffe-budget/data:/data -v /tmp/giraffe-budget/logs:/logs -p 80:80 -p 9596:9596 -p 3000:3000 -e APP_MODE="DEV" --name giraffe-budget-dev  giraffe-budget
+	docker run  -it -v /tmp/giraffe-budget/data:/data -v /tmp/giraffe-budget/logs:/logs -p 80:80 -e APP_MODE="DEV" --name giraffe-budget-dev  giraffe-budget
 
 
 dev-api: ## run only api
-	docker run  -d -v /tmp/giraffe-budget/data:/data -v /tmp/giraffe-budget/logs:/logs -p 80:80 -p 9596:9596 -e APP_MODE="DEV" -e API_ONY="true" --name giraffe-budget-dev  giraffe-budget
+	docker run  -d -v /tmp/giraffe-budget/data:/data -v /tmp/giraffe-budget/logs:/logs -p 80:80 -e APP_MODE="DEV" -e API_ONY="true" --name giraffe-budget-dev  giraffe-budget
 
 
 
