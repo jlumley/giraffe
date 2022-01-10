@@ -1,11 +1,11 @@
 import React from 'react'
 
-function AllAccounts() {
+function Accounts() {
     return (
         <div>
-            ALL ACCOUNTS!
+            All the moneys!!
         </div>
     )
 }
 
-export default AllAccounts
+export default Accounts;
