@@ -1,0 +1,21 @@
+
+.header {
+    height: 60px;
+    background-color: #002233;
+}
+
+.pageContent {
+    position: fixed;
+    z-index: -1;
+}
+.smallScreen {
+    padding-left: 50px;
+}
+.largeScreen {
+    padding-left: 230px;
+}
+
+.contentRow {
+    display: flex;
+    flex-direction: row;
+}

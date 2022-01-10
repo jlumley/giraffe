@@ -2,6 +2,8 @@ import React, { useState, useEffect} from 'react'
 import instance from '../axois';
 import transactionRequests from '../requests/transaction';
 
+import {centsToMoney} from '../utils/money_utils'
+
 function Category({category}) {
     const [transactions, setTransactions] = useState([]);
 
@@ -51,13 +53,13 @@ function Category({category}) {
             {category.name}
             {" Assigned this month: "}
             {/** category assigned this month  */}
-            {category.assigned_this_month}
+            {centsToMoney(category.assigned_this_month)}
             {" Spent this month: "}
             {/**category transactions this month */}
-            { transactions.reduce((a, b) => a + b.amount, 0)}
+            {centsToMoney(transactions.reduce((a, b) => a + b.amount, 0)) }
             {" Current Balance: "}
             {/**category available */}
-            {category.balance}
+            {centsToMoney(category.balance)}
         </div>
     )
 }
