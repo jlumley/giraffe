@@ -11,41 +11,24 @@
   transition: 0.4s;
 }
 
-/* Rotate first bar */
-.close .bar1 {
-  -webkit-transform: rotate(-45deg) translate(-9px, 6px) ;
-  transform: rotate(-45deg) translate(-9px, 6px) ;
-}
-
-/* Fade out the second bar */
-.close .bar2 {
-  opacity: 0;
-}
-
-/* Rotate last bar */
-.close .bar3 {
-  -webkit-transform: rotate(45deg) translate(-8px, -8px) ;
-  transform: rotate(45deg) translate(-8px, -8px) ;
-}
-
 .sidebar-link-div {
-    padding-left: 60px;
-    padding-top: 10px;
-    color: #80d4ff;
-    text-align: left;
+  padding-left: 60px;
+  padding-top: 10px;
+  color: #80d4ff;
+  text-align: left;
 }
 
 .sidebar-link {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 .sidebar {
-    position: fixed;
-    width: 230px;
-    height: 100%;
-    background: linear-gradient(0deg, #005580, #002233);
-    color: #80d4ff;
+  position: fixed;
+  width: 230px;
+  height: 100%;
+  background: linear-gradient(0deg, #005580, #002233);
+  color: #80d4ff;
 }
 .sidebar-retracted {
-    width: 50px;
+  width: 50px;
 }

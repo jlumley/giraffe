@@ -44,7 +44,7 @@ def main():
             memo="Income",
             cleared=True,
             date="2022-01-01",
-            amount=100000000,
+            amount=9999999,
         )
         r = requests.post("http://localhost/api/transaction/create", json=transaction)
     # print(r.content)
@@ -83,7 +83,7 @@ def main():
     # Spend Spend Spend
     amount_spent = 0
     for i in range(num_transactions):
-        amount = int(random.randint(0, 1500) * -1)
+        amount = int(random.randint(0, 15000) * -1)
         if i % num_categories == 0:
             amount_spent += int(amount)
         transaction = dict(

@@ -1,20 +1,4 @@
 .App {
   text-align: center;
-  height: 100%
-}
-
-.pro-sidebar {
-  color: #a50e0ea2;
   height: 100%;
-  width: 270px;
-  min-width: 270px;
-  text-align: left;
-  transition: width, left, right, 0.3s;
-  position: relative;
-  z-index: 1009;
 }
-.pro-sidebar > .pro-sidebar-inner {
-  background: #1d1d1d;
-  height: 100%;
-  position: relative;
-  z-index: 101; }

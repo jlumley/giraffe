@@ -1,21 +1,29 @@
 
+.layout {
+    height: 100%;
+    width: 100%;
+}
+
 .header {
     height: 60px;
     background-color: #002233;
 }
 
-.pageContent {
-    position: fixed;
-    z-index: -1;
-}
 .smallScreen {
+    position: relative;
+    background: linear-gradient(0deg, #005580, #002233);
     padding-left: 50px;
+    z-index: -1;
+    height: 100%;
 }
 .largeScreen {
+    position: relative;
+    background: linear-gradient(0deg, #005580, #002233);
     padding-left: 230px;
+    z-index: -1;
+    height: 100%;
 }
 
-.contentRow {
-    display: flex;
-    flex-direction: row;
+.flex-container {
+    height: 100%;
 }

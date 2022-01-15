@@ -1,0 +1,39 @@
+.budgetcontent {
+    background-color: transparent;
+}
+.budgetHeader {
+    height: 65px;
+    border-radius: 15px;
+}
+.budgetColumnNameGroup {
+    height: 15px;
+    color: #80d4ff;
+}
+.budgetCategories {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    width: 100%;
+    float: inline-end;
+}
+
+.budgetColumnNameCategory {
+    float : left;
+}
+.smallScreenBudgetColumnNameCategory {
+    width: 50%;
+ }
+
+.largeScreenBudgetColumnNameCategory {
+    width: 40%;
+}
+
+.budgetColumnName {
+    float: left;
+}
+
+.smallScreenBudgetColumnName {
+    width: 25%;
+}
+.largeScreenBudgetColumnName {
+    width: 20%;
+}

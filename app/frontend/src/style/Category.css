@@ -1,0 +1,54 @@
+.baseCategory {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    color: white;
+
+
+}
+.categoryNameBox {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    float: left;
+}
+.largeScreenCategoryNameBox {
+    font-size: 1.5vmin;
+    width: 40%;
+}
+.smallScreenCategoryNameBox {
+    font-size: 2.2vmin;
+    width: 50%;
+}
+
+.CategoryValueBox {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    float: left;
+
+}
+
+.smallScreenCategoryValueBox {
+    width: 25%;
+    font-size: 2.2vmin;
+}
+
+.largeScreenCategoryValueBox {
+    width: 20%;
+    font-size: 1.5vmin;
+}
+
+.categoryValueOutline {
+    margin: auto;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 15px;
+    background-color: hsla(0, 9%, 7%, 0.3);
+}
+
+.largeScreenCategoryValueOutline {
+    width: 55%;
+}
+
+.smallScreenCategoryValueOutline {
+    width: 85%;
+}
