@@ -1,6 +1,6 @@
 import React from 'react'
 
-function Accounts() {
+function Accounts({screenSize}) {
     return (
         <div>
             All the moneys!!

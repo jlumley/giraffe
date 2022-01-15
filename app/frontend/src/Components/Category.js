@@ -2,9 +2,12 @@ import React, { useState, useEffect} from 'react'
 import instance from '../axois';
 import transactionRequests from '../requests/transaction';
 
+import '../style/Category.css'
+
 import {centsToMoney} from '../utils/money_utils'
 
-function Category({category}) {
+
+function Category({category, screenSize}) {
     const [transactions, setTransactions] = useState([]);
 
     useEffect(() => {
@@ -43,23 +46,14 @@ function Category({category}) {
         fetchData()
     }, [category]);
 
-//    console.log(category);
-//    console.log(transactions);
-
     return (
         <div>
-            {/**category name */}
-            {"Name: "}
-            {category.name}
-            {" Assigned this month: "}
-            {/** category assigned this month  */}
-            {centsToMoney(category.assigned_this_month)}
-            {" Spent this month: "}
-            {/**category transactions this month */}
-            {centsToMoney(transactions.reduce((a, b) => a + b.amount, 0)) }
-            {" Current Balance: "}
-            {/**category available */}
-            {centsToMoney(category.balance)}
+            <div className="baseCategory">
+            <div className={`categoryNameBox ${screenSize}CategoryNameBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{category.name}</div></div>
+            <div className={`categoryValueBox ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(category.assigned_this_month)}</div></div>
+            {(screenSize == "largeScreen") && (<div className={`categoryValueBox ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(transactions.reduce((a, b) => a + b.amount, 0))}</div></div> )}
+            <div className={`categoryValueBox ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(category.balance)}</div></div>
+            </div>
         </div>
     )
 }

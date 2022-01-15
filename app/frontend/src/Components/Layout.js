@@ -28,6 +28,7 @@ function Layout() {
             }
 
         }
+        changeScreenSize()
 
         window.addEventListener('resize', changeScreenSize)
 
@@ -39,18 +40,15 @@ function Layout() {
 
 
     return (
-        <div>
-            <div className="header">
-            </div>
-            <div className="contentRow">
-                <div>
-                    <Aside screenSize={screenSize}/>
-                </div>
-                <div className="pageContent" className={screenSize}>
+        <div className="layout">
+            <div className="header"></div>
+            <div className="flex-container">
+                <Aside screenSize={screenSize}/>
+                <div className={screenSize}>
                     <Routes>
-                        <Route exact path="/account" element={<Accounts/>} />
-                        <Route exact path="/reports" element={<Reports/>}/>
-                        <Route exact path="/" element={<Budget/>}/>
+                        <Route exact path="/account" element={<Accounts screenSize={screenSize}/>} />
+                        <Route exact path="/reports" element={<Reports screenSize={screenSize}/>}/>
+                        <Route exact path="/" element={<Budget screenSize={screenSize}/>}/>
                     </Routes>
                 </div>
             </div>
