@@ -1,4 +1,5 @@
 
 export const centsToMoney = (cents) => {
-    return `$${Math.round(cents/100).toFixed(2)}`
+    cents /= 100;
+    return cents.toLocaleString("en-US", {style:"currency", currency:"USD"})
 }

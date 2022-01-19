@@ -2,27 +2,36 @@
 .layout {
     height: 100%;
     width: 100%;
+    position: fixed;
+    background: linear-gradient(0deg, #005580, #002233);
 }
 
 .header {
     height: 60px;
-    background-color: #002233;
 }
 
-.smallScreen {
+.smallScreenContent {
     position: relative;
-    background: linear-gradient(0deg, #005580, #002233);
     padding-left: 50px;
-    z-index: -1;
     height: 100%;
 }
-.largeScreen {
+.largeScreenContent {
     position: relative;
-    background: linear-gradient(0deg, #005580, #002233);
     padding-left: 230px;
-    z-index: -1;
     height: 100%;
 }
+
+.sidebar {
+    position: fixed;
+    left: 0px;
+    top: 60px;
+    height: 100%;
+    z-index: +1;
+    width: 230px;
+    background-color: #002233;
+    text-align: left;
+}
+  
 
 .flex-container {
     height: 100%;

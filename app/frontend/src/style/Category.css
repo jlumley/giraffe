@@ -3,8 +3,6 @@
     display: flex;
     flex-direction: row;
     color: white;
-
-
 }
 .categoryNameBox {
     padding-top: 2px;
@@ -12,7 +10,7 @@
     float: left;
 }
 .largeScreenCategoryNameBox {
-    font-size: 1.5vmin;
+    font-size: 14px;
     width: 40%;
 }
 .smallScreenCategoryNameBox {
@@ -24,7 +22,6 @@
     padding-top: 2px;
     padding-bottom: 2px;
     float: left;
-
 }
 
 .smallScreenCategoryValueBox {
@@ -34,7 +31,7 @@
 
 .largeScreenCategoryValueBox {
     width: 20%;
-    font-size: 1.5vmin;
+    font-size: 14px;
 }
 
 .categoryValueOutline {
@@ -51,4 +48,11 @@
 
 .smallScreenCategoryValueOutline {
     width: 85%;
+}
+
+.categoryNameInput {
+    background-color: transparent;
+    border-color: transparent;
+    color: whitesmoke;
+
 }
