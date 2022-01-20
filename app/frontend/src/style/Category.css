@@ -4,9 +4,10 @@
     flex-direction: row;
     color: white;
 }
-.categoryNameBox {
-    padding-top: 2px;
-    padding-bottom: 2px;
+
+.categoryValueBox {
+    padding-top: 3px;
+    padding-bottom: 3px;
     float: left;
 }
 .largeScreenCategoryNameBox {
@@ -16,12 +17,6 @@
 .smallScreenCategoryNameBox {
     font-size: 2.2vmin;
     width: 50%;
-}
-
-.CategoryValueBox {
-    padding-top: 2px;
-    padding-bottom: 2px;
-    float: left;
 }
 
 .smallScreenCategoryValueBox {
@@ -36,8 +31,8 @@
 
 .categoryValueOutline {
     margin: auto;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
     border-radius: 15px;
     background-color: hsla(0, 9%, 7%, 0.3);
 }
@@ -50,9 +45,9 @@
     width: 85%;
 }
 
-.categoryNameInput {
+.categoryInput {
     background-color: transparent;
     border-color: transparent;
-    color: whitesmoke;
-
+    outline: none;
+    color: white;
 }
