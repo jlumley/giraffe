@@ -7,14 +7,3 @@
 .sidebar-link {
   text-decoration: none;
 }
-
-.sidebar {
-  position: fixed;
-  left: 0px;
-  top: 60px;
-  height: 100%;
-  z-index: +1;
-  width: 230px;
-  background-color: #002233;
-  text-align: left;
-}

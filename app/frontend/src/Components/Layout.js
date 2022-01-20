@@ -18,7 +18,7 @@ export class Layout extends React.Component {
     constructor(props) {
         super(props);
         this.toggleSidebar = this.toggleSidebar.bind(this)
-        this.state = { 
+        this.state = {
             screen_size: changeScreenSize(),
             sidebar: false,
         }
@@ -34,7 +34,7 @@ export class Layout extends React.Component {
           });
     }
 
-  
+
     render() {
         return (
             <div className="layout">
@@ -44,7 +44,7 @@ export class Layout extends React.Component {
                     <div className={`${this.state.screen_size}Sidebar`}>
                         <Aside sidebar={this.state.sidebar}/>
                     </div>)}
-                    <div className={`${this.state.screen_size}Content`}>
+                    <div className={`mainContent ${this.state.screen_size}Content`}>
                         <Routes>
                             <Route exact path="/account" element={<Accounts/>} />
                             <Route exact path="/reports" element={<Reports/>}/>
@@ -64,4 +64,3 @@ export function changeScreenSize(){
         return "smallScreen"
     }
 }
-

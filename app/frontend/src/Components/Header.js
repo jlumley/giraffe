@@ -19,16 +19,19 @@ export class Header extends React.Component {
       });
     }
 
-  
+
     render() {
         return (
-            <div>
-            {(this.state.screen_size === "smallScreen") && (
-              <div className="menu-button-div" onClick={this.toggleSidebar}>
-                <div className="bar1"></div>
-                <div className="bar2"></div>
-                <div className="bar3"></div>
-              </div>)}
+            <div className="header">
+              <div className="headerRow">
+                <div className="headerLogo"></div>
+                {(this.state.screen_size === "smallScreen") && (
+                <div className="menu-button-div" onClick={this.toggleSidebar}>
+                  <div className="bar1"></div>
+                  <div className="bar2"></div>
+                  <div className="bar3"></div>
+                </div>)}
+              </div>
             </div>
         );
     }
