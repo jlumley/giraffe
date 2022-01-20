@@ -6,32 +6,28 @@
     background: linear-gradient(0deg, #005580, #002233);
 }
 
-.header {
-    height: 60px;
-}
-
-.smallScreenContent {
+.mainContent{
     position: relative;
-    padding-left: 50px;
     height: 100%;
+    overflow-y: scroll;
+}
+.smallScreenContent {
+    padding-left: 0px;
 }
 .largeScreenContent {
-    position: relative;
     padding-left: 230px;
-    height: 100%;
 }
 
 .sidebar {
     position: fixed;
     left: 0px;
-    top: 60px;
+    top: 80px;
     height: 100%;
     z-index: +1;
     width: 230px;
     background-color: #002233;
     text-align: left;
 }
-  
 
 .flex-container {
     height: 100%;
