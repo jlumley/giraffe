@@ -4,24 +4,29 @@ import transactionRequests from '../requests/transaction';
 import { changeScreenSize } from './Layout';
 
 import CurrencyInput from 'react-currency-input-field';
+import {centsToMoney} from '../utils/money_utils'
 
 import '../style/Category.css'
-
-import {centsToMoney} from '../utils/money_utils'
 
 export class Category extends React.Component {
     constructor(props) {
       super(props);
       this.state = {
           category: {
-              ...this.props.category,
-              assigned_this_month: this.props.category.assigned_this_month/100
+              ...this.props.category
           },
+          changed_assigned_this_month: this.props.category.assigned_this_month/100,
           screen_size: changeScreenSize(),
           parsed_transactions: [],
         }
       this.handleChangeCategoryName = this.handleChangeCategoryName.bind(this);
       this.handleChangeCategoryAssigned = this.handleChangeCategoryAssigned.bind(this);
+      this.updateCategory = this.updateCategory.bind(this);
+    }
+
+    updateCategory(event) {
+        console.log(`updating category ${this.state.category.category_id}`)
+        //
     }
 
     handleChangeCategoryName(event) {
@@ -31,16 +36,10 @@ export class Category extends React.Component {
                 name: event.target.value
             }
         });
-
-
     }
     handleChangeCategoryAssigned(value) {
-        console.log(`new value ${value}`)
         this.setState({
-            category: {
-                ...this.state.category,
-                assigned_this_month: value
-            }
+            changed_assigned_this_month: value
         });
     }
 
@@ -86,12 +85,12 @@ export class Category extends React.Component {
     render() {
         return (
             <div>
-                <div className="baseCategory">
+                <form className="baseCategory" onSubmit={this.updateCategory}>
                 <div className={`categoryValueBox ${this.state.screen_size}CategoryNameBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}><input className="categoryInput" type="text" value={this.state.category.name} onChange={this.handleChangeCategoryName} onKeyPress={this.handleUpdateCategoryName}  /></div></div>
-                <div className={`categoryValueBox ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>< CurrencyInput className="categoryInput" prefix="$" value={this.state.category.assigned_this_month} onValueChange={this.handleChangeCategoryAssigned} /></div></div>
+                <div className={`categoryValueBox ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>< CurrencyInput className="categoryInput" prefix="$" value={this.state.changed_assigned_this_month} onValueChange={this.handleChangeCategoryAssigned} /></div></div>
                 {(this.state.screen_size === "largeScreen") && (<div className={`categoryValueBox ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>{centsToMoney(this.state.parsed_transactions.reduce((a, b) => a + b.amount, 0))}</div></div> )}
                 <div className={`categoryValueBox ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>{centsToMoney(this.state.category.balance)}</div></div>
-                </div>
+                </form>
             </div>
         );
     }

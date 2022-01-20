@@ -1,6 +1,6 @@
 import React from 'react'
 import instance from '../axois';
-import { Category } from './Category';
+import { CategoryGroup } from './CategoryGroup'
 import { changeScreenSize } from './Layout';
 
 import categoryRequests from '../requests/category';
@@ -10,11 +10,24 @@ import '../style/Budget.css'
 export class Budget extends React.Component {
     constructor(props) {
       super(props);
-      this.state = { 
+      this.state = {
         screen_size: changeScreenSize(),
-        categories: []
+        categories: {}
       }
     }
+
+    groupCategories(categories){
+      // Group categories by category group
+      var grouped_categories = {};
+      categories.map((c)=>{
+        if (grouped_categories[c.category_group]){
+          grouped_categories[c.category_group].push(c);
+        } else {
+          grouped_categories[c.category_group] = [];
+        }
+      });
+      return grouped_categories;
+    };
 
     componentDidMount(){
       this.fetchData()
@@ -27,14 +40,16 @@ export class Budget extends React.Component {
       // get today's date YYYY-MM-DD
       const today = new Date().toISOString().slice(0, 10);
       instance.get(`${categoryRequests.fetchAllCategories}/${today}`).then(c => {
+        var grouped_categories = this.groupCategories(c.data);
+        console.log(grouped_categories)
         this.setState({
-            categories: c.data,
+            categories: grouped_categories,
         });
       });
     };
 
 
-  
+
     render() {
       return (
         <div>
@@ -47,16 +62,13 @@ export class Budget extends React.Component {
               <div className={`budgetColumnName ${this.state.screen_size}BudgetColumnName`}>Balance</div>
           </div>
           <div className="budgetCategories">
-          {
-            this.state.categories.map(cat => {
-              return <Category screen_size={this.state.screen_size} category={cat} />
-            })
-          }
+          {(Object.keys(this.state.categories).map((group) => {
+              return <CategoryGroup name={group} categories={this.state.categories[group]} />
+          }))}
           </div>
          </div>
         </div>
-  
+
       );
     }
 }
-

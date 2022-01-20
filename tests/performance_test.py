@@ -31,7 +31,7 @@ def main():
 
     # create categories
     for i in range(num_categories):
-        category = dict(name=uuid.uuid4().hex[:6], group="group1")
+        category = dict(name=uuid.uuid4().hex[:6], group="group" + str(i % 3))
         categories.append(category)
         r = requests.post("http://localhost/api/category/create", json=category)
         # print(r.content)
