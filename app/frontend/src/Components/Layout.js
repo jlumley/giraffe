@@ -38,22 +38,17 @@ export class Layout extends React.Component {
     render() {
         return (
             <div className="layout">
-                <div className="flexHeaderContent">
-                    <div className="headerContent">
-                        <Header toggleSidebar={this.toggleSidebar} />
-                    </div>
-                    <div className="flexSidebarContent">
-                        {(this.state.sidebar || this.state.screen_size === "largeScreen") && (
-                            <div className={`${this.state.screen_size}Sidebar`}>
-                                <Aside sidebar={this.state.sidebar} />
-                            </div>)}
-                        <div className={`mainContent ${this.state.screen_size}Content`}>
-                            <Routes>
-                                <Route exact path="/account" element={<Accounts />} />
-                                <Route exact path="/reports" element={<Reports />} />
-                                <Route exact path="/" element={<Budget />} />
-                            </Routes>
-                        </div>
+                <Header toggleSidebar={this.toggleSidebar} />
+                <div className="mainContent">
+                    {(this.state.sidebar || this.state.screen_size === "largeScreen") && (
+                        <Aside sidebar={this.state.sidebar} />
+                    )}
+                    <div className="workspaceContent">
+                        <Routes>
+                            <Route exact path="/account" element={<Accounts />} />
+                            <Route exact path="/reports" element={<Reports />} />
+                            <Route exact path="/" element={<Budget />} />
+                        </Routes>
                     </div>
                 </div>
             </div>
