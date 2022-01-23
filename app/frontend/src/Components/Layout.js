@@ -3,7 +3,7 @@ import Aside from './Aside'
 import {
     Routes,
     Route
-  } from "react-router-dom";
+} from "react-router-dom";
 
 import { Budget } from './Budget';
 import Accounts from './Accounts';
@@ -25,31 +25,35 @@ export class Layout extends React.Component {
     }
 
     toggleSidebar() {
-        this.setState({sidebar: !this.state.sidebar});
+        this.setState({ sidebar: !this.state.sidebar });
     }
 
-    componentDidMount(){
-        window.addEventListener('resize', ()=>{
-            this.setState({screen_size: changeScreenSize()});
-          });
+    componentDidMount() {
+        window.addEventListener('resize', () => {
+            this.setState({ screen_size: changeScreenSize() });
+        });
     }
 
 
     render() {
         return (
             <div className="layout">
-                <Header toggleSidebar={this.toggleSidebar}/>
-                <div className="flex-container">
-                    {(this.state.sidebar || this.state.screen_size === "largeScreen") && (
-                    <div className={`${this.state.screen_size}Sidebar`}>
-                        <Aside sidebar={this.state.sidebar}/>
-                    </div>)}
-                    <div className={`mainContent ${this.state.screen_size}Content`}>
-                        <Routes>
-                            <Route exact path="/account" element={<Accounts/>} />
-                            <Route exact path="/reports" element={<Reports/>}/>
-                            <Route exact path="/" element={<Budget/>}/>
-                        </Routes>
+                <div className="flexHeaderContent">
+                    <div className="headerContent">
+                        <Header toggleSidebar={this.toggleSidebar} />
+                    </div>
+                    <div className="flexSidebarContent">
+                        {(this.state.sidebar || this.state.screen_size === "largeScreen") && (
+                            <div className={`${this.state.screen_size}Sidebar`}>
+                                <Aside sidebar={this.state.sidebar} />
+                            </div>)}
+                        <div className={`mainContent ${this.state.screen_size}Content`}>
+                            <Routes>
+                                <Route exact path="/account" element={<Accounts />} />
+                                <Route exact path="/reports" element={<Reports />} />
+                                <Route exact path="/" element={<Budget />} />
+                            </Routes>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -57,8 +61,8 @@ export class Layout extends React.Component {
     }
 }
 
-export function changeScreenSize(){
-    if (window.innerWidth > smallScreen){
+export function changeScreenSize() {
+    if (window.innerWidth > smallScreen) {
         return "largeScreen";
     } else {
         return "smallScreen"
