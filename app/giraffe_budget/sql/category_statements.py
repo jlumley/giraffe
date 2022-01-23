@@ -13,8 +13,7 @@ RETURNING *;
 """
 
 UPDATE_CATEGORY = """UPDATE categories
-SET id = id
-"""
+SET id = id"""
 
 GET_CATEGORY_TARGET = """SELECT
 target_type,
@@ -46,14 +45,14 @@ SUM(amount) AS amount FROM transaction_categories
 WHERE category_id = :category_id
 AND transaction_id IN (
 SELECT id FROM transactions
-WHERE date < :before
+WHERE date <= :before
 AND date > :after
 );
 """
 
 GET_CATEGORY_ASSIGNMENTS = """SELECT
 SUM(amount) AS amount FROM assignments
-WHERE date < :before
+WHERE date <= :before
 AND date > :after
 AND category_id = :category_id;
 """

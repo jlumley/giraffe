@@ -15,7 +15,6 @@ PUT_CATEGORY_UPDATE_SCHEMA = {
         "group": {"type": "string"},
         "notes": {"type": "string"},
     },
-    "required": ["name", "group"],
 }
 
 PUT_CATEGORY_UPDATE_TARGET_SCHEMA = {

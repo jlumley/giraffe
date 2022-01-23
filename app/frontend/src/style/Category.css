@@ -49,6 +49,10 @@
     background-color: transparent;
     border-color: transparent;
     outline: none;
-    padding-left: 8px;
+    padding-left: 10px;
     color: white;
+}
+
+.categoryAssignedInput {
+    margin: auto;
 }

@@ -4,10 +4,10 @@ import requests
 import uuid
 import time
 
-num_categories = 40
+num_categories = 20
 num_accounts = 3
 num_payees = 100
-num_transactions = 2000
+num_transactions = 200
 
 
 def main():
