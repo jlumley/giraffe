@@ -1,7 +1,10 @@
 import React from 'react'
 import instance from '../axois';
 import transactionRequests from '../requests/transaction';
+import categoryRequests from '../requests/category';
+
 import { changeScreenSize } from './Layout';
+
 
 import CurrencyInput from 'react-currency-input-field';
 import { centsToMoney } from '../utils/money_utils'
@@ -21,12 +24,40 @@ export class Category extends React.Component {
         }
         this.handleChangeCategoryName = this.handleChangeCategoryName.bind(this);
         this.handleChangeCategoryAssigned = this.handleChangeCategoryAssigned.bind(this);
-        this.updateCategory = this.updateCategory.bind(this);
+        this.updateCategoryName = this.updateCategoryName.bind(this);
+        this.updateCategoryAssignment = this.updateCategoryAssignment.bind(this);
     }
 
-    updateCategory(event) {
-        console.log(`updating category ${this.state.category.category_id}`)
-        //
+    updateCategoryName(event) {
+        if (event.key === 'Enter') {
+            console.debug(`updating category name ${this.state.category.id}`)
+            const req_data = {
+                'name': this.state.category.name
+            }
+            instance.put(`${categoryRequests.updateCategory}${this.state.category.id}`, req_data).then(
+                (r) => { console.log(r) }
+            )
+        }
+    }
+
+    updateCategoryAssignment(event) {
+        if (event.key === 'Enter') {
+            console.log(`updating category assignment ${this.state.category.id}`)
+            const assigned_diff = (this.state.changed_assigned_this_month * 100 - this.state.category.assigned_this_month)
+            console.log(assigned_diff)
+            const req_data = {
+                'amount': assigned_diff,
+                'date': new Date().toISOString().slice(0, 10)
+            }
+            if (assigned_diff < 0) {
+                const url = `${categoryRequests.unassignCategory}${this.state.category.id}`
+                instance.put(url, req_data).then((r) => { console.log(r) })
+            }
+            else if (assigned_diff > 0) {
+                const url = `${categoryRequests.assignCategory}${this.state.category.id}`
+                instance.put(url, req_data).then((r) => { console.log(r) })
+            }
+        }
     }
 
     handleChangeCategoryName(event) {
@@ -84,13 +115,11 @@ export class Category extends React.Component {
 
     render() {
         return (
-            <div>
-                <form className="baseCategory" onSubmit={this.updateCategory}>
-                    <div className={`categoryValueBox ${this.state.screen_size}CategoryNameBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}><input className="categoryInput" type="text" value={this.state.category.name} onChange={this.handleChangeCategoryName} onKeyPress={this.handleUpdateCategoryName} /></div></div>
-                    <div className={`categoryValueBox ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>< CurrencyInput className="categoryInput" maxLength="8" prefix="$" value={this.state.changed_assigned_this_month} onValueChange={this.handleChangeCategoryAssigned} /></div></div>
-                    {(this.state.screen_size === "largeScreen") && (<div className={`categoryValueBox ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>{centsToMoney(this.state.parsed_transactions.reduce((a, b) => a + b.amount, 0))}</div></div>)}
-                    <div className={`categoryValueBox ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>{centsToMoney(this.state.category.balance)}</div></div>
-                </form>
+            <div className="baseCategory" >
+                <div className={`categoryValueBox ${this.state.screen_size}CategoryNameBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}><input className="categoryInput" type="text" value={this.state.category.name} onChange={this.handleChangeCategoryName} onKeyPress={this.updateCategoryName} /></div></div>
+                <div className={`categoryValueBox ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>< CurrencyInput className="categoryInput categoryAssignedInput" maxLength="8" prefix="$" value={this.state.changed_assigned_this_month} onValueChange={this.handleChangeCategoryAssigned} onKeyPress={this.updateCategoryAssignment} /></div></div>
+                {(this.state.screen_size === "largeScreen") && (<div className={`categoryValueBox ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>{centsToMoney(this.state.parsed_transactions.reduce((a, b) => a + b.amount, 0))}</div></div>)}
+                <div className={`categoryValueBox ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>{centsToMoney(this.state.category.balance)}</div></div>
             </div>
         );
     }

@@ -51,7 +51,12 @@ def _update_category(category_id):
     assert category_id == request.view_args["category_id"]
 
     data = request.get_json()
-    category = update_category(data.get("name"), data.get("group"), data.get("notes"))
+    category = update_category(
+        category_id,
+        name=data.get("name"),
+        group=data.get("group"),
+        notes=data.get("notes"),
+    )
     return make_response(jsonify(category[0]), 200)
 
 
@@ -114,7 +119,7 @@ def _category_assign(category_id):
     )
 
 
-@category.route("/unassign/<category_id>/", methods=("PUT",))
+@category.route("/unassign/<category_id>", methods=("PUT",))
 @expects_json(PUT_CATEGORY_UNASSIGN_SCHEMA)
 def _category_unassign(category_id):
     """Unassign money from category"""
@@ -175,11 +180,11 @@ def update_category(category_id, name=None, group=None, notes=None):
     if notes:
         update_statement += ", notes = :notes"
 
-    update_statement += "WHERE id = :category_id RETURNING *;"
+    update_statement += " WHERE id = :category_id RETURNING *;"
 
     category = db_utils.execute(update_statement, update_vars, commit=True)
 
-    return category[0]
+    return category
 
 
 def update_category_target(category_id, target_type, amount, date=None):
