@@ -3,32 +3,35 @@
     height: 100%;
     width: 100%;
     position: fixed;
-    background: linear-gradient(0deg, #005580, #002233);
+}
+
+.headerContent{
+    top: 0px;
+    width: 100vw;
+    height: 80px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
 .mainContent{
-    position: relative;
-    height: 100%;
-    overflow-y: scroll;
-}
-.smallScreenContent {
-    padding-left: 0px;
-}
-.largeScreenContent {
-    padding-left: 230px;
+    background: linear-gradient(0deg, #005580, #002233);
+    flex-grow: 1;
 }
 
 .sidebar {
-    position: fixed;
-    left: 0px;
-    top: 80px;
+    width: 250px;
     height: 100%;
-    z-index: +1;
-    width: 230px;
     background-color: #002233;
     text-align: left;
 }
 
-.flex-container {
+.flexHeaderContent {
+    display: flex;
+    flex-direction: column;
+    background-color: blue;
+}
+
+.flexSidebarContent {
     height: 100%;
+    display: flex;
+    flex-direction: row;
 }
