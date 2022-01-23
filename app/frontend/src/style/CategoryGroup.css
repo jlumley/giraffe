@@ -1,4 +1,8 @@
 .categoryGroupTitle {
     color: #80d4ff;
     text-align: left;
+    font-weight: bold;
+    padding-left: 15px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
