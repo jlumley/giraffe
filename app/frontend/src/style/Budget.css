@@ -1,11 +1,15 @@
-.budgetcontent {
+.budgetContent {
     background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    height: 100%;
 }
 .budgetHeader {
-    height: 65px;
+    height: 100px;
     border-radius: 15px;
 }
-.budgetColumnNameGroup {
+.budgetColumnTitles {
     height: 15px;
     color: #80d4ff;
     font-size: 12px;
@@ -14,7 +18,10 @@
     padding-top: 3px;
     padding-bottom: 3px;
     width: 100%;
+    flex-grow: 1;
+    min-height: 0;
     float: inline-end;
+    overflow-y: scroll;
 }
 
 .budgetColumnNameCategory {
