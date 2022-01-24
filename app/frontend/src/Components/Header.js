@@ -1,9 +1,10 @@
 import React from 'react'
 
 import { changeScreenSize } from './Layout'
-import { mdiArrowLeftCircleOutline, mdiArrowRightCircleOutline } from '@mdi/js';
 
 import '../style/Header.css'
+import ArrowLeftCircleOutlineIcon from 'mdi-react/ArrowLeftCircleOutlineIcon';
+import ArrowRightCircleOutlineIcon from 'mdi-react/ArrowRightCircleOutlineIcon';
 
 export class Header extends React.Component {
   constructor(props) {
@@ -66,9 +67,9 @@ export class Header extends React.Component {
               <div className="bar3"></div>
             </div>)}
           <div className="monthSelector">
-            <button className="prevMonth" onClick={this.prevMonth}></button>
-            <div> {this.state.month_string} </div>
-            <button className="nextMonth" onClick={this.nextMonth}></button>
+            < ArrowLeftCircleOutlineIcon onClick={this.prevMonth} />
+            <div className="currentMonth"> {this.state.month_string} </div>
+            < ArrowRightCircleOutlineIcon onClick={this.nextMonth} />
           </div>
         </div>
       </div>
