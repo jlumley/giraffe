@@ -23,7 +23,7 @@ export class Budget extends React.Component {
       if (grouped_categories[c.category_group]) {
         grouped_categories[c.category_group].push(c);
       } else {
-        grouped_categories[c.category_group] = [];
+        grouped_categories[c.category_group] = [c];
       }
     });
     return grouped_categories;
@@ -41,7 +41,6 @@ export class Budget extends React.Component {
     const today = new Date().toISOString().slice(0, 10);
     instance.get(`${categoryRequests.fetchAllCategories}/${today}`).then(c => {
       var grouped_categories = this.groupCategories(c.data);
-      console.log(grouped_categories)
       this.setState({
         categories: grouped_categories,
       });
