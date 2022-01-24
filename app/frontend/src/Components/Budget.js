@@ -12,7 +12,8 @@ export class Budget extends React.Component {
     super(props);
     this.state = {
       screen_size: changeScreenSize(),
-      categories: {}
+      categories: {},
+      current_date: this.props.current_date,
     }
   }
 
@@ -37,9 +38,8 @@ export class Budget extends React.Component {
   }
 
   fetchData() {
-    // get today's date YYYY-MM-DD
-    const today = new Date().toISOString().slice(0, 10);
-    instance.get(`${categoryRequests.fetchAllCategories}/${today}`).then(c => {
+    const current_date = this.state.current_date.toISOString().slice(0, 10);
+    instance.get(`${categoryRequests.fetchAllCategories}/${current_date}`).then(c => {
       var grouped_categories = this.groupCategories(c.data);
       this.setState({
         categories: grouped_categories,
@@ -61,7 +61,7 @@ export class Budget extends React.Component {
         </div>
         <div className="budgetCategories">
           {(Object.keys(this.state.categories).map((group) => {
-            return <CategoryGroup name={group} categories={this.state.categories[group]} />
+            return <CategoryGroup key={this.state.current_date} name={group} categories={this.state.categories[group]} current_date={this.state.current_date} />
           }))}
         </div>
 

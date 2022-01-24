@@ -53,7 +53,7 @@ export class Layout extends React.Component {
                         <Routes>
                             <Route exact path="/account" element={<Accounts />} />
                             <Route exact path="/reports" element={<Reports />} />
-                            <Route exact path="/" element={<Budget />} />
+                            <Route exact path="/" element={<Budget current_date={this.state.current_date} key={this.state.current_date} />} />
                         </Routes>current_date
                     </div>
                 </div>
