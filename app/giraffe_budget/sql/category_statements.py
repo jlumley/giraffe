@@ -46,14 +46,14 @@ WHERE category_id = :category_id
 AND transaction_id IN (
 SELECT id FROM transactions
 WHERE date <= :before
-AND date > :after
+AND date >= :after
 );
 """
 
 GET_CATEGORY_ASSIGNMENTS = """SELECT
 SUM(amount) AS amount FROM assignments
 WHERE date <= :before
-AND date > :after
+AND date >= :after
 AND category_id = :category_id;
 """
 
