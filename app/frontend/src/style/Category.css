@@ -5,7 +5,7 @@
     color: white;
 }
 
-.categoryValueBox {
+.categoryCell {
     padding-top: 3px;
     padding-bottom: 3px;
     float: left;
@@ -46,9 +46,14 @@
 }
 
 .categoryInput {
+    width: 80%;
     background-color: transparent;
     border-color: transparent;
     outline: none;
     padding-left: 10px;
     color: white;
+}
+
+input:focus {
+    background-color: hsla(0, 9%, 7%, 0.3);
 }

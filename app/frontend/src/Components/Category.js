@@ -11,6 +11,8 @@ import { centsToMoney } from '../utils/money_utils'
 
 import '../style/Category.css'
 
+const updateKeys = ["Enter", "tab"]
+
 export class Category extends React.Component {
     constructor(props) {
         super(props);
@@ -22,6 +24,7 @@ export class Category extends React.Component {
             screen_size: changeScreenSize(),
             parsed_transactions: [],
         }
+        this.refreshCategoryData = this.refreshCategoryData.bind(this);
         this.handleChangeCategoryName = this.handleChangeCategoryName.bind(this);
         this.handleChangeCategoryAssigned = this.handleChangeCategoryAssigned.bind(this);
         this.updateCategoryName = this.updateCategoryName.bind(this);
@@ -29,39 +32,51 @@ export class Category extends React.Component {
     }
 
     updateCategoryName(event) {
-        if (event.key === 'Enter') {
-            console.debug(`updating category name ${this.state.category.id}`)
-            const req_data = {
-                'name': this.state.category.name
-            }
-            instance.put(`${categoryRequests.updateCategory}${this.state.category.id}`, req_data).then(
-                (r) => { console.log(r) }
-            )
+        console.debug(`updating category name ${this.state.category.id}`)
+        const req_data = {
+            'name': this.state.category.name
         }
+        instance.put(`${categoryRequests.updateCategory}${this.state.category.id}`, req_data).then(
+            (resp) => {
+                console.debug()
+                this.refreshCategoryData()
+            }
+        )
+
     }
 
     updateCategoryAssignment(event) {
-        if (event.key === 'Enter') {
-            const assigned_diff = (this.state.changed_assigned_this_month * 100 - this.state.category.assigned_this_month)
-            const req_data = {
-                'amount': assigned_diff,
-                'date': new Date().toISOString().slice(0, 10)
-            }
-            if (assigned_diff < 0) {
-                const url = `${categoryRequests.unassignCategory}${this.state.category.id}`
-                instance.put(url, req_data)
-            }
-            else if (assigned_diff > 0) {
-                const url = `${categoryRequests.assignCategory}${this.state.category.id}`
-                instance.put(url, req_data)
-            }
-            this.setState({
-                category: {
-                    ...this.state.category,
-                    assigned_this_month: this.state.changed_assigned_this_month * 100
-                }
+        const req_data = {
+            'amount': (this.state.changed_assigned_this_month * 100 - this.state.category.assigned_this_month),
+            'date': new Date().toISOString().slice(0, 10)
+        }
+        let url = '';
+        if (req_data.amount < 0) {
+            url = `${categoryRequests.unassignCategory}${this.state.category.id}`
+        }
+        else if (req_data.amount > 0) {
+            url = `${categoryRequests.assignCategory}${this.state.category.id}`
+        }
+
+        if (url) {
+            instance.put(url, req_data).then((resp) => {
+                this.refreshCategoryData();
+                console.debug(resp);
             })
         }
+
+    }
+
+    refreshCategoryData() {
+        const date = new Date().toISOString().slice(0, 10)
+        instance.get(`${categoryRequests.fetchCategory}/${this.state.category.id}/${date}`).then((r) => {
+            console.log(r)
+            this.setState({
+                category: r.data[0],
+                changed_assigned_this_month: r.data[0].assigned_this_month / 100
+
+            })
+        })
     }
 
     handleChangeCategoryName(event) {
@@ -120,10 +135,10 @@ export class Category extends React.Component {
     render() {
         return (
             <div className="baseCategory" >
-                <div className={`categoryValueBox ${this.state.screen_size}CategoryNameBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}><input className="categoryInput" type="text" value={this.state.category.name} onChange={this.handleChangeCategoryName} onKeyPress={this.updateCategoryName} /></div></div>
-                <div className={`categoryValueBox ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>< CurrencyInput className="categoryInput" maxLength="8" prefix="$" value={this.state.changed_assigned_this_month} onValueChange={this.handleChangeCategoryAssigned} onKeyPress={this.updateCategoryAssignment} /></div></div>
-                {(this.state.screen_size === "largeScreen") && (<div className={`categoryValueBox ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>{centsToMoney(this.state.parsed_transactions.reduce((a, b) => a + b.amount, 0))}</div></div>)}
-                <div className={`categoryValueBox ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>{centsToMoney(this.state.category.balance)}</div></div>
+                <div className={`categoryCell ${this.state.screen_size}CategoryNameBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}><input className="categoryInput" type="text" value={this.state.category.name} onChange={this.handleChangeCategoryName} onBlur={this.updateCategoryName} /></div></div>
+                <div className={`categoryCell ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>< CurrencyInput className="categoryInput" maxLength="8" prefix="$" value={this.state.changed_assigned_this_month} onValueChange={this.handleChangeCategoryAssigned} onBlur={this.updateCategoryAssignment} /></div></div>
+                {(this.state.screen_size === "largeScreen") && (<div className={`categoryCell ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>{centsToMoney(this.state.parsed_transactions.reduce((a, b) => a + b.amount, 0))}</div></div>)}
+                <div className={`categoryCell ${this.state.screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${this.state.screen_size}CategoryValueOutline`}>{centsToMoney(this.state.category.balance)}</div></div>
             </div>
         );
     }

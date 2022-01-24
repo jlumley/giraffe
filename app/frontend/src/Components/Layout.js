@@ -18,14 +18,20 @@ export class Layout extends React.Component {
     constructor(props) {
         super(props);
         this.toggleSidebar = this.toggleSidebar.bind(this)
+        this.updateDate = this.updateDate.bind(this)
         this.state = {
             screen_size: changeScreenSize(),
             sidebar: false,
+            current_date: new Date(),
         }
     }
 
     toggleSidebar() {
         this.setState({ sidebar: !this.state.sidebar });
+    }
+
+    updateDate(current_date) {
+        this.setState({ current_date: current_date })
     }
 
     componentDidMount() {
@@ -38,7 +44,7 @@ export class Layout extends React.Component {
     render() {
         return (
             <div className="layout">
-                <Header toggleSidebar={this.toggleSidebar} />
+                <Header toggleSidebar={this.toggleSidebar} updateDate={this.updateDate} current_date={this.state.current_date} />
                 <div className="mainContent">
                     {(this.state.sidebar || this.state.screen_size === "largeScreen") && (
                         <Aside sidebar={this.state.sidebar} />
@@ -48,7 +54,7 @@ export class Layout extends React.Component {
                             <Route exact path="/account" element={<Accounts />} />
                             <Route exact path="/reports" element={<Reports />} />
                             <Route exact path="/" element={<Budget />} />
-                        </Routes>
+                        </Routes>current_date
                     </div>
                 </div>
             </div>
