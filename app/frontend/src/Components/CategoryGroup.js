@@ -10,7 +10,8 @@ export class CategoryGroup extends React.Component {
     super(props);
     this.state = {
       categories: this.props.categories,
-      name: this.props.name
+      name: this.props.name,
+      current_date: this.props.current_date,
     }
     this.handleChangeCategoryGroupName = this.handleChangeCategoryGroupName.bind(this);
     this.handlerUpdateCategoryGroupName = this.handlerUpdateCategoryGroupName.bind(this)
@@ -44,7 +45,7 @@ export class CategoryGroup extends React.Component {
 
         <div className="categoryGroupTitle"> <input className="categoryGroupTitleInput" value={this.state.name} onChange={this.handleChangeCategoryGroupName} onKeyPress={this.handlerUpdateCategoryGroupName} /> </div>
         {this.state.categories.map(cat => {
-          return <Category category={cat} />
+          return <Category key={this.state.current_date} current_date={this.state.current_date} category={cat} />
         })}
       </div>
     );

@@ -21,6 +21,7 @@ export class Category extends React.Component {
             changed_assigned_this_month: this.props.category.assigned_this_month / 100,
             screen_size: changeScreenSize(),
             parsed_transactions: [],
+            current_date: this.props.current_date,
         }
         this.refreshCategoryData = this.refreshCategoryData.bind(this);
         this.handleChangeCategoryName = this.handleChangeCategoryName.bind(this);
@@ -40,13 +41,12 @@ export class Category extends React.Component {
                 this.refreshCategoryData()
             }
         )
-
     }
 
     updateCategoryAssignment(event) {
         const req_data = {
             'amount': (this.state.changed_assigned_this_month * 100 - this.state.category.assigned_this_month),
-            'date': new Date().toISOString().slice(0, 10)
+            'date': this.state.current_date.toISOString().slice(0, 10)
         }
         let url = '';
         if (req_data.amount < 0) {
@@ -55,7 +55,6 @@ export class Category extends React.Component {
         else if (req_data.amount > 0) {
             url = `${categoryRequests.assignCategory}${this.state.category.id}`
         }
-
         if (url) {
             instance.put(url, req_data).then((resp) => {
                 this.refreshCategoryData();
@@ -65,7 +64,7 @@ export class Category extends React.Component {
     }
 
     refreshCategoryData() {
-        const date = new Date().toISOString().slice(0, 10)
+        const date = this.state.current_date.toISOString().slice(0, 10)
         instance.get(`${categoryRequests.fetchCategory}/${this.state.category.id}/${date}`).then((r) => {
             console.log(r)
             this.setState({
@@ -99,8 +98,8 @@ export class Category extends React.Component {
 
     fetchData() {
         // get today's date YYYY-MM-DD
-        const today = new Date().toISOString().slice(0, 10);
-        const month_start = `${new Date().toISOString().slice(0, 8)}01`
+        const today = this.state.current_date.toISOString().slice(0, 10);
+        const month_start = `${this.state.current_date.toISOString().slice(0, 8)}01`
         // get all transactions for this category
         const params = {
             categories: this.state.category.id,
