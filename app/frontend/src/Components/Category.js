@@ -11,8 +11,6 @@ import { centsToMoney } from '../utils/money_utils'
 
 import '../style/Category.css'
 
-const updateKeys = ["Enter", "tab"]
-
 export class Category extends React.Component {
     constructor(props) {
         super(props);
@@ -64,7 +62,6 @@ export class Category extends React.Component {
                 console.debug(resp);
             })
         }
-
     }
 
     refreshCategoryData() {

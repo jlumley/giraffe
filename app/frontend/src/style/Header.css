@@ -40,5 +40,15 @@
 }
 
 .monthSelector {
+  padding-top: 20px;
+  padding-right: 10%;
+  float: right;
   color: white;
+  display: flex;
+  flex-direction: row;
+}
+
+.currentMonth {
+  padding-left: 20px;
+  padding-right: 20px;
 }
