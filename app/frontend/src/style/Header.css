@@ -2,7 +2,7 @@
   background-color: #002233;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   width: 100%;
-  height: 100px;
+  height: 75px;
 }
 
 .menu-button {
@@ -16,39 +16,23 @@
 
 .headerLogo {
   width: 80px;
-  height: 80px;
-  padding-right: 20px;
-  background-color: cornflowerblue;
+  height: 75px;
   float: left;
 }
 
 .bar1, .bar2, .bar3 {
   width: 35px;
   height: 5px;
-
   background-color: #80d4ff;
   margin: 6px 0;
   transition: 0.4s;
 }
 
 .menu-button-div {
+  padding-left: 15px;
   float: left;
   align-content: center;
   width: 50px;
   height: 60px;
   background: transparent;
-}
-
-.monthSelector {
-  padding-top: 20px;
-  padding-right: 10%;
-  float: right;
-  color: white;
-  display: flex;
-  flex-direction: row;
-}
-
-.currentMonth {
-  padding-left: 20px;
-  padding-right: 20px;
 }

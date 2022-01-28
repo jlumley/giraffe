@@ -1,53 +1,47 @@
-import React from 'react'
+import { useEffect, useState } from 'react';
 import { Category } from './Category'
 
 import '../style/CategoryGroup.css'
 import instance from '../axois';
 import categoryRequests from '../requests/category';
 
-export class CategoryGroup extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      categories: this.props.categories,
-      name: this.props.name,
-      current_date: this.props.current_date,
-    }
-    this.handleChangeCategoryGroupName = this.handleChangeCategoryGroupName.bind(this);
-    this.handlerUpdateCategoryGroupName = this.handlerUpdateCategoryGroupName.bind(this)
-  }
 
-  handleChangeCategoryGroupName(event) {
-    this.setState({
-      name: event.target.value
+export const CategoryGroup = ({ name, currentDate }) => {
+  console.log(name)
+  const [categoryGroupName, setCategoryGroupName] = useState(name);
+  const [categories, setCategories] = useState([]);
+
+
+  useEffect(() => {
+    fetchCategories()
+  }, [currentDate, name])
+
+
+  const editCategoryGroupName = (event) => {
+    setCategoryGroupName(event.taget.value);
+  }
+  const updateCategoryGroupName = (event) => {
+    categories.forEach(cat => {
+      instance.put(`${categoryRequests.updateCategory}${cat.id}`,
+        { "group": event.target.value }
+      )
     });
   }
+  const fetchCategories = () => {
+    async function _fetchCategories() {
+      const current_date = currentDate.toISOString().slice(0, 10);
+      const resp = await instance.get(`${categoryRequests.fetchAllCategories}/${current_date}`)
 
-  handlerUpdateCategoryGroupName(event) {
-    if (event.key === 'Enter') {
-      this.state.categories.forEach(cat => {
-        instance.put(`${categoryRequests.updateCategory}${cat.id}`,
-          { "group": event.target.value }
-        ).then(
-          (resp) => {
-            console.log(resp)
-          }
-        )
-      });
-      event.preventDefault();
-      event.target.blur();
+      setCategories(resp.data.filter(cat => cat.category_group == categoryGroupName))
     }
-  }
+    _fetchCategories()
+  };
 
-  render() {
-    return (
-      <div>
 
-        <div className="categoryGroupTitle"> <input className="categoryGroupTitleInput" value={this.state.name} onChange={this.handleChangeCategoryGroupName} onKeyPress={this.handlerUpdateCategoryGroupName} /> </div>
-        {this.state.categories.map(cat => {
-          return <Category key={this.state.current_date} current_date={this.state.current_date} category={cat} />
-        })}
-      </div>
-    );
-  }
+  return <div>
+    <div className="categoryGroupTitle"> <input className="categoryGroupTitleInput" value={CategoryGroup} onChange={editCategoryGroupName} onBlur={updateCategoryGroupName} /> </div>
+    {categories.map(cat => {
+      return <Category key={currentDate} current_date={currentDate} category={cat} />
+    })}
+  </div>;
 }
