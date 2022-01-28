@@ -2,6 +2,8 @@ import React from 'react'
 import instance from '../axois';
 import { CategoryGroup } from './CategoryGroup'
 import { changeScreenSize } from './Layout';
+import ArrowLeftCircleOutlineIcon from 'mdi-react/ArrowLeftCircleOutlineIcon';
+import ArrowRightCircleOutlineIcon from 'mdi-react/ArrowRightCircleOutlineIcon';
 
 import categoryRequests from '../requests/category';
 
@@ -12,23 +14,42 @@ export class Budget extends React.Component {
     super(props);
     this.state = {
       screen_size: changeScreenSize(),
-      categories: {},
-      current_date: this.props.current_date,
+      groups: [],
+      current_date: new Date(),
+      month_string: this.getMonthStr(new Date())
     }
+    this.updateDate = this.updateDate.bind(this)
+    this.nextMonth = () => { this.updateDate(+1) };
+    this.prevMonth = () => { this.updateDate(-1) };
   }
 
-  groupCategories(categories) {
-    // Group categories by category group
-    var grouped_categories = {};
-    categories.map((c) => {
-      if (grouped_categories[c.category_group]) {
-        grouped_categories[c.category_group].push(c);
-      } else {
-        grouped_categories[c.category_group] = [c];
-      }
-    });
-    return grouped_categories;
-  };
+  updateDate(month_adjustment) {
+    var tmp_date = new Date(this.state.current_date.setDate(1));
+    tmp_date = new Date(tmp_date.setMonth(tmp_date.getMonth() + month_adjustment));
+
+    const diff_months = (
+      (tmp_date.getFullYear() - new Date().getFullYear()) * 12 +
+      (tmp_date.getMonth() - new Date().getMonth())
+    );
+
+    var current_date = new Date();
+    // if temp date is in the future set the day to the first date of the month
+    if (diff_months > 0) {
+      current_date = new Date(tmp_date.getFullYear(), tmp_date.getMonth(), 1)
+    }
+    // if temp date is in the past set the day to the last date of the month
+    else if (diff_months < 0) {
+      current_date = new Date(tmp_date.getFullYear(), tmp_date.getMonth() + 1, 0)
+    }
+    this.setState({
+      current_date: current_date,
+      month_string: this.getMonthStr(current_date)
+    })
+  }
+
+  getMonthStr(current_date) {
+    return `${current_date.toLocaleString('default', { month: 'short' })} ${current_date.getFullYear()}`
+  }
 
   componentDidMount() {
     this.fetchData()
@@ -40,19 +61,22 @@ export class Budget extends React.Component {
   fetchData() {
     const current_date = this.state.current_date.toISOString().slice(0, 10);
     instance.get(`${categoryRequests.fetchAllCategories}/${current_date}`).then(c => {
-      var grouped_categories = this.groupCategories(c.data);
       this.setState({
-        categories: grouped_categories,
+        groups: [...new Set((c.data).map(c => { return c.category_group }))]
       });
     });
   };
 
-
-
   render() {
     return (
       <div className="budgetContent">
-        <div className="budgetHeader" />
+        <div className="budgetHeader">
+          <div className={`monthSelector ${this.state.screen_size}MonthSelector`}>
+            < ArrowLeftCircleOutlineIcon onClick={this.prevMonth} className="arrowDiv" />
+            <div className="currentMonth"> {this.state.month_string} </div>
+            < ArrowRightCircleOutlineIcon onClick={this.nextMonth} className="arrowDiv" />
+          </div>
+        </div>
         <div className="budgetColumnTitles">
           <div className={`budgetColumnNameCategory ${this.state.screen_size}BudgetColumnNameCategory`}>Category</div>
           <div className={`budgetColumnName ${this.state.screen_size}BudgetColumnName`}>Assigned</div>
@@ -60,8 +84,9 @@ export class Budget extends React.Component {
           <div className={`budgetColumnName ${this.state.screen_size}BudgetColumnName`}>Balance</div>
         </div>
         <div className="budgetCategories">
-          {(Object.keys(this.state.categories).map((group) => {
-            return <CategoryGroup key={this.state.current_date} name={group} categories={this.state.categories[group]} current_date={this.state.current_date} />
+          {(this.state.groups.map((group) => {
+            const key = `${this.state.current_date}${group}`
+            return <CategoryGroup key={key} name={group} currentDate={this.state.current_date} />
           }))}
         </div>
 

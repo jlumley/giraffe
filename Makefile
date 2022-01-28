@@ -9,7 +9,7 @@ dev: ## run container interactively
 
 
 dev-api: ## run only api
-	docker run  -d -v /tmp/giraffe-budget/data:/data -v /tmp/giraffe-budget/logs:/logs -p 80:80 -e APP_MODE="DEV" -e API_ONY="true" --name giraffe-budget-dev  giraffe-budget
+	docker run  -d -v /tmp/giraffe-budget/data:/data -v /tmp/giraffe-budget/logs:/logs -p 80:80 -e APP_MODE="DEV" -e API_ONLY="true" --name giraffe-budget-dev  giraffe-budget
 
 
 

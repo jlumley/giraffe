@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 
 import { Budget } from './Budget';
-import Accounts from './Accounts';
+import Account from './Account';
 import Reports from './Reports';
 import { Header } from './Header';
 
@@ -18,20 +18,14 @@ export class Layout extends React.Component {
     constructor(props) {
         super(props);
         this.toggleSidebar = this.toggleSidebar.bind(this)
-        this.updateDate = this.updateDate.bind(this)
         this.state = {
             screen_size: changeScreenSize(),
             sidebar: false,
-            current_date: new Date(),
         }
     }
 
     toggleSidebar() {
         this.setState({ sidebar: !this.state.sidebar });
-    }
-
-    updateDate(current_date) {
-        this.setState({ current_date: current_date })
     }
 
     componentDidMount() {
@@ -44,17 +38,17 @@ export class Layout extends React.Component {
     render() {
         return (
             <div className="layout">
-                <Header toggleSidebar={this.toggleSidebar} updateDate={this.updateDate} current_date={this.state.current_date} />
+                <Header toggleSidebar={this.toggleSidebar} />
                 <div className="mainContent">
                     {(this.state.sidebar || this.state.screen_size === "largeScreen") && (
                         <Aside sidebar={this.state.sidebar} />
                     )}
                     <div className="workspaceContent">
                         <Routes>
-                            <Route exact path="/account" element={<Accounts />} />
-                            <Route exact path="/reports" element={<Reports />} />
-                            <Route exact path="/" element={<Budget current_date={this.state.current_date} key={this.state.current_date} />} />
-                        </Routes>current_date
+                            <Route path="/account/:id" element={<Account />} />
+                            <Route path="/reports" element={<Reports />} />
+                            <Route path="/" element={<Budget />} />
+                        </Routes>
                     </div>
                 </div>
             </div>

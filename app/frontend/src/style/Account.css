@@ -1,0 +1,13 @@
+.accountContent {
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.accountHeader {
+    height: 60px;
+}
+
+.accountTransactions {
+    flex-grow: 1;
+}

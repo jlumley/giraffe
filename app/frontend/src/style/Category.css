@@ -21,7 +21,7 @@
 
 .smallScreenCategoryValueBox {
     width: 25%;
-    font-size: 2.2vmin;
+    font-size: 12px;
 }
 
 .largeScreenCategoryValueBox {
@@ -46,7 +46,7 @@
 }
 
 .categoryInput {
-    width: 80%;
+    width: 55%;
     background-color: transparent;
     border-color: transparent;
     outline: none;

@@ -1,10 +1,9 @@
 import React from 'react'
 
 import { changeScreenSize } from './Layout'
+import logo from "../logo/60.png"
 
 import '../style/Header.css'
-import ArrowLeftCircleOutlineIcon from 'mdi-react/ArrowLeftCircleOutlineIcon';
-import ArrowRightCircleOutlineIcon from 'mdi-react/ArrowRightCircleOutlineIcon';
 
 export class Header extends React.Component {
   constructor(props) {
@@ -12,14 +11,7 @@ export class Header extends React.Component {
     this.toggleSidebar = this.props.toggleSidebar;
     this.state = {
       screen_size: changeScreenSize(),
-      current_date: this.props.current_date,
-      month_string: this.props.current_date.toLocaleString('default', { month: 'long' }),
     }
-    this.updateDate = this.updateDate.bind(this)
-    this.nextMonth = () => { this.updateDate(+1) };
-    this.prevMonth = () => { this.updateDate(-1) };
-    this.updateParentDate = (current_date) => { this.props.updateDate(current_date) };
-    this.updateDate(0);
 
   }
 
@@ -29,48 +21,21 @@ export class Header extends React.Component {
     });
   }
 
-  updateDate(month_adjustment) {
-    var tmp_date = new Date(this.state.current_date.setDate(1));
-    tmp_date = new Date(tmp_date.setMonth(tmp_date.getMonth() + month_adjustment));
 
-    const diff_months = (
-      (tmp_date.getFullYear() - new Date().getFullYear()) * 12 +
-      (tmp_date.getMonth() - new Date().getMonth())
-    );
-
-    var current_date = new Date();
-    // if temp date is in the future set the day to the first date of the month
-    if (diff_months > 0) {
-      current_date = new Date(tmp_date.getFullYear(), tmp_date.getMonth(), 1)
-    }
-    // if temp date is in the past set the day to the last date of the month
-    else if (diff_months < 0) {
-      current_date = new Date(tmp_date.getFullYear(), tmp_date.getMonth() + 1, 0)
-    }
-    this.setState({
-      current_date: current_date,
-      month_string: current_date.toLocaleString('default', { month: 'long' })
-    })
-    this.updateParentDate(current_date)
-
-  }
 
   render() {
     return (
       <div className="header">
         <div className="headerRow">
-          <div className="headerLogo"></div>
+          <div className="headerLogo">
+            <img src={logo} />
+          </div>
           {(this.state.screen_size === "smallScreen") && (
             <div className="menu-button-div" onClick={this.toggleSidebar}>
               <div className="bar1"></div>
               <div className="bar2"></div>
               <div className="bar3"></div>
             </div>)}
-          <div className="monthSelector">
-            < ArrowLeftCircleOutlineIcon onClick={this.prevMonth} />
-            <div className="currentMonth"> {this.state.month_string} </div>
-            < ArrowRightCircleOutlineIcon onClick={this.nextMonth} />
-          </div>
         </div>
       </div>
     );
