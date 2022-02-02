@@ -34,7 +34,7 @@
     padding-top: 3px;
     padding-bottom: 3px;
     border-radius: 15px;
-    background-color: hsla(0, 9%, 7%, 0.3);
+    background-color: hsla(0, 9%, 7%, 0.2);
 }
 
 .largeScreenCategoryValueOutline {
@@ -46,7 +46,7 @@
 }
 
 .categoryInput {
-    width: 55%;
+    width: 65%;
     background-color: transparent;
     border-color: transparent;
     outline: none;

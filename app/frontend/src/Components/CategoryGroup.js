@@ -6,8 +6,7 @@ import instance from '../axois';
 import categoryRequests from '../requests/category';
 
 
-export const CategoryGroup = ({ name, currentDate }) => {
-  console.log(name)
+export const CategoryGroup = ({ name, currentDate, screen_size }) => {
   const [categoryGroupName, setCategoryGroupName] = useState(name);
   const [categories, setCategories] = useState([]);
 
@@ -18,7 +17,7 @@ export const CategoryGroup = ({ name, currentDate }) => {
 
 
   const editCategoryGroupName = (event) => {
-    setCategoryGroupName(event.taget.value);
+    setCategoryGroupName(event.target.value);
   }
   const updateCategoryGroupName = (event) => {
     categories.forEach(cat => {
@@ -39,9 +38,9 @@ export const CategoryGroup = ({ name, currentDate }) => {
 
 
   return <div>
-    <div className="categoryGroupTitle"> <input className="categoryGroupTitleInput" value={CategoryGroup} onChange={editCategoryGroupName} onBlur={updateCategoryGroupName} /> </div>
+    <div className="categoryGroupTitle"> <input className="categoryGroupTitleInput" value={categoryGroupName} onChange={editCategoryGroupName} onBlur={updateCategoryGroupName} /> </div>
     {categories.map(cat => {
-      return <Category key={currentDate} current_date={currentDate} category={cat} />
+      return <Category screen_size={screen_size} current_date={currentDate} category={cat} />
     })}
   </div>;
 }
