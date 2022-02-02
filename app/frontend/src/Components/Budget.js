@@ -86,7 +86,7 @@ export class Budget extends React.Component {
         <div className="budgetCategories">
           {(this.state.groups.map((group) => {
             const key = `${this.state.current_date}${group}`
-            return <CategoryGroup key={key} name={group} currentDate={this.state.current_date} />
+            return <CategoryGroup key={key} name={group} currentDate={this.state.current_date} screen_size={this.state.screen_size} />
           }))}
         </div>
 
