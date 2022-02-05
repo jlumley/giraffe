@@ -1,3 +1,8 @@
+.budgetWorkspace {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
 .budgetContent {
     background-color: transparent;
     display: flex;
@@ -6,6 +11,7 @@
     height: 100%;
     color: #00334d;
     font-weight: bold;
+    flex-grow: 1;
 
 }
 .budgetHeader {
@@ -48,6 +54,7 @@
 }
 
 .budgetColumnTitles {
+    margin-left: 18px;
     height: 15px;
     font-size: 13px;
 }
@@ -69,7 +76,7 @@
  }
 
 .largeScreenBudgetColumnNameCategory {
-    width: 40%;
+    width: 35%;
 }
 
 .budgetColumnName {

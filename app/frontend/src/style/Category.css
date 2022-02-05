@@ -11,8 +11,7 @@
     float: left;
 }
 .largeScreenCategoryNameBox {
-    font-size: 14px;
-    width: 40%;
+    width: 35%;
 }
 .smallScreenCategoryNameBox {
     font-size: 2.2vmin;
@@ -26,7 +25,7 @@
 
 .largeScreenCategoryValueBox {
     width: 20%;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .categoryValueOutline {
@@ -38,7 +37,7 @@
 }
 
 .largeScreenCategoryValueOutline {
-    width: 55%;
+    width: 65%;
 }
 
 .smallScreenCategoryValueOutline {
@@ -46,7 +45,7 @@
 }
 
 .categoryInput {
-    width: 65%;
+    width: 60%;
     background-color: transparent;
     border-color: transparent;
     outline: none;
@@ -54,6 +53,25 @@
     color: white;
 }
 
+.categoryOptions {
+    color: hsla(0, 9%, 7%, 0.3);
+}
+
+.categoryDividingLine {
+    color: hsla(0, 9%, 7%, 0.3);
+    margin-left: 1%;
+    margin-right: 1%;
+}
+
 input:focus {
     background-color: hsla(0, 9%, 7%, 0.3);
+}
+
+input {
+    font-size: 12px;
+}
+
+.selectedIcon {
+    margin-left: 5px;
+    color: #002233;
 }

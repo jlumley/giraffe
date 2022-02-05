@@ -3,7 +3,7 @@
     height: 100%;
     width: 100%;
     position: fixed;
-    background: linear-gradient(0deg, #b8b8ca, #c6c6da);
+    background: linear-gradient(0deg, #99b3e6, #adc2eb);
     display: flex;
     flex-direction: column;
 }
@@ -20,7 +20,7 @@
 }
 
 .sidebar {
-    width: 250px;
+    width: 200px;
     background: linear-gradient(0deg, #00334d, #002233);
     text-align: left;
 }

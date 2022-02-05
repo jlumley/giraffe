@@ -8,12 +8,14 @@ import TabPlusIcon from 'mdi-react/TabPlusIcon'
 import categoryRequests from '../requests/category';
 
 import '../style/Budget.css'
+import { BudgetInfo } from './BudgetInfo';
 
 export function Budget({ screenSize }) {
 
   const [categoryGroups, setCategoryGroups] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [newCategoryGroups, setNewCategoryGroups] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
   useEffect(() => {
     fetchCategoryGroups()
@@ -35,6 +37,12 @@ export function Budget({ screenSize }) {
   const createNewCategoryGroup = () => {
     const newCategoryGroupName = `New Category Group ${newCategoryGroups.length}`
     setNewCategoryGroups(newCategoryGroups.concat(categoryGroup(newCategoryGroupName)))
+  }
+
+  const budgetExtraInfo = () => {
+    if (screenSize == "largeScreen") {
+      return <BudgetInfo selectedCategories={selectedCategories} />
+    }
   }
 
   function updateDate(monthAdjustment) {
@@ -73,30 +81,32 @@ export function Budget({ screenSize }) {
   }
 
   return (
-    <div className="budgetContent">
-      <div className="budgetHeader">
-        <div className="newCategoryGroup">
-          <TabPlusIcon onClick={createNewCategoryGroup} />
+    <div className="budgetWorkspace">
+      <div className="budgetContent">
+        <div className="budgetHeader">
+          <div className="newCategoryGroup">
+            <TabPlusIcon onClick={createNewCategoryGroup} />
+          </div>
+          <div className={`monthSelector ${screenSize}MonthSelector`}>
+            < ArrowLeftCircleOutlineIcon onClick={prevMonth} className="arrowDiv" />
+            <div className="currentMonth"> {getMonthString()} </div>
+            < ArrowRightCircleOutlineIcon onClick={nextMonth} className="arrowDiv" />
+          </div>
         </div>
-        <div className={`monthSelector ${screenSize}MonthSelector`}>
-          < ArrowLeftCircleOutlineIcon onClick={prevMonth} className="arrowDiv" />
-          <div className="currentMonth"> {getMonthString()} </div>
-          < ArrowRightCircleOutlineIcon onClick={nextMonth} className="arrowDiv" />
+        <div className="budgetColumnTitles">
+          <div className={`budgetColumnNameCategory ${screenSize}BudgetColumnNameCategory`}>Category</div>
+          <div className={`budgetColumnName ${screenSize}BudgetColumnName`}>Assigned</div>
+          {(screenSize === "largeScreen") && (<div className={`budgetColumnName ${screenSize}BudgetColumnName`}>Spent</div>)}
+          <div className={`budgetColumnName ${screenSize}BudgetColumnName`}>Balance</div>
+        </div>
+        <div className="budgetCategories">
+          {(categoryGroups.map((name) => {
+            return categoryGroup(name = name)
+          }))}
+          {newCategoryGroups}
         </div>
       </div>
-      <div className="budgetColumnTitles">
-        <div className={`budgetColumnNameCategory ${screenSize}BudgetColumnNameCategory`}>Category</div>
-        <div className={`budgetColumnName ${screenSize}BudgetColumnName`}>Assigned</div>
-        {(screenSize === "largeScreen") && (<div className={`budgetColumnName ${screenSize}BudgetColumnName`}>Spent</div>)}
-        <div className={`budgetColumnName ${screenSize}BudgetColumnName`}>Balance</div>
-      </div>
-      <div className="budgetCategories">
-        {(categoryGroups.map((name) => {
-          return categoryGroup(name = name)
-        }))}
-        {newCategoryGroups}
-      </div>
-
+      {budgetExtraInfo()}
     </div>
   );
 

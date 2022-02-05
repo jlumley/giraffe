@@ -3,9 +3,11 @@ import instance from '../axois';
 import transactionRequests from '../requests/transaction';
 import categoryRequests from '../requests/category';
 
-
+import DotsVerticalIcon from 'mdi-react/DotsVerticalIcon'
 import CurrencyInput from 'react-currency-input-field';
 import { centsToMoney } from '../utils/money_utils'
+import CheckboxBlankCircleOutlineIcon from 'mdi-react/CheckboxBlankCircleOutlineIcon'
+import CheckboxMarkedCircleIcon from 'mdi-react/CheckboxMarkedCircleIcon'
 
 import '../style/Category.css'
 
@@ -16,6 +18,7 @@ export function Category({ category, currentDate, screenSize }) {
     const [categorySpent, setCategorySpent] = useState(0);
     const [categoryBalance, setCategoryBalance] = useState(0);
     const [tempAssigned, setTempAssgined] = useState(category.assigned_this_month / 100);
+    const [selected, setSelected] = useState(false);
 
     const fetchTransactions = () => {
         async function _fetchTransactions() {
@@ -57,6 +60,7 @@ export function Category({ category, currentDate, screenSize }) {
 
             setCategoryBalance(resp.data[0].balance)
             setCategoryAssigned(resp.data[0].assigned_this_month)
+            setTempAssgined(resp.data[0].assigned_this_month / 100)
         }
         _fetchCategory()
     };
@@ -81,6 +85,21 @@ export function Category({ category, currentDate, screenSize }) {
         )
     }
 
+    function selectCategory() {
+        setSelected(!selected)
+    }
+
+    const ifSelected = () => {
+        if (screenSize == "smallScreen") {
+            return
+        }
+        if (selected) {
+            return <CheckboxMarkedCircleIcon className="selectedIcon" onClick={selectCategory} />
+        } else {
+            return <CheckboxBlankCircleOutlineIcon className="selectedIcon" onClick={selectCategory} />
+        }
+    }
+
     const updateCategoryAssignment = (event) => {
         const req_data = {
             amount: (tempAssigned * 100 - categoryAssigned),
@@ -97,11 +116,16 @@ export function Category({ category, currentDate, screenSize }) {
 
 
     return (
-        <div className="baseCategory" >
-            <div className={`categoryCell ${screenSize}CategoryNameBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}><input className="categoryInput" type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} /></div></div>
-            <div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>< CurrencyInput className="categoryInput" maxLength="8" prefix="$" value={tempAssigned} onValueChange={handleChangeCategoryAssigned} onBlur={updateCategoryAssignment} /></div></div>
-            {(screenSize === "largeScreen") && (<div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(categorySpent)}</div></div>)}
-            <div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(categoryBalance)}</div></div>
+        <div>
+            <div className="baseCategory" >
+                {(false) && (< DotsVerticalIcon className="categoryOptions" />)}
+                {ifSelected()}
+                <div className={`categoryCell ${screenSize}CategoryNameBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}><input className="categoryInput" type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} /></div></div>
+                <div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>< CurrencyInput className="categoryInput" maxLength="8" prefix="$" value={tempAssigned} onValueChange={handleChangeCategoryAssigned} onBlur={updateCategoryAssignment} /></div></div>
+                {(screenSize === "largeScreen") && (<div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(categorySpent)}</div></div>)}
+                <div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(categoryBalance)}</div></div>
+            </div>
+            <hr className="categoryDividingLine"></hr>
         </div>
     );
 }
