@@ -10,7 +10,7 @@ import { centsToMoney } from '../utils/money_utils'
 import '../style/Category.css'
 
 
-export function Category({ category, current_date, screenSize }) {
+export function Category({ category, currentDate, screenSize }) {
     const [categoryName, setCategoryName] = useState(category.name);
     const [categoryAssigned, setCategoryAssigned] = useState(0);
     const [categorySpent, setCategorySpent] = useState(0);
@@ -20,8 +20,8 @@ export function Category({ category, current_date, screenSize }) {
     const fetchTransactions = () => {
         async function _fetchTransactions() {
             // get today's date YYYY-MM-DD
-            const today = current_date.toISOString().slice(0, 10);
-            const month_start = `${current_date.toISOString().slice(0, 8)}01`
+            const today = currentDate.toISOString().slice(0, 10);
+            const month_start = `${currentDate.toISOString().slice(0, 8)}01`
             // get all transactions for this category
             const params = {
                 categories: category.id,
@@ -52,10 +52,11 @@ export function Category({ category, current_date, screenSize }) {
 
     const fetchCategory = () => {
         async function _fetchCategory() {
-            const today = current_date.toISOString().slice(0, 10);
+            const today = currentDate.toISOString().slice(0, 10);
             const resp = await instance.get(`${categoryRequests.fetchCategory}/${category.id}/${today}`)
 
             setCategoryBalance(resp.data[0].balance)
+            setCategoryAssigned(resp.data[0].assigned_this_month)
         }
         _fetchCategory()
     };
@@ -63,7 +64,7 @@ export function Category({ category, current_date, screenSize }) {
     useEffect(() => {
         fetchTransactions()
         fetchCategory()
-    }, [categoryAssigned, current_date])
+    }, [categoryAssigned, currentDate])
 
 
     const handleChangeCategoryName = (event) => {
@@ -83,7 +84,7 @@ export function Category({ category, current_date, screenSize }) {
     const updateCategoryAssignment = (event) => {
         const req_data = {
             amount: (tempAssigned * 100 - categoryAssigned),
-            date: current_date.toISOString().slice(0, 10)
+            date: currentDate.toISOString().slice(0, 10)
         }
         if (req_data.amount < 0) {
             instance.put(`${categoryRequests.unassignCategory}${category.id}`, req_data)

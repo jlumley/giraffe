@@ -19,7 +19,7 @@ export const CategoryGroup = ({ name, currentDate, screenSize }) => {
   }, [])
 
   const category = (category) => {
-    return <Category screenSize={screenSize} current_date={currentDate} category={category} />
+    return <Category screenSize={screenSize} currentDate={currentDate} category={category} />
   }
 
   const createNewCategory = () => {
@@ -51,8 +51,8 @@ export const CategoryGroup = ({ name, currentDate, screenSize }) => {
 
   const fetchCategories = () => {
     async function _fetchCategories() {
-      const current_date = currentDate.toISOString().slice(0, 10);
-      const resp = await instance.get(`${categoryRequests.fetchAllCategories}/${current_date}`)
+      const today = currentDate.toISOString().slice(0, 10);
+      const resp = await instance.get(`${categoryRequests.fetchAllCategories}/${today}`)
 
       setCategories(resp.data.filter(cat => cat.category_group == categoryGroupName))
     }
