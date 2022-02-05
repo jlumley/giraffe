@@ -5,6 +5,11 @@
     padding-bottom: 10px;
 }
 
+.newCategoryButton {
+    float: right;
+    margin-right: 3%;
+}
+
 .categoryGroupTitleInput {
     background-color: transparent;
     border-color: transparent;

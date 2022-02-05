@@ -47,7 +47,7 @@ export class Layout extends React.Component {
                         <Routes>
                             <Route path="/account/:id" element={<Account />} />
                             <Route path="/reports" element={<Reports />} />
-                            <Route path="/" element={<Budget />} />
+                            <Route path="/" element={<Budget screenSize={this.state.screen_size} />} />
                         </Routes>
                     </div>
                 </div>

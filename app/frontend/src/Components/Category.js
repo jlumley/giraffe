@@ -10,7 +10,7 @@ import { centsToMoney } from '../utils/money_utils'
 import '../style/Category.css'
 
 
-export function Category({ category, current_date, screen_size }) {
+export function Category({ category, current_date, screenSize }) {
     const [categoryName, setCategoryName] = useState(category.name);
     const [categoryAssigned, setCategoryAssigned] = useState(0);
     const [categorySpent, setCategorySpent] = useState(0);
@@ -46,7 +46,6 @@ export function Category({ category, current_date, screen_size }) {
                 )
             });
             setCategorySpent(parsed_transactions.reduce((a, b) => a + b.amount, 0));
-            console.log(categorySpent)
         }
         _fetchTransactions()
     }
@@ -77,16 +76,14 @@ export function Category({ category, current_date, screen_size }) {
     const updateCategoryName = (event) => {
         instance.put(
             `${categoryRequests.updateCategory}${category.id}`,
-            {
-                'name': category.name
-            }
+            { name: event.target.value }
         )
     }
 
     const updateCategoryAssignment = (event) => {
         const req_data = {
-            'amount': (tempAssigned * 100 - categoryAssigned),
-            'date': current_date.toISOString().slice(0, 10)
+            amount: (tempAssigned * 100 - categoryAssigned),
+            date: current_date.toISOString().slice(0, 10)
         }
         if (req_data.amount < 0) {
             instance.put(`${categoryRequests.unassignCategory}${category.id}`, req_data)
@@ -100,10 +97,10 @@ export function Category({ category, current_date, screen_size }) {
 
     return (
         <div className="baseCategory" >
-            <div className={`categoryCell ${screen_size}CategoryNameBox`}><div className={`categoryValueOutline ${screen_size}CategoryValueOutline`}><input className="categoryInput" type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} /></div></div>
-            <div className={`categoryCell ${screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${screen_size}CategoryValueOutline`}>< CurrencyInput className="categoryInput" maxLength="8" prefix="$" value={tempAssigned} onValueChange={handleChangeCategoryAssigned} onBlur={updateCategoryAssignment} /></div></div>
-            {(screen_size === "largeScreen") && (<div className={`categoryCell ${screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${screen_size}CategoryValueOutline`}>{centsToMoney(categorySpent)}</div></div>)}
-            <div className={`categoryCell ${screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${screen_size}CategoryValueOutline`}>{centsToMoney(categoryBalance)}</div></div>
+            <div className={`categoryCell ${screenSize}CategoryNameBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}><input className="categoryInput" type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} /></div></div>
+            <div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>< CurrencyInput className="categoryInput" maxLength="8" prefix="$" value={tempAssigned} onValueChange={handleChangeCategoryAssigned} onBlur={updateCategoryAssignment} /></div></div>
+            {(screenSize === "largeScreen") && (<div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(categorySpent)}</div></div>)}
+            <div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(categoryBalance)}</div></div>
         </div>
     );
 }
