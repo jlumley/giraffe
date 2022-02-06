@@ -1,8 +1,10 @@
+@import url("colors.css");
+
 .sidebar-link-div {
   padding-left: 10px;
   padding-top: 10px;
   font-size: 15px;
-  color: #80d4ff;
+  color: var(--accent-color)
 }
 
 .sidebar-link {

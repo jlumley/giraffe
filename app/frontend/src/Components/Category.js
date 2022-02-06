@@ -90,7 +90,7 @@ export function Category({ category, currentDate, screenSize }) {
     }
 
     const ifSelected = () => {
-        if (screenSize == "smallScreen") {
+        if (screenSize === "smallScreen") {
             return
         }
         if (selected) {

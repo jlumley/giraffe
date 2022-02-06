@@ -1,8 +1,10 @@
+@import url("colors.css");
+
 .baseCategory {
     position: relative;
     display: flex;
     flex-direction: row;
-    color: white;
+    color: var(--light-text);
 }
 
 .categoryCell {
@@ -33,7 +35,7 @@
     padding-top: 3px;
     padding-bottom: 3px;
     border-radius: 15px;
-    background-color: hsla(0, 9%, 7%, 0.2);
+    background-color: var(--translucent-background)
 }
 
 .largeScreenCategoryValueOutline {
@@ -50,21 +52,21 @@
     border-color: transparent;
     outline: none;
     padding-left: 10px;
-    color: white;
+    color: var(--light-text);
 }
 
 .categoryOptions {
-    color: hsla(0, 9%, 7%, 0.3);
+    color: var(--translucent-background);
 }
 
 .categoryDividingLine {
-    color: hsla(0, 9%, 7%, 0.3);
+    color: var(--translucent-background);
     margin-left: 1%;
     margin-right: 1%;
 }
 
 input:focus {
-    background-color: hsla(0, 9%, 7%, 0.3);
+    background-color: var(--translucent-background);
 }
 
 input {
@@ -73,5 +75,5 @@ input {
 
 .selectedIcon {
     margin-left: 5px;
-    color: #002233;
+    color: var(--dark-color);
 }

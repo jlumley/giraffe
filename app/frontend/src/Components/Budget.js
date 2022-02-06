@@ -40,7 +40,7 @@ export function Budget({ screenSize }) {
   }
 
   const budgetExtraInfo = () => {
-    if (screenSize == "largeScreen") {
+    if (screenSize === "largeScreen") {
       return <BudgetInfo selectedCategories={selectedCategories} />
     }
   }
@@ -64,7 +64,7 @@ export function Budget({ screenSize }) {
       newCurrentDate = new Date(tmp_date.getFullYear(), tmp_date.getMonth() + 1, 0)
     }
 
-    if (newCurrentDate != currentDate) {
+    if (newCurrentDate !== currentDate) {
       setCurrentDate(newCurrentDate);
     }
   }
@@ -101,7 +101,7 @@ export function Budget({ screenSize }) {
         </div>
         <div className="budgetCategories">
           {(categoryGroups.map((name) => {
-            return categoryGroup(name = name)
+            return categoryGroup(name)
           }))}
           {newCategoryGroups}
         </div>

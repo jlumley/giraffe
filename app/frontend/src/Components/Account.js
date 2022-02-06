@@ -1,28 +1,66 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router';
 import instance from '../axois'
+import transactionRequests from '../requests/transaction';
 
 import '../style/Account.css'
-import NewTransaction from './Transactions/NewTransaction';
+import { Transaction } from './Transaction';
 
-const Account = () => {
-
+export const Account = () => {
+    const [transactions, setTransactions] = useState([]);
     const { id } = useParams();
 
     useEffect(() => {
-        fetchTransactionData();
-    }, []);
+        fetchTransactions();
+    }, [id]);
+
+    const fetchTransactions = () => {
+        async function _fetchTransactions() {
+            const params = {};
+            if (id !== 'all') {
+                params.accounts = id
+            }
+            const resp = await instance.get(transactionRequests.fetchTransactions, { params })
+            setTransactions(resp.data)
+        }
+        _fetchTransactions()
+    }
+
+    const createTransactions = (transaction) => {
+        return <Transaction transaction={transaction} />
+    }
 
     return (
         <div className="accountContent">
-            <NewTransaction account_id={id} />
+            <div className="accountHeader">
+                <div className="addTransactionButton">
+
+                </div>
+                <div className="filterTransactionsButton">
+
+                </div>
+                <div className="searchTransactions">
+
+                </div>
+            </div>
+            <div className="accountTransactionsContent">
+                <table className="accountTransactionsTable">
+                    <thead className="accountTransactionsTableHeader">
+                        <tr>
+                            <th>Date</th>
+                            <th>Payee</th>
+                            <th>Catgory</th>
+                            <th>Memo</th>
+                            <th>Outflow</th>
+                            <th>Inflow</th>
+                            <th>Cleared</th>
+                        </tr>
+                    </thead>
+                    <tbody className="accountTransactionsTableBody">
+                        {transactions.map((t) => { return createTransactions(t) })}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
-}
-
-export default Account;
-
-
-const fetchTransactionData = () => {
-    instance.get()
 }

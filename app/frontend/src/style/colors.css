@@ -1,0 +1,8 @@
+:root {
+    --dark-color: #002233;
+    --dark-gradient: linear-gradient(0deg, #00334d, #002233);
+    --accent-color: #80d4ff;
+    --translucent-background: hsla(0, 9%, 7%, 0.3);
+    --light-text: white;
+    --light-solid-background: #c0c0c0;
+}

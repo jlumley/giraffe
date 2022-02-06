@@ -1,9 +1,9 @@
-
+@import url("colors.css");
 .layout {
     height: 100%;
     width: 100%;
     position: fixed;
-    background: linear-gradient(0deg, #99b3e6, #adc2eb);
+    background-color: var(--light-solid-background);
     display: flex;
     flex-direction: column;
 }
@@ -21,6 +21,6 @@
 
 .sidebar {
     width: 200px;
-    background: linear-gradient(0deg, #00334d, #002233);
+    background: var(--dark-gradient);
     text-align: left;
 }
