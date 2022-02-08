@@ -24,7 +24,6 @@ Uwsgi==2.0.19.1
 VOLUME /data
 VOLUME /logs
 EXPOSE 80
-EXPOSE 3000
 
 # copy nginx conf
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
@@ -32,6 +31,10 @@ COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY app /src/app
 COPY bin/start.sh /src/bin/start.sh
 
-CMD "npm --prefix /src/app/frontend install /src/app/frontend"
+WORKDIR "/src/app/frontend"
+RUN npm install
+RUN npm install -g serve
+RUN npm run build
+
 
 ENTRYPOINT /src/bin/start.sh

@@ -13,8 +13,18 @@ ALLOWED_TARGET_TYPES = ["monthly_savings", "savings_target", "spending_target"]
 MAX_INT = 2 ** 31 - 1
 
 
+@category.route("/names", methods=("GET",))
+def _get_category_names():
+    """Get a mapping of category names to ids
+
+    Returns:
+        [type]: [description]
+    """
+    return make_response(jsonify(get_category_names()), 200)
+
+
 @category.route("/<date>", methods=("GET",))
-def get_categories(date):
+def _get_categories(date):
     """Get all categories"""
     assert date == request.view_args["date"]
     date = time_utils.datestr_to_sqlite_date(date)
@@ -384,3 +394,9 @@ def get_category(category_id, sql_date):
         c["assigned_this_month"] = target_data["assigned_this_month"]
 
     return categories
+
+
+def get_category_names():
+    """ Fetch all the category names and ids
+    """
+    return db_utils.execute(GET_CATEGORY_NAMES)

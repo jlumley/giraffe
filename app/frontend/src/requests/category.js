@@ -1,6 +1,7 @@
 const PREFIX = "/category";
 
 const categoryRequests = {
+    fetchAllCategoryNames: `${PREFIX}/names`,
     fetchAllCategories: `${PREFIX}`,
     fetchCategory: `${PREFIX}`,
     createNewCategory: `${PREFIX}/create`,

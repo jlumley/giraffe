@@ -24,11 +24,27 @@
 .accountTransactionsTableHeader {
     width: 100%;
     position: sticky;
-    top: 0;
+    top: -2px;
     z-index: 1;
     background-color:  var(--light-solid-background);
 }
+
+.accountTransactionsClearedColumn {
+    width: 40px;
+}
+.accountTransactionsDateColumn {
+    width: 5%;
+    min-width: 50px;
+}
+.accountTransactionsCategoryColumn {
+
+}
+
 .accountTransactionsTableBody {
     width: 100%;
     overflow-y:scroll;
+}
+
+tr:nth-child(even) {
+    background-color: var(--table-background-even);
 }

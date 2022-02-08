@@ -61,3 +61,7 @@ ASSIGN_CATEGORY = """INSERT INTO assignments
 (category_id, amount, date)
 VALUES (:category_id, :amount, :date);
 """
+
+GET_CATEGORY_NAMES = """SELECT id, name
+FROM categories;
+"""

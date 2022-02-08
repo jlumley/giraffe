@@ -1,0 +1,15 @@
+@import url("colors.css");
+
+.transactionRow {
+    padding-top: 1px;
+    padding-bottom: 40px;
+    color: var(--dark-color);
+}
+
+.transactionDateSelector {
+    background-color: transparent;
+    border: none;
+    min-width: 70px;
+    width: 3%;
+    text-align: center;
+}

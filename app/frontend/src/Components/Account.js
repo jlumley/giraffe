@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router';
 import instance from '../axois'
+import categoryRequests from '../requests/category';
+import payeeRequests from '../requests/payee';
 import transactionRequests from '../requests/transaction';
 
 import '../style/Account.css'
@@ -8,6 +10,8 @@ import { Transaction } from './Transaction';
 
 export const Account = () => {
     const [transactions, setTransactions] = useState([]);
+    const [payees, setPayees] = useState([]);
+    const [categories, setCategories] = useState([]);
     const { id } = useParams();
 
     useEffect(() => {
@@ -20,14 +24,25 @@ export const Account = () => {
             if (id !== 'all') {
                 params.accounts = id
             }
-            const resp = await instance.get(transactionRequests.fetchTransactions, { params })
-            setTransactions(resp.data)
+            const t = await instance.get(transactionRequests.fetchTransactions, { params })
+            setTransactions(t.data)
+            const c = await instance.get(categoryRequests.fetchAllCategoryNames)
+            setCategories(c.data.reduce((map, obj) => {
+                map[obj.id] = obj.name
+                return map;
+            }, {}))
+            const p = await instance.get(payeeRequests.fetchAllPayees)
+            console.log(p.data)
+            setPayees(p.data.reduce((map, obj) => {
+                map[obj.id] = obj.name
+                return map;
+            }, {}))
         }
         _fetchTransactions()
     }
 
     const createTransactions = (transaction) => {
-        return <Transaction transaction={transaction} />
+        return <Transaction transaction={transaction} categories={categories} payees={payees} />
     }
 
     return (
@@ -47,13 +62,13 @@ export const Account = () => {
                 <table className="accountTransactionsTable">
                     <thead className="accountTransactionsTableHeader">
                         <tr>
-                            <th>Date</th>
-                            <th>Payee</th>
-                            <th>Catgory</th>
-                            <th>Memo</th>
-                            <th>Outflow</th>
-                            <th>Inflow</th>
-                            <th>Cleared</th>
+                            <th className="accountTransactionsClearedColumn"></th>
+                            <th className="accountTransactionsDateColumn">Date</th>
+                            <th className="accountTransactionsPayeeColumn">Payee</th>
+                            <th className="accountTransactionsMemoColumn">Memo</th>
+                            <th className="accountTransactionsCategoryColumn">Catgory</th>
+                            <th className="accountTransactionsOutflowColumn">Outflow</th>
+                            <th className="accountTransactionsInflowColumn">Inflow</th>
                         </tr>
                     </thead>
                     <tbody className="accountTransactionsTableBody">

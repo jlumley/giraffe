@@ -63,7 +63,7 @@ def get_payee(payee_id):
     Returns:
         list: list of payees with id
     """
-    payee = db_utils.execute(GET_ALL_PAYEES, {"payee_id": payee_id})
+    payee = db_utils.execute(GET_PAYEE, {"payee_id": payee_id})
     return payee
 
 
