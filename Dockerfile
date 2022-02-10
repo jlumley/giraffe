@@ -32,9 +32,9 @@ COPY app /src/app
 COPY bin/start.sh /src/bin/start.sh
 
 WORKDIR "/src/app/frontend"
-RUN npm install
-RUN npm install -g serve
-RUN npm run build
+#RUN npm install
+#RUN npm install -g serve
+#RUN npm run build
 
 
 ENTRYPOINT /src/bin/start.sh

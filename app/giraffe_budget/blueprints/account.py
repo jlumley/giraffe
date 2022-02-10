@@ -35,7 +35,7 @@ def create_account():
     return make_response(jsonify(account), 201)
 
 
-@account.route("/hide/<account_id>", methods=("GET",))
+@account.route("/hide/<account_id>", methods=("PUT",))
 def hide_account(account_id):
     """Hide an account"""
     assert account_id == request.view_args["account_id"]
@@ -45,7 +45,7 @@ def hide_account(account_id):
     return make_response(jsonify(account), 200)
 
 
-@account.route("/unhide/<account_id>", methods=("GET",))
+@account.route("/unhide/<account_id>", methods=("PUT",))
 def unhide_account(account_id):
     """Unhide an account"""
     assert account_id == request.view_args["account_id"]
@@ -66,6 +66,8 @@ def _reconcile_account(account_id):
     data = request.get_json()
     date = time_utils.datestr_to_sqlite_date(data.get("date"))
     balance = data.get("balance")
+    if not balance:
+        balance = 0
 
     account = reconcile_account(account_id, date, balance)
 
@@ -145,11 +147,11 @@ def hide_account(account_id, hide=True):
     return get_account(account_id)
 
 
-def reconcile_account(acccount_id, balance, date):
+def reconcile_account(account_id, date, balance):
     """reconcile account, creating neccessary transactions
 
     Args:
-        acccount_id (int): account id
+        account_id (int): account id
         balance (int): current account balance
         date (int): date of reconciliation (YYYMMDD)
 
@@ -191,6 +193,6 @@ def get_account_balance(account_id, cleared=True):
         GET_ACCOUNT_BALANCE, {"id": account_id, "cleared": int(cleared)}
     )
     balance = account[0].get("balance")
-    if not balance:
+    if balance == None:
         balance = 0
     return balance
