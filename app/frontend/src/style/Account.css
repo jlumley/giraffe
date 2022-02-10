@@ -1,10 +1,11 @@
 @import url("colors.css");
 
 .accountContent {
-    width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: column;
+    overflow-x: auto;
+    max-width: 100vw;
+    max-height: 100%;
 }
 
 .accountHeader {
@@ -13,16 +14,14 @@
 
 .accountTransactionsContent {
     flex-grow: 1;
-    width: 100%;
     overflow: auto;
-
 }
-.accountTransactionsTable {
-    width: 100%;
+
+table {
+    min-width: fit-content;
 }
 
 .accountTransactionsTableHeader {
-    width: 100%;
     position: sticky;
     top: -2px;
     z-index: 1;
@@ -36,12 +35,7 @@
     width: 5%;
     min-width: 50px;
 }
-.accountTransactionsCategoryColumn {
-
-}
-
 .accountTransactionsTableBody {
-    width: 100%;
     overflow-y:scroll;
 }
 

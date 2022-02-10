@@ -1,5 +1,13 @@
 @import url("colors.css");
 
+.sidebar {
+  width: 200px;
+  min-width: 200px;
+  background: var(--dark-gradient);
+  text-align: left;
+}
+
+
 .sidebar-link-div {
   padding-left: 10px;
   padding-top: 10px;

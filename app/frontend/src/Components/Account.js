@@ -10,8 +10,8 @@ import { Transaction } from './Transaction';
 
 export const Account = () => {
     const [transactions, setTransactions] = useState([]);
-    const [payees, setPayees] = useState([]);
-    const [categories, setCategories] = useState([]);
+    const [payees, setPayees] = useState({});
+    const [categories, setCategories] = useState({});
     const { id } = useParams();
 
     useEffect(() => {
@@ -32,7 +32,6 @@ export const Account = () => {
                 return map;
             }, {}))
             const p = await instance.get(payeeRequests.fetchAllPayees)
-            console.log(p.data)
             setPayees(p.data.reduce((map, obj) => {
                 map[obj.id] = obj.name
                 return map;
@@ -59,10 +58,10 @@ export const Account = () => {
                 </div>
             </div>
             <div className="accountTransactionsContent">
-                <table className="accountTransactionsTable">
+                <table>
                     <thead className="accountTransactionsTableHeader">
                         <tr>
-                            <th className="accountTransactionsClearedColumn"></th>
+                            <th className="accountTransactionsClearedColumn" />
                             <th className="accountTransactionsDateColumn">Date</th>
                             <th className="accountTransactionsPayeeColumn">Payee</th>
                             <th className="accountTransactionsMemoColumn">Memo</th>

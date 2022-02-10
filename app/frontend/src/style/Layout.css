@@ -18,9 +18,3 @@
 .workspaceContent{
     flex-grow: 1;
 }
-
-.sidebar {
-    width: 200px;
-    background: var(--dark-gradient);
-    text-align: left;
-}

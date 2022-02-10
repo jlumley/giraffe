@@ -6,6 +6,7 @@ import CheckboxBlankOutlineIcon from "mdi-react/CheckboxBlankOutlineIcon"
 
 import "react-datepicker/dist/react-datepicker.css";
 import "../style/Transaction.css"
+import { Autosuggest } from './Inputs/Autosuggest';
 
 
 export const Transaction = ({ transaction, categories, payees }) => {
@@ -37,14 +38,14 @@ export const Transaction = ({ transaction, categories, payees }) => {
     }
 
     const payeeInputField = () => {
-        return < input value={payees[transaction.payee_id]} /> //< Autosuggest />
+        return <Autosuggest startingValue={payees[transaction.payee_id]} suggestions={payees} />
     }
 
     const categoryInputField = () => {
         if (transaction.categories.lenth === 0) return
 
         return transaction.categories.map(c => {
-            return <input value={categories[c.category_id]} /> //< Autosuggest />
+            return <Autosuggest startingValue={categories[c.category_id]} suggestions={categories} />
         });
 
     }
@@ -57,9 +58,9 @@ export const Transaction = ({ transaction, categories, payees }) => {
         <tr className="transactionRow">
             <td> {clearedIcon()} </td>
             <td> {transactionDateSelector()} </td>
-            <td> {payeeInputField()} </td>
-            <td> {memoInputField()} </td>
-            <td> {categoryInputField()} </td>
+            <td className="textInput"> {payeeInputField()} </td>
+            <td className="textInput">  {memoInputField()} </td>
+            <td className="textInput"> {categoryInputField()} </td>
             <td> {transaction.amount} </td>
             <td> {transaction.amount} </td>
         </tr>);
