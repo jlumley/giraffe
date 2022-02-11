@@ -1,3 +1,5 @@
+INSERT INTO db_version (version) VALUES (1);
+
 CREATE TABLE IF NOT EXISTS accounts (
   id integer PRIMARY KEY,
   name text NOT NULL,
