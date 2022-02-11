@@ -7,7 +7,7 @@ from flask import Flask, g, current_app
 
 def init_db(app):
     db = get_db()
-    with current_app.open_resource("sql/create_tables.sql") as f:
+    with current_app.open_resource("sql/db_init.sql") as f:
         db.executescript(f.read().decode("utf-8"))
 
 

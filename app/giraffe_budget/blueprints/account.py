@@ -123,7 +123,15 @@ def create_account(name, date, notes=None, starting_balance=0):
     )
     # Creating starting balance transaction
     transaction.create_transaction(
-        account[0]["id"], starting_balance, date, True, memo="Starting Balance"
+        account[0]["id"], 
+        starting_balance, 
+        date, 
+        True,
+        memo="Starting Balance",
+        categories=[{
+            "category_id": 0,
+            "amount": starting_balance
+        }]
     )
     return get_account(account[0]["id"])
 
@@ -160,14 +168,19 @@ def reconcile_account(account_id, date, balance):
     """
 
     current_balance = get_account_balance(account_id)
-    if balance != current_balance:
+    adjustment_amount = balance - current_balance
+    if adjustment_amount:
         # Add transaction to match balance
         transaction.create_transaction(
             account_id,
-            balance - current_balance,
+            adjustment_amount,
             date,
             True,
             memo="Reconciliation Transaction",
+            categories=[{
+                "category_id": 0,
+                "amount": adjustment_amount
+            }]
         )
 
     # mark cleared transactions as reconciled

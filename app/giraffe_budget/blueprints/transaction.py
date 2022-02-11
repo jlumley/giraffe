@@ -75,8 +75,8 @@ def _create_transaction():
             memo=data.get("memo"),
             categories=data.get("categories", []),
         )
-    except Exception as e:
-        return make_response(jsonify(e), 400)
+    except RuntimeError as e:
+        return make_response(jsonify(str(e)), 400)
 
     return make_response(jsonify({"id": transaction_id}), 201)
 
@@ -219,6 +219,13 @@ def create_transaction(
     Returns:
         int: trnasaction id
     """
+    if len(categories) < 1:
+        raise RuntimeError("Missing transaction categories")
+    sum_cat_amount = 0
+    for c in categories:
+        sum_cat_amount += c['amount']
+    if sum_cat_amount != amount:
+        raise RuntimeError("Category amounts do not match transaction amount")
     transaction = db_utils.execute(
         CREATE_TRANSACTION,
         {

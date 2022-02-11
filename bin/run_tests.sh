@@ -5,4 +5,4 @@ do
   python $test_file
 done;
 
-docker rm -f giraffe-budget-test
+echo docker rm -f giraffe-budget-test
