@@ -139,30 +139,51 @@ class TestTransactionEndpoints(unittest.TestCase):
         ]
         for t in transactions:
             resp = create_transaction(t)
-            if resp.status_code == 502:
-                print(t)
-                print(resp.content)
             self.assertEqual(resp.status_code, 400)
 
         self.assertEqual(len(get_transactions().json()), num_transactions)
 
-    def _delete_transaction(self):
+    def test_delete_transaction(self):
         """
         Testing deleting a transaction
         """
-        transaction = {"name":uuid.uuid4().hex[:8]}
-        resp = create_transaction(transaction)
-        transaction_id = resp.json()[0]['id']
+        num_categories = 1
+        # Create Categories and payees for transaction
+        setup_data = self.setup(num_categories=num_categories)
+        # even amount to make splitting it easier
+        amount = random.randint(50, 500)*num_categories
 
-        self.assertEqual(resp.status_code, 201)
+        categories = []
+        for i in range(num_categories):
+            categories.append({
+                "category_id": setup_data['categories'][i],
+                "amount": int(amount/num_categories)
+            })
+
+        transaction = {
+            "payee_id": setup_data['payees'][0],
+            "amount": amount,
+            "date": get_current_date(),
+            "memo": uuid.uuid4().hex[:8],
+            "account_id": setup_data['accounts'][0],
+            "cleared": True,
+            "categories": categories
+        }
+        resp = create_transaction(transaction)
+        transaction_id = resp.json()['id']
+
+        resp = get_transactions()
+        transactions = [t['id'] for t in resp.json()]
+        self.assertTrue(transaction_id in transactions)
 
         self.assertEqual(delete_transaction(transaction_id).status_code, 200)
 
-        resp = get_transactions().json()
-        transactions = [p['name'] for p in resp]
-        self.assertFalse(transaction['name'] in transactions)
+        resp = get_transactions()
+        transactions = [t['id'] for t in resp.json()]
+        self.assertFalse(transaction_id in transactions)
 
-    def _delete_transaction_invalid_id(self):
+
+    def test_delete_transaction_invalid_id(self):
         """
         Testing deleting a transaction with invalid id
         """
@@ -171,25 +192,64 @@ class TestTransactionEndpoints(unittest.TestCase):
             resp = delete_transaction(transaction_id)
             self.assertEqual(resp.status_code, 400)
     
-    def _update_transaction(self):
+    def test_update_transaction(self):
         """
         Testing updating a transaction
         """
-        transaction = {"name":uuid.uuid4().hex[:8]}
+        num_categories = 1
+        # Create Categories and payees for transaction
+        setup_data = self.setup(num_categories=num_categories)
+        # even amount to make splitting it easier
+        amount = random.randint(50, 500)*num_categories
+
+        categories = []
+        for i in range(num_categories):
+            categories.append({
+                "category_id": setup_data['categories'][i],
+                "amount": int(amount/num_categories)
+            })
+
+        transaction = {
+            "payee_id": setup_data['payees'][0],
+            "amount": amount,
+            "date": get_current_date(),
+            "memo": uuid.uuid4().hex[:8],
+            "account_id": setup_data['accounts'][0],
+            "cleared": True,
+            "categories": categories
+        }
         resp = create_transaction(transaction)
-        transaction_id = resp.json()[0]['id']
+        transaction_id = resp.json()['id']
 
-        self.assertEqual(resp.status_code, 201)
+        resp = get_transactions()
+        transactions = [t['id'] for t in resp.json()]
+        self.assertTrue(transaction_id in transactions)
 
-        resp = update_transaction(transaction_id, {"name": uuid.uuid4().hex[:8] })
+        num_categories = 1
+        # Create Categories and payees for transaction
+        setup_data = self.setup(num_categories=num_categories)
+        # even amount to make splitting it easier
+        amount = random.randint(50, 500)*num_categories
+
+        categories = []
+        for i in range(num_categories):
+            categories.append({
+                "category_id": setup_data['categories'][i],
+                "amount": int(amount/num_categories)
+            })
+
+        updated_transaction = {
+            "payee_id": setup_data['payees'][0],
+            "amount": amount,
+            "date": get_current_date(),
+            "memo": uuid.uuid4().hex[:8],
+            "account_id": setup_data['accounts'][0],
+            "cleared": True,
+            "categories": categories
+        }
+
+        resp = update_transaction(transaction_id, updated_transaction)
         self.assertEqual(resp.status_code, 200)
-
-        resp = get_transactions().json()
-        transactions = [p['name'] for p in resp]
-        self.assertFalse(transaction['name'] in transactions)
-
-
-        
 
 def get_transactions():
     """

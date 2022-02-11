@@ -85,6 +85,10 @@ def _create_transaction():
 @expects_json(PUT_TRANSACTION_UPDATE_SCHEMA)
 def update_transaction(transaction_id):
     """Update transaction"""
+    try:
+        transaction_id = int(transaction_id)
+    except ValueError:
+        return make_response("transaction id must be type int", 400)
     data = request.get_json()
     try:
         transaction = update_transaction(
@@ -106,6 +110,10 @@ def update_transaction(transaction_id):
 @transaction.route("/delete/<transaction_id>", methods=("DELETE",))
 def _delete_transaction(transaction_id):
     """Delete transaction"""
+    try:
+        transaction_id = int(transaction_id)
+    except ValueError:
+        return make_response("transaction id must be type int", 400)
     deleted_id = delete_transaction(transaction_id)
     return make_response(jsonify({"id": deleted_id}), 200)
 
@@ -161,7 +169,7 @@ def update_transaction(
         "date": date,
         "memo": memo,
         "amount": amount,
-        "cleared": db_utils.to_sqlite_bool(data["cleared"]),
+        "cleared": cleared,
         "categories": categories,
     }
     if account_id:
@@ -184,11 +192,11 @@ def update_transaction(
         db_utils.execute(
             DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}
         )
-        for c in data["categories"]:
+        for c in categories:
             db_utils.execute(
-                POST_TRANSACTION_CATEGORIES,
+                CREATE_TRANSACTION_CATEGORIES,
                 {
-                    "transaction_id": transaction[0]["id"],
+                    "transaction_id": transaction_id,
                     "category_id": c["category_id"],
                     "amount": c["amount"],
                 },
