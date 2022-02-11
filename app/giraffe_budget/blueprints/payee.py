@@ -28,6 +28,10 @@ def _create_payee():
 @expects_json(PUT_PAYEE_UPDATE_SCHEMA)
 def update_payee(payee_id):
     """Update payee"""
+    try:
+        payee_id = int(payee_id)
+    except ValueError:
+        return make_response("payee id must be type int", 400)
     data = request.get_json()
     payee = update_payee(payee_id, name=data.get("name"))
     return make_response(jsonify(payee), 200)
@@ -36,6 +40,11 @@ def update_payee(payee_id):
 @payee.route("/delete/<payee_id>", methods=("DELETE",))
 def delete_payee(payee_id):
     """Delete payee"""
+
+    try:
+        payee_id = int(payee_id)
+    except ValueError:
+        return make_response("payee id must be type int", 400)
     payee = delete_payee(payee_id)
     return make_response(jsonify(payee), 200)
 
@@ -107,7 +116,7 @@ def update_payee(payee_id, name=None):
 
     if name:
         query += ", name = :name"
-    query += "WHERE id = :payee_id RETURNING *;"
+    query += " WHERE id = :payee_id RETURNING *;"
 
     payee = db_utils.execute(query, {"payee_id": payee_id, "name": name}, commit=True)
     return payee
