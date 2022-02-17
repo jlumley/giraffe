@@ -65,7 +65,7 @@ class TestPayeeEndpoints(unittest.TestCase):
         payee_ids = [None, 'fff']
         for payee_id in payee_ids:
             resp = delete_payee(payee_id)
-            self.assertEqual(resp.status_code, 400)
+            self.assertEqual(resp.status_code, 404)
     
     def test_update_payee(self):
         """

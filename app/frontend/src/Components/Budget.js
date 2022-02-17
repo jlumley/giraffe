@@ -25,8 +25,8 @@ export function Budget({ screenSize }) {
   const fetchCategoryGroups = () => {
     async function _fetchCategoryGroups() {
       const today = currentDate.toISOString().slice(0, 10);
-      const resp = await instance.get(`${categoryRequests.fetchAllCategories}/${today}`)
-      setCategoryGroups([...new Set((resp.data).map(c => { return c.category_group }))])
+      const resp = await instance.get(`${categoryRequests.fetchAllCategoryGroups}`)
+      setCategoryGroups(resp.data)
     }
     _fetchCategoryGroups()
   }

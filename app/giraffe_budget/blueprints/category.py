@@ -13,6 +13,15 @@ ALLOWED_TARGET_TYPES = ["monthly_savings", "savings_target", "spending_target"]
 MAX_INT = 2 ** 31 - 1
 
 
+@category.route("/groups", methods=("GET",))
+def _get_category_groups():
+    """
+    Get all the category groups
+    """
+    category_groups = get_category_groups()
+    category_groups = [c["category_group"] for c in category_groups]
+    return make_response(jsonify(category_groups), 200)
+
 @category.route("/names", methods=("GET",))
 def _get_category_names():
     """Get a mapping of category names to ids
@@ -33,7 +42,7 @@ def _get_categories(date):
     return make_response(jsonify(categories), 200)
 
 
-@category.route("/<category_id>/<date>", methods=("GET",))
+@category.route("/<int:category_id>/<date>", methods=("GET",))
 def _get_category(category_id, date):
     """Get category at a given date"""
     assert category_id == request.view_args["category_id"]
@@ -54,7 +63,7 @@ def _create_category():
     return make_response(jsonify(resp), 201)
 
 
-@category.route("/update/<category_id>", methods=("PUT",))
+@category.route("/update/<int:category_id>", methods=("PUT",))
 @expects_json(PUT_CATEGORY_UPDATE_SCHEMA)
 def _update_category(category_id):
     """Update Category"""
@@ -70,7 +79,7 @@ def _update_category(category_id):
     return make_response(jsonify(category[0]), 200)
 
 
-@category.route("/update/<category_id>/target", methods=("PUT",))
+@category.route("/update/<int:category_id>/target", methods=("PUT",))
 @expects_json(PUT_CATEGORY_UPDATE_TARGET_SCHEMA)
 def _update_category_target(category_id):
     """Update Category target"""
@@ -102,7 +111,7 @@ def _update_category_target(category_id):
     return make_response(jsonify(target), 200)
 
 
-@category.route("/delete/<category_id>/target", methods=("DELETE",))
+@category.route("/delete/<int:category_id>/target", methods=("DELETE",))
 def delete_cateogry_target(category_id):
     """Remove Category target"""
     assert category_id == request.view_args["category_id"]
@@ -112,7 +121,7 @@ def delete_cateogry_target(category_id):
     return make_response(jsonify({"id": category_id}), 200)
 
 
-@category.route("/assign/<category_id>", methods=("PUT",))
+@category.route("/assign/<int:category_id>", methods=("PUT",))
 @expects_json(PUT_CATEGORY_ASSIGN_SCHEMA)
 def _category_assign(category_id):
     """Assign money to category"""
@@ -129,7 +138,7 @@ def _category_assign(category_id):
     )
 
 
-@category.route("/unassign/<category_id>", methods=("PUT",))
+@category.route("/unassign/<int:category_id>", methods=("PUT",))
 @expects_json(PUT_CATEGORY_UNASSIGN_SCHEMA)
 def _category_unassign(category_id):
     """Unassign money from category"""
@@ -400,3 +409,8 @@ def get_category_names():
     """ Fetch all the category names and ids
     """
     return db_utils.execute(GET_CATEGORY_NAMES)
+
+def get_category_groups():
+    """ Fetch all the category groups
+    """
+    return db_utils.execute(GET_CATEGORY_GROUPS)

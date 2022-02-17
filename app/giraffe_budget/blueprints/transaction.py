@@ -81,14 +81,10 @@ def _create_transaction():
     return make_response(jsonify({"id": transaction_id}), 201)
 
 
-@transaction.route("/update/<transaction_id>", methods=("PUT",))
+@transaction.route("/update/<int:transaction_id>", methods=("PUT",))
 @expects_json(PUT_TRANSACTION_UPDATE_SCHEMA)
 def update_transaction(transaction_id):
     """Update transaction"""
-    try:
-        transaction_id = int(transaction_id)
-    except ValueError:
-        return make_response("transaction id must be type int", 400)
     data = request.get_json()
     try:
         transaction = update_transaction(
@@ -107,13 +103,9 @@ def update_transaction(transaction_id):
     return make_response(jsonify(transaction), 200)
 
 
-@transaction.route("/delete/<transaction_id>", methods=("DELETE",))
+@transaction.route("/delete/<int:transaction_id>", methods=("DELETE",))
 def _delete_transaction(transaction_id):
     """Delete transaction"""
-    try:
-        transaction_id = int(transaction_id)
-    except ValueError:
-        return make_response("transaction id must be type int", 400)
     deleted_id = delete_transaction(transaction_id)
     return make_response(jsonify({"id": deleted_id}), 200)
 

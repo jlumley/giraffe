@@ -190,7 +190,7 @@ class TestTransactionEndpoints(unittest.TestCase):
         transaction_ids = [None, 'fff']
         for transaction_id in transaction_ids:
             resp = delete_transaction(transaction_id)
-            self.assertEqual(resp.status_code, 400)
+            self.assertEqual(resp.status_code, 404)
     
     def test_update_transaction(self):
         """

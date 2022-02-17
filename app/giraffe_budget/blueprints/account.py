@@ -35,7 +35,7 @@ def create_account():
     return make_response(jsonify(account), 201)
 
 
-@account.route("/hide/<account_id>", methods=("PUT",))
+@account.route("/hide/<int:account_id>", methods=("PUT",))
 def hide_account(account_id):
     """Hide an account"""
     assert account_id == request.view_args["account_id"]
@@ -45,7 +45,7 @@ def hide_account(account_id):
     return make_response(jsonify(account), 200)
 
 
-@account.route("/unhide/<account_id>", methods=("PUT",))
+@account.route("/unhide/<int:account_id>", methods=("PUT",))
 def unhide_account(account_id):
     """Unhide an account"""
     assert account_id == request.view_args["account_id"]
@@ -55,7 +55,7 @@ def unhide_account(account_id):
     return make_response(jsonify(account), 200)
 
 
-@account.route("/reconcile/<account_id>", methods=("PUT",))
+@account.route("/reconcile/<int:account_id>", methods=("PUT",))
 @expects_json(PUT_ACCOUNT_RECONCILE_SCHEMA)
 def _reconcile_account(account_id):
     """Set all cleared transactions associated

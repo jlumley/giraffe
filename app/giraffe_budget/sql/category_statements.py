@@ -65,3 +65,7 @@ VALUES (:category_id, :amount, :date);
 GET_CATEGORY_NAMES = """SELECT id, name
 FROM categories;
 """
+
+GET_CATEGORY_GROUPS = """SELECT DISTINCT category_group
+FROM categories WHERE category_group IS NOT NULL;
+"""
