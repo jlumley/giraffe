@@ -10,11 +10,12 @@ import CheckboxBlankCircleOutlineIcon from 'mdi-react/CheckboxBlankCircleOutline
 import CheckboxMarkedCircleIcon from 'mdi-react/CheckboxMarkedCircleIcon'
 
 import '../style/Category.css'
+import { MoneyInput } from './Inputs/MoneyInput';
 
 
 export function Category({ category, currentDate, screenSize }) {
     const [categoryName, setCategoryName] = useState(category.name);
-    const [categoryAssigned, setCategoryAssigned] = useState(0);
+    const [categoryAssigned, setCategoryAssigned] = useState(category.assigned_this_month / 100);
     const [categorySpent, setCategorySpent] = useState(0);
     const [categoryBalance, setCategoryBalance] = useState(0);
     const [tempAssigned, setTempAssgined] = useState(category.assigned_this_month / 100);
@@ -74,9 +75,6 @@ export function Category({ category, currentDate, screenSize }) {
     const handleChangeCategoryName = (event) => {
         setCategoryName(event.target.value);
     }
-    const handleChangeCategoryAssigned = (event) => {
-        setTempAssgined(event);
-    }
 
     const updateCategoryName = (event) => {
         instance.put(
@@ -100,9 +98,9 @@ export function Category({ category, currentDate, screenSize }) {
         }
     }
 
-    const updateCategoryAssignment = (event) => {
+    const updateCategoryAssignment = (newValue) => {
         const req_data = {
-            amount: (tempAssigned * 100 - categoryAssigned),
+            amount: (newValue * 100 - categoryAssigned),
             date: currentDate.toISOString().slice(0, 10)
         }
         if (req_data.amount < 0) {
@@ -111,7 +109,7 @@ export function Category({ category, currentDate, screenSize }) {
         else if (req_data.amount > 0) {
             instance.put(`${categoryRequests.assignCategory}${category.id}`, req_data)
         }
-        setCategoryAssigned(tempAssigned)
+        setCategoryAssigned(newValue)
     }
 
 
@@ -121,7 +119,7 @@ export function Category({ category, currentDate, screenSize }) {
                 {(false) && (< DotsVerticalIcon className="categoryOptions" />)}
                 {ifSelected()}
                 <div className={`categoryCell ${screenSize}CategoryNameBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}><input className="categoryInput" type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} /></div></div>
-                <div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>< CurrencyInput className="categoryInput" maxLength="8" prefix="$" value={tempAssigned} onValueChange={handleChangeCategoryAssigned} onBlur={updateCategoryAssignment} /></div></div>
+                <div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>< MoneyInput startingValue={categoryAssigned} updateMethod={updateCategoryAssignment} /></div></div>
                 {(screenSize === "largeScreen") && (<div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(categorySpent)}</div></div>)}
                 <div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(categoryBalance)}</div></div>
             </div>
