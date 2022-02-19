@@ -1,6 +1,7 @@
+<<<<<<< HEAD
 
 ## 1. Add better support for credit cards (create a category for each credit
 #card account)
-## 2. Create endpoint to fetch only category groups
+## 2. Create endpoint to fetch only category groups    - DONE
 ## 3. Add option to GET /categories to filter by group
 ##

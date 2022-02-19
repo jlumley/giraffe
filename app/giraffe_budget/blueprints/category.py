@@ -22,6 +22,7 @@ def _get_category_groups():
     category_groups = [c["category_group"] for c in category_groups]
     return make_response(jsonify(category_groups), 200)
 
+
 @category.route("/names", methods=("GET",))
 def _get_category_names():
     """Get a mapping of category names to ids
@@ -409,6 +410,7 @@ def get_category_names():
     """ Fetch all the category names and ids
     """
     return db_utils.execute(GET_CATEGORY_NAMES)
+
 
 def get_category_groups():
     """ Fetch all the category groups

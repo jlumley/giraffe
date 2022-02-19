@@ -40,7 +40,6 @@ export const CategoryGroup = ({ name, currentDate, screenSize }) => {
   const editCategoryGroupName = (event) => {
     setCategoryGroupName(event.target.value);
   }
-
   const updateCategoryGroupName = (event) => {
     categories.forEach(cat => {
       instance.put(`${categoryRequests.updateCategory}${cat.id}`,
