@@ -24,7 +24,7 @@ def _create_payee():
     return make_response(jsonify(payee), 201)
 
 
-@payee.route("/update/<payee_id>", methods=("PUT",))
+@payee.route("/update/<int:payee_id>", methods=("PUT",))
 @expects_json(PUT_PAYEE_UPDATE_SCHEMA)
 def update_payee(payee_id):
     """Update payee"""
@@ -33,9 +33,10 @@ def update_payee(payee_id):
     return make_response(jsonify(payee), 200)
 
 
-@payee.route("/delete/<payee_id>", methods=("DELETE",))
+@payee.route("/delete/<int:payee_id>", methods=("DELETE",))
 def delete_payee(payee_id):
     """Delete payee"""
+
     payee = delete_payee(payee_id)
     return make_response(jsonify(payee), 200)
 
@@ -63,7 +64,7 @@ def get_payee(payee_id):
     Returns:
         list: list of payees with id
     """
-    payee = db_utils.execute(GET_ALL_PAYEES, {"payee_id": payee_id})
+    payee = db_utils.execute(GET_PAYEE, {"payee_id": payee_id})
     return payee
 
 
@@ -107,7 +108,7 @@ def update_payee(payee_id, name=None):
 
     if name:
         query += ", name = :name"
-    query += "WHERE id = :payee_id RETURNING *;"
+    query += " WHERE id = :payee_id RETURNING *;"
 
     payee = db_utils.execute(query, {"payee_id": payee_id, "name": name}, commit=True)
     return payee

@@ -35,7 +35,7 @@ def create_account():
     return make_response(jsonify(account), 201)
 
 
-@account.route("/hide/<account_id>", methods=("GET",))
+@account.route("/hide/<int:account_id>", methods=("PUT",))
 def hide_account(account_id):
     """Hide an account"""
     assert account_id == request.view_args["account_id"]
@@ -45,7 +45,7 @@ def hide_account(account_id):
     return make_response(jsonify(account), 200)
 
 
-@account.route("/unhide/<account_id>", methods=("GET",))
+@account.route("/unhide/<int:account_id>", methods=("PUT",))
 def unhide_account(account_id):
     """Unhide an account"""
     assert account_id == request.view_args["account_id"]
@@ -55,7 +55,7 @@ def unhide_account(account_id):
     return make_response(jsonify(account), 200)
 
 
-@account.route("/reconcile/<account_id>", methods=("PUT",))
+@account.route("/reconcile/<int:account_id>", methods=("PUT",))
 @expects_json(PUT_ACCOUNT_RECONCILE_SCHEMA)
 def _reconcile_account(account_id):
     """Set all cleared transactions associated
@@ -66,6 +66,8 @@ def _reconcile_account(account_id):
     data = request.get_json()
     date = time_utils.datestr_to_sqlite_date(data.get("date"))
     balance = data.get("balance")
+    if not balance:
+        balance = 0
 
     account = reconcile_account(account_id, date, balance)
 
@@ -121,7 +123,15 @@ def create_account(name, date, notes=None, starting_balance=0):
     )
     # Creating starting balance transaction
     transaction.create_transaction(
-        account[0]["id"], starting_balance, date, True, memo="Starting Balance"
+        account[0]["id"], 
+        starting_balance, 
+        date, 
+        True,
+        memo="Starting Balance",
+        categories=[{
+            "category_id": 0,
+            "amount": starting_balance
+        }]
     )
     return get_account(account[0]["id"])
 
@@ -145,11 +155,11 @@ def hide_account(account_id, hide=True):
     return get_account(account_id)
 
 
-def reconcile_account(acccount_id, balance, date):
+def reconcile_account(account_id, date, balance):
     """reconcile account, creating neccessary transactions
 
     Args:
-        acccount_id (int): account id
+        account_id (int): account id
         balance (int): current account balance
         date (int): date of reconciliation (YYYMMDD)
 
@@ -158,14 +168,19 @@ def reconcile_account(acccount_id, balance, date):
     """
 
     current_balance = get_account_balance(account_id)
-    if balance != current_balance:
+    adjustment_amount = balance - current_balance
+    if adjustment_amount:
         # Add transaction to match balance
         transaction.create_transaction(
             account_id,
-            balance - current_balance,
+            adjustment_amount,
             date,
             True,
             memo="Reconciliation Transaction",
+            categories=[{
+                "category_id": 0,
+                "amount": adjustment_amount
+            }]
         )
 
     # mark cleared transactions as reconciled
@@ -191,6 +206,6 @@ def get_account_balance(account_id, cleared=True):
         GET_ACCOUNT_BALANCE, {"id": account_id, "cleared": int(cleared)}
     )
     balance = account[0].get("balance")
-    if not balance:
+    if balance == None:
         balance = 0
     return balance

@@ -75,13 +75,13 @@ def _create_transaction():
             memo=data.get("memo"),
             categories=data.get("categories", []),
         )
-    except Exception as e:
-        return make_response(jsonify(e), 400)
+    except RuntimeError as e:
+        return make_response(jsonify(str(e)), 400)
 
     return make_response(jsonify({"id": transaction_id}), 201)
 
 
-@transaction.route("/update/<transaction_id>", methods=("PUT",))
+@transaction.route("/update/<int:transaction_id>", methods=("PUT",))
 @expects_json(PUT_TRANSACTION_UPDATE_SCHEMA)
 def update_transaction(transaction_id):
     """Update transaction"""
@@ -103,7 +103,7 @@ def update_transaction(transaction_id):
     return make_response(jsonify(transaction), 200)
 
 
-@transaction.route("/delete/<transaction_id>", methods=("DELETE",))
+@transaction.route("/delete/<int:transaction_id>", methods=("DELETE",))
 def _delete_transaction(transaction_id):
     """Delete transaction"""
     deleted_id = delete_transaction(transaction_id)
@@ -161,7 +161,7 @@ def update_transaction(
         "date": date,
         "memo": memo,
         "amount": amount,
-        "cleared": db_utils.to_sqlite_bool(data["cleared"]),
+        "cleared": cleared,
         "categories": categories,
     }
     if account_id:
@@ -184,11 +184,11 @@ def update_transaction(
         db_utils.execute(
             DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}
         )
-        for c in data["categories"]:
+        for c in categories:
             db_utils.execute(
-                POST_TRANSACTION_CATEGORIES,
+                CREATE_TRANSACTION_CATEGORIES,
                 {
-                    "transaction_id": transaction[0]["id"],
+                    "transaction_id": transaction_id,
                     "category_id": c["category_id"],
                     "amount": c["amount"],
                 },
@@ -219,6 +219,13 @@ def create_transaction(
     Returns:
         int: trnasaction id
     """
+    if len(categories) < 1:
+        raise RuntimeError("Missing transaction categories")
+    sum_cat_amount = 0
+    for c in categories:
+        sum_cat_amount += c['amount']
+    if sum_cat_amount != amount:
+        raise RuntimeError("Category amounts do not match transaction amount")
     transaction = db_utils.execute(
         CREATE_TRANSACTION,
         {

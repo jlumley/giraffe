@@ -3,25 +3,29 @@ import instance from '../axois';
 import transactionRequests from '../requests/transaction';
 import categoryRequests from '../requests/category';
 
-
+import DotsVerticalIcon from 'mdi-react/DotsVerticalIcon'
 import CurrencyInput from 'react-currency-input-field';
 import { centsToMoney } from '../utils/money_utils'
+import CheckboxBlankCircleOutlineIcon from 'mdi-react/CheckboxBlankCircleOutlineIcon'
+import CheckboxMarkedCircleIcon from 'mdi-react/CheckboxMarkedCircleIcon'
 
 import '../style/Category.css'
+import { MoneyInput } from './Inputs/MoneyInput';
 
 
-export function Category({ category, current_date, screen_size }) {
+export function Category({ category, currentDate, screenSize }) {
     const [categoryName, setCategoryName] = useState(category.name);
-    const [categoryAssigned, setCategoryAssigned] = useState(0);
+    const [categoryAssigned, setCategoryAssigned] = useState(category.assigned_this_month / 100);
     const [categorySpent, setCategorySpent] = useState(0);
     const [categoryBalance, setCategoryBalance] = useState(0);
     const [tempAssigned, setTempAssgined] = useState(category.assigned_this_month / 100);
+    const [selected, setSelected] = useState(false);
 
     const fetchTransactions = () => {
         async function _fetchTransactions() {
             // get today's date YYYY-MM-DD
-            const today = current_date.toISOString().slice(0, 10);
-            const month_start = `${current_date.toISOString().slice(0, 8)}01`
+            const today = currentDate.toISOString().slice(0, 10);
+            const month_start = `${currentDate.toISOString().slice(0, 8)}01`
             // get all transactions for this category
             const params = {
                 categories: category.id,
@@ -46,17 +50,18 @@ export function Category({ category, current_date, screen_size }) {
                 )
             });
             setCategorySpent(parsed_transactions.reduce((a, b) => a + b.amount, 0));
-            console.log(categorySpent)
         }
         _fetchTransactions()
     }
 
     const fetchCategory = () => {
         async function _fetchCategory() {
-            const today = current_date.toISOString().slice(0, 10);
+            const today = currentDate.toISOString().slice(0, 10);
             const resp = await instance.get(`${categoryRequests.fetchCategory}/${category.id}/${today}`)
 
             setCategoryBalance(resp.data[0].balance)
+            setCategoryAssigned(resp.data[0].assigned_this_month)
+            setTempAssgined(resp.data[0].assigned_this_month / 100)
         }
         _fetchCategory()
     };
@@ -64,29 +69,39 @@ export function Category({ category, current_date, screen_size }) {
     useEffect(() => {
         fetchTransactions()
         fetchCategory()
-    }, [categoryAssigned, current_date])
+    }, [categoryAssigned, currentDate])
 
 
     const handleChangeCategoryName = (event) => {
         setCategoryName(event.target.value);
     }
-    const handleChangeCategoryAssigned = (event) => {
-        setTempAssgined(event);
-    }
 
     const updateCategoryName = (event) => {
         instance.put(
             `${categoryRequests.updateCategory}${category.id}`,
-            {
-                'name': category.name
-            }
+            { name: event.target.value }
         )
     }
 
-    const updateCategoryAssignment = (event) => {
+    function selectCategory() {
+        setSelected(!selected)
+    }
+
+    const ifSelected = () => {
+        if (screenSize === "smallScreen") {
+            return
+        }
+        if (selected) {
+            return <CheckboxMarkedCircleIcon className="selectedIcon" onClick={selectCategory} />
+        } else {
+            return <CheckboxBlankCircleOutlineIcon className="selectedIcon" onClick={selectCategory} />
+        }
+    }
+
+    const updateCategoryAssignment = (newValue) => {
         const req_data = {
-            'amount': (tempAssigned * 100 - categoryAssigned),
-            'date': current_date.toISOString().slice(0, 10)
+            amount: (newValue * 100 - categoryAssigned),
+            date: currentDate.toISOString().slice(0, 10)
         }
         if (req_data.amount < 0) {
             instance.put(`${categoryRequests.unassignCategory}${category.id}`, req_data)
@@ -94,16 +109,21 @@ export function Category({ category, current_date, screen_size }) {
         else if (req_data.amount > 0) {
             instance.put(`${categoryRequests.assignCategory}${category.id}`, req_data)
         }
-        setCategoryAssigned(tempAssigned)
+        setCategoryAssigned(newValue)
     }
 
 
     return (
-        <div className="baseCategory" >
-            <div className={`categoryCell ${screen_size}CategoryNameBox`}><div className={`categoryValueOutline ${screen_size}CategoryValueOutline`}><input className="categoryInput" type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} /></div></div>
-            <div className={`categoryCell ${screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${screen_size}CategoryValueOutline`}>< CurrencyInput className="categoryInput" maxLength="8" prefix="$" value={tempAssigned} onValueChange={handleChangeCategoryAssigned} onBlur={updateCategoryAssignment} /></div></div>
-            {(screen_size === "largeScreen") && (<div className={`categoryCell ${screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${screen_size}CategoryValueOutline`}>{centsToMoney(categorySpent)}</div></div>)}
-            <div className={`categoryCell ${screen_size}CategoryValueBox`}><div className={`categoryValueOutline ${screen_size}CategoryValueOutline`}>{centsToMoney(categoryBalance)}</div></div>
+        <div>
+            <div className="baseCategory" >
+                {(false) && (< DotsVerticalIcon className="categoryOptions" />)}
+                {ifSelected()}
+                <div className={`categoryCell ${screenSize}CategoryNameBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}><input className="categoryInput" type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} /></div></div>
+                <div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>< MoneyInput startingValue={categoryAssigned} updateMethod={updateCategoryAssignment} /></div></div>
+                {(screenSize === "largeScreen") && (<div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(categorySpent)}</div></div>)}
+                <div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(categoryBalance)}</div></div>
+            </div>
+            <hr className="categoryDividingLine"></hr>
         </div>
     );
 }

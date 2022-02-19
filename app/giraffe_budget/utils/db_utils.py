@@ -4,11 +4,21 @@ import sqlite3
 
 from flask import Flask, g, current_app
 
+CREATE_DB_VERSION_TABLE = """
+CREATE TABLE IF NOT EXISTS db_version (
+  version integer
+);
+"""
 
 def init_db(app):
     db = get_db()
-    with current_app.open_resource("sql/create_tables.sql") as f:
-        db.executescript(f.read().decode("utf-8"))
+    db_cur = db.cursor()
+    with current_app.open_resource("sql/db_init.sql") as f:
+        db_cur.execute(CREATE_DB_VERSION_TABLE)
+        db_cur.execute("SELECT version FROM db_version;")
+        db_version = db_cur.fetchall()
+        if not db_version:
+            db.executescript(f.read().decode("utf-8"))
 
 
 def dict_factory(cursor, row):

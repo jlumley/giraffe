@@ -11,7 +11,8 @@ dev: ## run container interactively
 dev-api: ## run only api
 	docker run  -d -v /tmp/giraffe-budget/data:/data -v /tmp/giraffe-budget/logs:/logs -p 80:80 -e APP_MODE="DEV" -e API_ONLY="true" --name giraffe-budget-dev  giraffe-budget
 
-
-
 clean: ## cleanup after dev instance
 	docker rm -f giraffe-budget-dev && rm -rf /tmp/giraffe-budget
+
+test:
+	bin/run_tests.sh

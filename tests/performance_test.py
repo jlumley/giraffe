@@ -4,15 +4,15 @@ import requests
 import uuid
 import time
 
-num_categories = 20
+num_categories = 10
 num_accounts = 3
-num_payees = 100
-num_transactions = 200
+num_payees = 10
+num_transactions = 15
 
 
 def main():
     accounts = []
-    payees = []
+    payees = ["Amazon", "Loblaws", "LCBO", "Walmart", "Apple"]
     categories = []
 
     # create accounts
@@ -23,9 +23,8 @@ def main():
         # print(r.content)
 
     # create payees
-    for i in range(num_payees):
-        payee = dict(name=uuid.uuid4().hex)
-        payees.append(payee)
+    for p in payees:
+        payee = dict(name=p)
         r = requests.post("http://localhost/api/payee/create", json=payee)
         # print(r.content)
 

@@ -1,0 +1,7 @@
+@import url("colors.css");
+
+.budgetInfo {
+    width: 380px;
+    height: 100%;
+    background: var(--dark-gradient);
+}

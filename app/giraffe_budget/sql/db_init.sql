@@ -1,3 +1,5 @@
+INSERT INTO db_version (version) VALUES (1);
+
 CREATE TABLE IF NOT EXISTS accounts (
   id integer PRIMARY KEY,
   name text NOT NULL,
@@ -13,7 +15,7 @@ CREATE TABLE IF NOT EXISTS categories (
   target_type text,
   target_amount integer,
   target_date integer,
-  category_group text NOT NULL,
+  category_group text,
   notes text
 );
 
@@ -64,3 +66,9 @@ ON transactions(payee_id);
 
 CREATE INDEX IF NOT EXISTS assignments_category_index
 ON assignments(category_id);
+
+INSERT INTO categories (name, category_group) VALUES ("System", NULL);
+
+INSERT INTO categories (name, category_group) VALUES ("Income", NULL);
+
+

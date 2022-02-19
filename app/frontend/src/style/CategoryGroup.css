@@ -1,8 +1,15 @@
+@import url("colors.css");
+
 .categoryGroupTitle {
     text-align: left;
     padding-left: 15px;
     padding-top: 10px;
     padding-bottom: 10px;
+}
+
+.newCategoryButton {
+    float: right;
+    margin-right: 3%;
 }
 
 .categoryGroupTitleInput {
@@ -11,5 +18,5 @@
     outline: none;
     font-weight: bold;
     font-size: 14px;
-    color: #00334d;
+    color: var(--dark-color);
 }

@@ -11,8 +11,7 @@ RETURNING id;
 """
 
 UPDATE_PAYEE = """UPDATE payees
-SET id = id
-RETURNING *;"""
+SET id = id"""
 
 DELETE_PAYEE = """DELETE FROM payees
 WHERE id = :payee_id

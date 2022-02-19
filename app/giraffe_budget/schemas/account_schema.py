@@ -12,5 +12,5 @@ POST_ACCOUNT_CREATE_SCHEMA = {
 PUT_ACCOUNT_RECONCILE_SCHEMA = {
     "type": "object",
     "properties": {"balance": {"type": "number"}, "date": {"type": "string"}},
-    "required": ["balance"],
+    "required": ["balance", "date"],
 }

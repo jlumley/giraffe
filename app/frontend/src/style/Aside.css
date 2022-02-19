@@ -1,7 +1,18 @@
+@import url("colors.css");
+
+.sidebar {
+  width: 300px;
+  min-width: 200px;
+  background: var(--dark-gradient);
+  text-align: left;
+}
+
+
 .sidebar-link-div {
-  padding-left: 25px;
+  padding-left: 10px;
   padding-top: 10px;
-  color: #80d4ff;
+  font-size: 15px;
+  color: var(--accent-color)
 }
 
 .sidebar-link {
