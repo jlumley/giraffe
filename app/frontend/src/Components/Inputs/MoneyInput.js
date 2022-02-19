@@ -21,7 +21,13 @@ export function MoneyInput({ startingValue, updateMethod }) {
         updateMethod(value)
     }
 
+    const handleKeyPress = (event) => {
+        if (event.key !== 'Enter') return
+
+        event.target.blur();
+    }
+
     return (
-        < CurrencyInput className="currencyInput" maxLength="8" prefix="$" value={value} onValueChange={handleChange} onBlur={handleUpdate} />
+        < CurrencyInput className="currencyInput" maxLength="8" prefix="$" value={value} onValueChange={handleChange} onBlur={handleUpdate} onKeyDown={handleKeyPress} />
     );
 }

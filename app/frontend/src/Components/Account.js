@@ -4,14 +4,17 @@ import instance from '../axois'
 import categoryRequests from '../requests/category';
 import payeeRequests from '../requests/payee';
 import transactionRequests from '../requests/transaction';
+import accountRequests from '../requests/account';
 
 import '../style/Account.css'
 import { Transaction } from './Transaction';
 
 export const Account = () => {
+    const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [payees, setPayees] = useState({});
     const [categories, setCategories] = useState({});
+    const [accounts, setAccounts] = useState([]);
     const { id } = useParams();
 
     useEffect(() => {
@@ -36,26 +39,33 @@ export const Account = () => {
                 map[obj.id] = obj.name
                 return map;
             }, {}))
+            const a = await instance.get(accountRequests.fetchAllAccounts, { params })
+            setAccounts(a.data.reduce((map, obj) => {
+                map[obj.id] = obj.name
+                return map;
+            }, {}))
         }
         _fetchTransactions()
     }
 
+    const selectTransaction = (transaction_id) => {
+        // allow one and only one row to be modified at once
+        if (transaction_id && selectedTransaction) return
+        if (transaction_id === selectedTransaction) return
+
+        setSelectedTransaction(transaction_id)
+    }
+
     const createTransactions = (transaction) => {
-        return <Transaction transaction={transaction} categories={categories} payees={payees} />
+        return <Transaction transaction={transaction} categories={categories} payees={payees} accounts={accounts} selected={(selectedTransaction === transaction.id)} selectTransaction={selectTransaction} />
     }
 
     return (
         <div className="accountContent">
             <div className="accountHeader">
-                <div className="addTransactionButton">
-
-                </div>
-                <div className="filterTransactionsButton">
-
-                </div>
-                <div className="searchTransactions">
-
-                </div>
+                <div className="addTransactionButton">New Transaction </div>
+                <div className="filterTransactionsButton" />
+                <div className="searchTransactions" />
             </div>
             <div className="accountTransactionsContent">
                 <table>
@@ -63,6 +73,7 @@ export const Account = () => {
                         <tr>
                             <th className="accountTransactionsClearedColumn" />
                             <th className="accountTransactionsDateColumn">Date</th>
+                            <th className="accountTransactionsAccountColumn">Account</th>
                             <th className="accountTransactionsPayeeColumn">Payee</th>
                             <th className="accountTransactionsMemoColumn">Memo</th>
                             <th className="accountTransactionsCategoryColumn">Catgory</th>

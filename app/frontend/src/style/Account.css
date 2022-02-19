@@ -19,6 +19,7 @@
 
 table {
     min-width: fit-content;
+    border-collapse: collapse;
 }
 
 .accountTransactionsTableHeader {

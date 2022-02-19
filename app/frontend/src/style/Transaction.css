@@ -17,3 +17,8 @@
 .textInput {
     text-align: left;
 }
+
+.amountInput {
+    min-width: 80px;
+    width: 10%;
+}
