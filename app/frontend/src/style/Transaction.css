@@ -18,11 +18,13 @@
 }
 
 .saveTransactionEdits {
+    min-width: 25px;
     width: 25px;
 }
 
 .amountInput {
-    width: 80px;
+    min-width: 90px;
+    width: 100px;
 }
 
 .selected {

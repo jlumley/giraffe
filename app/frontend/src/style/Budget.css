@@ -38,11 +38,9 @@
     background-color: var(--translucent-background);
 }
 .smallScreenMonthSelector {
-    font-size: 4vw;
     width: 40%;
 }
 .largeScreenMonthSelector {
-    font-size: 25px;
     width: 275px;
 }
 
@@ -53,12 +51,12 @@
 }
 .currentMonth {
     width: 50%;
+    margin: auto;
 }
 
 .budgetColumnTitles {
     margin-left: 18px;
     height: 15px;
-    font-size: 13px;
 }
 .budgetCategories {
     padding-top: 3px;
