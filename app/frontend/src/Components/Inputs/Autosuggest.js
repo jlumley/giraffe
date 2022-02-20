@@ -15,7 +15,7 @@ export function Autosuggest({ startingValue, suggestions }) {
     return (
         <div className="autoSuggestDiv">
             <Hint options={suggestions} allowTabFill={true} >
-                <input className="autoSuggestDiv"
+                <input className="autoSuggestInput"
                     value={text}
                     onChange={e => setText(e.target.value)}
                     onBlur={onBlur} />

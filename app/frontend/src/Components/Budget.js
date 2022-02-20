@@ -63,9 +63,6 @@ export function Budget({ screenSize }) {
     else if (diff_months < 0) {
       newCurrentDate = new Date(tmp_date.getFullYear(), tmp_date.getMonth() + 1, 0)
     }
-    this.updateDate = this.updateDate.bind(this)
-    this.nextMonth = () => { this.updateDate(+1) };
-    this.prevMonth = () => { this.updateDate(-1) };
 
     if (newCurrentDate !== currentDate) {
       setCurrentDate(newCurrentDate);
