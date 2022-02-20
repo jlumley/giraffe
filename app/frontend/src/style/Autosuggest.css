@@ -1,2 +1,14 @@
-input {
+@import url("colors.css");
+
+.autoSuggestInput {
+    color: var(--dark-color);
+    background-color: transparent;
+    border-color: transparent;
+    outline: none;
+    text-align: left;
+}
+
+.autoSuggestDiv {
+    padding-left: 5px;
+    text-align: left;
 }

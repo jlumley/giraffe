@@ -13,11 +13,11 @@ import { MoneyInput } from './Inputs/MoneyInput';
 
 
 export const Transaction = ({ transaction, categories, payees, accounts, selected, selectTransaction }) => {
+
     const [cleared, setCleared] = useState(transaction.cleared);
     const [transactionDate, setTransactionDate] = useState(new Date(transaction.date));
+    const [newTransactionCategories, setNewTransactionCategories] = useState([]);
 
-
-    useEffect(() => { }, [])
 
     function updateCleared() {
         setCleared(!cleared)
@@ -39,38 +39,31 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     const transactionDateSelector = () => {
         return <DatePicker className="transactionDateSelector" selected={transactionDate} onChange={(date) => { updateTransactionDate(date) }} />
     }
-
     const payeeInputField = () => {
+        if (!selected) return <div>{payees[transaction.payee_id]}</div>
         return <Autosuggest startingValue={payees[transaction.payee_id]} suggestions={payees} />
     }
     const accountInputField = () => {
+        if (!selected) return <div>{accounts[transaction.account_id]}</div>
         return <Autosuggest startingValue={accounts[transaction.account_id]} suggestions={accounts} />
     }
-
-    const categoryInputField = () => {
-        if (transaction.categories.lenth === 0) return
-
-        return transaction.categories.map(c => {
-            return <Autosuggest startingValue={categories[c.category_id]} suggestions={categories} />
-        });
-    }
-
     const memoInputField = () => {
+        if (!selected) return <div>{transaction.memo}</div>
         return <input value={transaction.memo} />
     }
 
-    const outflowInputField = () => {
-        var startingValue = 0
-        if (transaction.amount < 0) startingValue = transaction.amount;
 
-        return <MoneyInput startingValue={startingValue} />
+    const categoryInputField = () => {
+        return transaction.categories.map(c => {
+            if (!selected) return <div>{categories[c.category_id]}</div>
+            return <Autosuggest className="textInput" startingValue={categories[c.category_id]} suggestions={categories} />
+        });
     }
 
-    const inflowInputField = () => {
-        var startingValue = 0
-        if (transaction.amount > 0) startingValue = transaction.amount;
-
-        return <MoneyInput startingValue={startingValue} />
+    const amountInputField = () => {
+        return transaction.categories.map(c => {
+            return <MoneyInput startingValue={c.amount / 100} updateMethod={() => { }} />
+        });
     }
 
     const selectCurrentTransaction = () => {
@@ -81,19 +74,31 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
         selectTransaction(null)
     }
 
-
-
-    return (
-        <tr className="transactionRow" onClick={selectCurrentTransaction}>
-            <td> {clearedIcon()} </td>
-            <td> {transactionDateSelector()} </td>
-            <td className="textInput"> {accountInputField()} </td>
-            <td className="textInput"> {payeeInputField()} </td>
-            <td className="textInput">  {memoInputField()} </td>
-            <td className="textInput"> {categoryInputField()} </td>
-            <td className="amountInput"> {outflowInputField()} </td>
-            <td className="amountInput"> {inflowInputField()} </td>
-            {(selected) && (<td className="saveTransactionEdits"> {<CheckIcon onClick={deselectCurrentTransaction} />}</td>)}
-        </tr>);
-
+    if (selected) {
+        return (
+            <tr className={`transactionRow ${selected ? 'selected' : ''}`}>
+                <td> {clearedIcon()} </td>
+                <td> {transactionDateSelector()} </td>
+                <td> {accountInputField()} </td>
+                <td> {payeeInputField()} </td>
+                <td> {memoInputField()} </td>
+                <td> {categoryInputField()} </td>
+                <td className="amountInput"> {amountInputField()} </td>
+                <td className="saveTransactionEdits"> <CheckIcon onClick={deselectCurrentTransaction} /></td>
+            </tr>
+        );
+    } else {
+        return (
+            <tr className={`transactionRow ${selected ? 'selected' : ''}`}>
+                <td> {clearedIcon()} </td>
+                <td onClick={selectCurrentTransaction}> {transactionDateSelector()} </td>
+                <td onClick={selectCurrentTransaction}> {accountInputField()} </td>
+                <td onClick={selectCurrentTransaction}> {payeeInputField()} </td>
+                <td onClick={selectCurrentTransaction}> {memoInputField()} </td>
+                <td onClick={selectCurrentTransaction}> {categoryInputField()} </td>
+                <td onClick={selectCurrentTransaction} className="amountInput"> {amountInputField()} </td>
+                <td className="saveTransactionEdits"> </td>
+            </tr>
+        );
+    }
 }

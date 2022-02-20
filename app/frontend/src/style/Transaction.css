@@ -1,8 +1,6 @@
 @import url("colors.css");
 
 .transactionRow {
-    padding-top: 1px;
-    padding-bottom: 40px;
     color: var(--dark-color);
 }
 
@@ -16,9 +14,18 @@
 
 .textInput {
     text-align: left;
+    background: transparent;
+}
+
+.saveTransactionEdits {
+    width: 25px;
 }
 
 .amountInput {
-    min-width: 80px;
-    width: 10%;
+    width: 80px;
+}
+
+.selected {
+    border-color: var(--dark-color);
+    border: solid thin;
 }

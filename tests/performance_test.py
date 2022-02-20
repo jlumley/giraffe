@@ -5,22 +5,18 @@ import uuid
 import time
 
 num_categories = 10
-num_accounts = 3
-num_payees = 10
-num_transactions = 15
+num_transactions = 50
 
 
 def main():
-    accounts = []
+    accounts = ["Checking", "Saving", "Mastercard", "Visa"]
     payees = ["Amazon", "Loblaws", "LCBO", "Walmart", "Apple"]
-    categories = []
+    categories = ["Mortgage", "Groceries", "Cellphone", "gifts", "Car Repair"]
 
     # create accounts
-    for i in range(num_accounts):
-        account = dict(name=uuid.uuid4().hex[:4])
-        accounts.append(account)
+    for a in accounts:
+        account = dict(name=a)
         r = requests.post("http://localhost/api/account/create", json=account)
-        # print(r.content)
 
     # create payees
     for p in payees:
@@ -29,34 +25,35 @@ def main():
         # print(r.content)
 
     # create categories
-    for i in range(num_categories):
-        category = dict(name=uuid.uuid4().hex[:6], group="group" + str(i % 3))
-        categories.append(category)
+    for c in categories:
+        group = random.randint(0, 2)
+        category = dict(name=c, group="group" + str(group))
         r = requests.post("http://localhost/api/category/create", json=category)
         # print(r.content)
 
     # fund accounts
-    for i in range(1, num_accounts + 1):
+    for i in range(len(accounts)):
         transaction = dict(
             payee_id=1,
-            account_id=i,
+            account_id=i + 1,
             memo="Income",
             cleared=True,
             date="2022-01-01",
-            amount=9999999,
+            amount=999999,
+            categories=[dict(category_id=1, amount=999999)],
         )
         r = requests.post("http://localhost/api/transaction/create", json=transaction)
-    # print(r.content)
+        # print(r.content)
     # fund categories
-    for i in range(1, num_categories + 1):
+    for i in range(len(categories)):
         if i % 2 == 0:
             r = requests.put(
-                f"http://localhost/api/category/update/{i}/target",
+                f"http://localhost/api/category/update/{i+1}/target",
                 json=dict(target_type="monthly_savings", target_amount=50000),
             )
         else:
             r = requests.put(
-                f"http://localhost/api/category/update/{i}/target",
+                f"http://localhost/api/category/update/{i+1}/target",
                 json=dict(
                     target_type="savings_target",
                     target_amount=53567,
@@ -66,7 +63,7 @@ def main():
 
         #  print(r.content)
         r = requests.put(
-            f"http://localhost/api/category/assign/{i}",
+            f"http://localhost/api/category/assign/{i+1}",
             json=dict(amount=1000000, date="2022-01-02"),
         )
 
@@ -83,12 +80,31 @@ def main():
     amount_spent = 0
     for i in range(num_transactions):
         amount = int(random.randint(0, 15000) * -1)
-        if i % num_categories == 0:
+        if i % len(categories) == 0:
             amount_spent += int(amount)
         transaction = dict(
             payee_id=1,
             account_id=1,
-            categories=[dict(category_id=(i % num_categories + 1), amount=amount)],
+            categories=[dict(category_id=(i % len(categories) + 1), amount=amount)],
+            memo="Spend spend spend",
+            cleared=True,
+            date="2022-01-01",
+            amount=amount,
+        )
+        r = requests.post("http://localhost/api/transaction/create", json=transaction)
+        print(r.content)
+
+    for i in range(num_transactions):
+        amount = int(random.randint(0, 15000) * -2)
+        if i % len(categories) == 0:
+            amount_spent += int(amount)
+        transaction = dict(
+            payee_id=1,
+            account_id=1,
+            categories=[
+                dict(category_id=(i % len(categories) + 1), amount=amount / 2),
+                dict(category_id=(i % num_categories + 2), amount=amount / 2),
+            ],
             memo="Spend spend spend",
             cleared=True,
             date="2022-01-01",
@@ -104,26 +120,6 @@ def main():
     after_resp = json.loads(r)
     print(f"Category balance after spending: ${after_resp[0]['balance']}")
     print(f"Difference: ${round(before_resp[0]['balance']-after_resp[0]['balance'],2)}")
-
-    for i in range(num_accounts, num_accounts + num_transactions + 1):
-        # r = requests.delete(f"http://localhost/api/transaction/delete/{i}")
-        # print(r.content)
-        pass
-
-    r = requests.get("http://localhost/api/transaction").content
-    r = json.loads(r)
-    # print(r)
-
-    r = requests.get("http://localhost/api/account").content
-    r = json.loads(r)
-    # print(r)
-    r = requests.get("http://localhost/api/category/1/2022-01-01").content
-    r = json.loads(r)
-    print(f"Category balance after deleting transactions: ${r[0]['balance']}")
-
-    r = requests.get("http://localhost/api/category/2022-01-01").content
-    r = json.loads(r)
-    # print(r)
 
 
 if __name__ == "__main__":
