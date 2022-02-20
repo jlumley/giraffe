@@ -30,8 +30,7 @@ WHERE transaction_id = :transaction_id;
 """
 
 UPDATE_TRANSACTION = """UPDATE transactions
-SET id = id
-"""
+SET id = id"""
 
 DELETE_TRANSACTION = """DELETE FROM transactions
 WHERE id = :transaction_id

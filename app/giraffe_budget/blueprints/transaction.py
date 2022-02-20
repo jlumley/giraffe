@@ -164,20 +164,20 @@ def update_transaction(
         "cleared": cleared,
         "categories": categories,
     }
-    if account_id:
+    if account_id is not None:
         update_statement += ", account_id = :account_id"
-    if payee_id:
+    if payee_id is not None:
         update_statement += ", payee_id = :apyee_id"
-    if date:
+    if date is not None:
         update_statement += ", date = :date"
-    if memo:
+    if memo is not None:
         update_statement += ", memo = :memo"
-    if amount:
+    if amount is not None:
         update_statement += ", amount = :amount"
-    if cleared:
+    if cleared is not None:
         update_statement += ", cleared = :cleared"
 
-    update_statement += "WHERE id = :transaction_id RETURNING id;"
+    update_statement += " WHERE id = :transaction_id RETURNING id;"
 
     # update categories
     if categories:
@@ -193,7 +193,7 @@ def update_transaction(
                     "amount": c["amount"],
                 },
             )
-
+    db_utils.execute(update_statement, update_vars, commit=True)
     transaction = get_transaction(transaction_id)
 
     return transaction
@@ -223,7 +223,7 @@ def create_transaction(
         raise RuntimeError("Missing transaction categories")
     sum_cat_amount = 0
     for c in categories:
-        sum_cat_amount += c['amount']
+        sum_cat_amount += c["amount"]
     if sum_cat_amount != amount:
         raise RuntimeError("Category amounts do not match transaction amount")
     transaction = db_utils.execute(
