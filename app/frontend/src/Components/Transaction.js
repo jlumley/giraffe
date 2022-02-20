@@ -1,30 +1,39 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import DatePicker from "react-datepicker";
+import instance from '../axois'
 
 import CheckboxMarkedIcon from "mdi-react/CheckboxMarkedIcon"
 import CheckboxBlankOutlineIcon from "mdi-react/CheckboxBlankOutlineIcon"
 import PlusCircleOutlineIcon from 'mdi-react/PlusCircleOutlineIcon'
 import CheckIcon from 'mdi-react/CheckIcon'
 
-import "react-datepicker/dist/react-datepicker.css";
-import "../style/Transaction.css"
+import transactionRequests from '../requests/transaction';
+
 import { Autosuggest } from './Inputs/Autosuggest';
 import { MoneyInput } from './Inputs/MoneyInput';
 
+import "react-datepicker/dist/react-datepicker.css";
+import "../style/Transaction.css"
+
 
 export const Transaction = ({ transaction, categories, payees, accounts, selected, selectTransaction }) => {
-
     const [cleared, setCleared] = useState(transaction.cleared);
-    const [transactionDate, setTransactionDate] = useState(new Date(transaction.date));
+    const [transactionDate, setTransactionDate] = useState(convertDateToUTC(new Date(transaction.date)));
     const [newTransactionCategories, setNewTransactionCategories] = useState([]);
 
-
     function updateCleared() {
+        instance.put(
+            `${transactionRequests.updateTransaction}${transaction.id}`,
+            { cleared: !cleared }
+        )
         setCleared(!cleared)
-        // update cleared state with api
     }
 
     function updateTransactionDate(newDate) {
+        instance.put(
+            `${transactionRequests.updateTransaction}${transaction.id}`,
+            { date: newDate.toISOString().slice(0, 10) }
+        )
         setTransactionDate(newDate);
     }
 
@@ -102,3 +111,5 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
         );
     }
 }
+
+function convertDateToUTC(date) { return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()); }
