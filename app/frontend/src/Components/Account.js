@@ -77,8 +77,7 @@ export const Account = () => {
                             <th className="accountTransactionsPayeeColumn">Payee</th>
                             <th className="accountTransactionsMemoColumn">Memo</th>
                             <th className="accountTransactionsCategoryColumn">Catgory</th>
-                            <th className="accountTransactionsOutflowColumn">Outflow</th>
-                            <th className="accountTransactionsInflowColumn">Inflow</th>
+                            <th className="accountTransactionsamountColumn">Amount</th>
                         </tr>
                     </thead>
                     <tbody className="accountTransactionsTableBody">

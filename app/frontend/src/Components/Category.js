@@ -18,7 +18,6 @@ export function Category({ category, currentDate, screenSize }) {
     const [categoryAssigned, setCategoryAssigned] = useState(category.assigned_this_month / 100);
     const [categorySpent, setCategorySpent] = useState(0);
     const [categoryBalance, setCategoryBalance] = useState(0);
-    const [tempAssigned, setTempAssgined] = useState(category.assigned_this_month / 100);
     const [selected, setSelected] = useState(false);
 
     const fetchTransactions = () => {
@@ -61,7 +60,6 @@ export function Category({ category, currentDate, screenSize }) {
 
             setCategoryBalance(resp.data[0].balance)
             setCategoryAssigned(resp.data[0].assigned_this_month)
-            setTempAssgined(resp.data[0].assigned_this_month / 100)
         }
         _fetchCategory()
     };
