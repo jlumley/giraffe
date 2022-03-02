@@ -33,14 +33,24 @@ class Aside extends React.Component {
   render() {
     return (
       <nav className="sidebar">
-        <Link className="sidebar-link" to="/"><div className="sidebar-link-div">Budget</div></Link>
-        <Link className="sidebar-link" to="/account/all"><div className="sidebar-link-div">All Accounts</div></Link>
+        <Link className="sidebarLink" to="/"><div className="sidebarLinkDiv">Budget</div></Link>
+        <Link className="sidebarLink" to="/account/all"><div className="sidebarLinkDiv">All Accounts</div></Link>
         {
           this.state.accounts.map(a => {
-            return <Link className="sidebar-link" to={`/account/${a.id}`}><div className="sidebar-link-div"> {a.name} {centsToMoney(a.cleared_balance + a.uncleared_balance)}  </div> </Link>
+            return (
+              <Link className="sidebarLink" to={`/account/${a.id}`}>
+                <div className="sidebarLinkDiv">
+                  <div className="accountNameDiv">
+                    {a.name}
+                  </div>
+                  <div className="accountBalanceDiv">
+                    {centsToMoney(a.cleared_balance + a.uncleared_balance)}
+                  </div>
+                </div>
+              </Link>);
           })
         }
-        <Link className="sidebar-link" to="/reports"><div className="sidebar-link-div">Reports</div></Link>
+        <Link className="sidebarLink" to="/reports"><div className="sidebarLinkDiv">Reports</div></Link>
       </nav>
     );
   }

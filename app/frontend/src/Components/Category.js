@@ -13,7 +13,7 @@ import '../style/Category.css'
 import { MoneyInput } from './Inputs/MoneyInput';
 
 
-export function Category({ category, currentDate, screenSize }) {
+export function Category({ key, category, currentDate, screenSize }) {
     const [categoryName, setCategoryName] = useState(category.name);
     const [categoryAssigned, setCategoryAssigned] = useState(category.assigned_this_month / 100);
     const [categorySpent, setCategorySpent] = useState(0);

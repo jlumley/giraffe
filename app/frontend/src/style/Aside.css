@@ -8,13 +8,25 @@
 }
 
 
-.sidebar-link-div {
+.sidebarLinkDiv {
   padding-left: 10px;
   padding-top: 10px;
   font-size: 15px;
-  color: var(--accent-color)
+  color: var(--accent-color);
+  display: flex;
+  flex-direction: row;
 }
 
-.sidebar-link {
+.sidebarLink {
   text-decoration: none;
+}
+
+.accountNameDiv {
+  width: fit-content;
+}
+
+.accountBalanceDiv {
+  flex-grow: 1;
+  text-align: right;
+  padding-right: 25px;
 }

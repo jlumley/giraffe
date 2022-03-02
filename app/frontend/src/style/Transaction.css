@@ -11,12 +11,13 @@
     width: 3%;
     text-align: center;
 }
-
-.textInput {
+.memoInput {
+    color: var(--dark-color);
+    background-color: transparent;
+    border-color: transparent;
+    outline: none;
     text-align: left;
-    background: transparent;
 }
-
 .saveTransactionEdits {
     min-width: 25px;
     width: 25px;

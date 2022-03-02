@@ -1,3 +1,4 @@
+import datetime
 import time
 
 from flask import Blueprint, current_app, request, make_response, g, jsonify
@@ -25,10 +26,11 @@ def create_account():
     """Create new account"""
     data = request.get_json()
     starting_balance = data.get("starting_balance", 0)
-    date = time_utils.datestr_to_sqlite_date(data.get("date"))
+    date = datetime.datetime.now().strftime("%Y-%m-%d")
+    date_str = time_utils.datestr_to_sqlite_date(date)
     account = create_account(
         data.get("name"),
-        date,
+        date_str,
         notes=data.get("notes"),
         starting_balance=starting_balance,
     )
@@ -123,15 +125,12 @@ def create_account(name, date, notes=None, starting_balance=0):
     )
     # Creating starting balance transaction
     transaction.create_transaction(
-        account[0]["id"], 
-        starting_balance, 
-        date, 
+        account[0]["id"],
+        starting_balance,
+        date,
         True,
         memo="Starting Balance",
-        categories=[{
-            "category_id": 0,
-            "amount": starting_balance
-        }]
+        categories=[{"category_id": 0, "amount": starting_balance}],
     )
     return get_account(account[0]["id"])
 
@@ -177,10 +176,7 @@ def reconcile_account(account_id, date, balance):
             date,
             True,
             memo="Reconciliation Transaction",
-            categories=[{
-                "category_id": 0,
-                "amount": adjustment_amount
-            }]
+            categories=[{"category_id": 0, "amount": adjustment_amount}],
         )
 
     # mark cleared transactions as reconciled

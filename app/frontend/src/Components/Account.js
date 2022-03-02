@@ -28,7 +28,7 @@ export const Account = () => {
                 params.accounts = id
             }
             const t = await instance.get(transactionRequests.fetchTransactions, { params })
-            setTransactions(t.data)
+            setTransactions(t.data.sort((e1, e2) => { return e1.date < e2.date }))
             const c = await instance.get(categoryRequests.fetchAllCategoryNames)
             setCategories(c.data.reduce((map, obj) => {
                 map[obj.id] = obj.name
@@ -57,7 +57,7 @@ export const Account = () => {
     }
 
     const createTransactions = (transaction) => {
-        return <Transaction transaction={transaction} categories={categories} payees={payees} accounts={accounts} selected={(selectedTransaction === transaction.id)} selectTransaction={selectTransaction} />
+        return <Transaction key={transaction.id} transaction={transaction} categories={categories} payees={payees} accounts={accounts} selected={(selectedTransaction === transaction.id)} selectTransaction={selectTransaction} />
     }
 
     return (
@@ -78,6 +78,7 @@ export const Account = () => {
                             <th className="accountTransactionsMemoColumn">Memo</th>
                             <th className="accountTransactionsCategoryColumn">Catgory</th>
                             <th className="accountTransactionsamountColumn">Amount</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody className="accountTransactionsTableBody">

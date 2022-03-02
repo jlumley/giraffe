@@ -19,7 +19,7 @@ export const CategoryGroup = ({ name, currentDate, screenSize }) => {
   }, [])
 
   const category = (category) => {
-    return <Category screenSize={screenSize} currentDate={currentDate} category={category} />
+    return <Category key={category.id} screenSize={screenSize} currentDate={currentDate} category={category} />
   }
 
   const createNewCategory = () => {
