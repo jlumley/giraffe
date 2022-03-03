@@ -17,17 +17,12 @@ export function Autosuggest({ startingValue, suggestions, updateMethod, allowNew
         }
     }
 
-    const handleKeyPress = (event) => {
-        if (event.key !== 'Enter') return
-        event.target.blur();
-    }
     return (
         <div className="autoSuggestDiv">
             <Hint options={suggestions} allowTabFill={true} >
                 <input className="autoSuggestInput"
                     value={text}
                     onChange={e => setText(e.target.value)}
-                    onKeyPress={handleKeyPress}
                     onBlur={onBlur} />
             </Hint>
         </div>

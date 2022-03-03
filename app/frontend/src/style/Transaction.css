@@ -2,33 +2,62 @@
 
 .transactionRow {
     color: var(--dark-color);
+    padding-top: 10px;
 }
-
-.transactionDateSelector {
+.selected {
+    border-color: var(--dark-color);
+    border: solid thin;
+}
+.saveTransactionEdits {
+    min-width: 25px;
+    width: 25px;
+}
+.transactionDate {
     background-color: transparent;
     border: none;
     min-width: 70px;
-    width: 3%;
+    width: 10%;
     text-align: center;
 }
-.memoInput {
+.transactionMemo {
     color: var(--dark-color);
     background-color: transparent;
     border-color: transparent;
     outline: none;
     text-align: left;
 }
-.saveTransactionEdits {
-    min-width: 25px;
-    width: 25px;
+
+.transactionAccount {
+    color: var(--dark-color);
+    background-color: transparent;
+    border-color: transparent;
+    outline: none;
+    text-align: left;
+    padding-left: 10px;
 }
 
-.amountInput {
-    min-width: 90px;
-    width: 100px;
+.transactionPayee {
+    color: var(--dark-color);
+    background-color: transparent;
+    border-color: transparent;
+    outline: none;
+    text-align: left;
+
 }
 
-.selected {
-    border-color: var(--dark-color);
-    border: solid thin;
+
+
+.transactionCategory {
+    display: flex;
+    flex-direction: row;
+    min-width: 100px;
+}
+
+.transactionCategoryName {
+    width: 70%;
+    text-align: left;
+}
+.transactionAmount{
+    width: 30%;
+    text-align: right;
 }

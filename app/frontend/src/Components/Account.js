@@ -76,8 +76,8 @@ export const Account = () => {
                             <th className="accountTransactionsAccountColumn">Account</th>
                             <th className="accountTransactionsPayeeColumn">Payee</th>
                             <th className="accountTransactionsMemoColumn">Memo</th>
-                            <th className="accountTransactionsCategoryColumn">Catgory</th>
-                            <th className="accountTransactionsamountColumn">Amount</th>
+                            <th className="accountTransactionsCategoryColumn">Category</th>
+                            <th className="accountTransactionsamountColumn"></th>
                             <th></th>
                         </tr>
                     </thead>

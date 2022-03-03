@@ -1,0 +1,8 @@
+@import url("colors.css");
+
+
+
+.transactionCategory {
+    display: flex;
+    flex-direction: row;
+}
