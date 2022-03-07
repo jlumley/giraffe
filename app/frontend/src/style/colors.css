@@ -2,8 +2,8 @@
     --dark-color: #002233;
     --dark-gradient: linear-gradient(0deg, #00334d, #002233);
     --accent-color: #80d4ff;
-    --translucent-background: hsla(0, 9%, 7%, 0.3);
+    --translucent-background: hsla(0, 9%, 7%, 0.11);
     --light-text: black;
     --light-solid-background: #ffffff;
-    --table-background-even: hsla(0, 9%, 7%, 0.3);
+    --light-grey: hsla(0, 9%, 7%, 0.15);
 }

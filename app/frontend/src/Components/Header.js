@@ -1,43 +1,24 @@
-import React from 'react'
+import React, { useState } from 'react'
 
-import { changeScreenSize } from './Layout'
 import logo from "../logo/60.png"
 
 import '../style/Header.css'
 
-export class Header extends React.Component {
-  constructor(props) {
-    super(props);
-    this.toggleSidebar = this.props.toggleSidebar;
-    this.state = {
-      screen_size: changeScreenSize(),
-    }
+export function Header({ smallScreen, toggleSidebar }) {
 
-  }
-
-  componentDidMount() {
-    window.addEventListener('resize', () => {
-      this.setState({ screen_size: changeScreenSize() });
-    });
-  }
-
-
-
-  render() {
-    return (
-      <div className="header">
-        <div className="headerRow">
-          <div className="headerLogo">
-            <img src={logo} />
-          </div>
-          {(this.state.screen_size === "smallScreen") && (
-            <div className="menu-button-div" onClick={this.toggleSidebar}>
-              <div className="bar1"></div>
-              <div className="bar2"></div>
-              <div className="bar3"></div>
-            </div>)}
+  return (
+    <div className="header">
+      <div className="headerRow">
+        <div className="headerLogo">
+          <img src={logo} />
         </div>
+        {(smallScreen) && (
+          <div className="menu-button-div" onClick={() => { toggleSidebar() }}>
+            <div className="bar1"></div>
+            <div className="bar2"></div>
+            <div className="bar3"></div>
+          </div>)}
       </div>
-    );
-  }
+    </div>
+  );
 }

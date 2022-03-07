@@ -11,6 +11,15 @@ from ..sql.transaction_statements import *
 transaction = Blueprint("transaction", __name__, url_prefix="/transaction")
 
 
+@transaction.route("/<int:transaction_id>", methods=("GET",))
+def _get_transaction(transaction_id):
+    """Get transaction by id"""
+
+    transaction = get_transaction(transaction_id)[0]
+
+    return make_response(jsonify(transaction), 200)
+
+
 @transaction.route(
     "",
     methods=("GET",),
@@ -332,6 +341,8 @@ def get_transaction(transaction_id):
         GET_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}
     )
     transactions = db_utils.int_to_bool(transactions, ["cleared", "reconciled"])
+    for c in categories:
+        del c["transaction_id"]
     for t in transactions:
         t["categories"] = categories
         t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
