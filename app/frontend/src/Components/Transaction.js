@@ -107,26 +107,26 @@ export const Transaction = ({ key, transaction, categories, payees, accounts, se
 
     const clearedIcon = () => {
         if (cleared) {
-            return <CheckboxMarkedIcon size="18px" className="transactionClearedIcon" onClick={updateTransactionCleared} />
+            return <CheckboxMarkedIcon className="clearedIcon" size="18px" onClick={updateTransactionCleared} />
         } else {
-            return <CheckboxBlankOutlineIcon size="18px" className="transactionClearedIcon" onClick={updateTransactionCleared} />
+            return <CheckboxBlankOutlineIcon className="clearedIcon" size="18px" onClick={updateTransactionCleared} />
         }
     }
 
     const transactionDateSelector = () => {
-        if (!selected && transactionDate) return <div className="transactionDate">{transactionDate.toISOString().slice(0, 10)}</div>
+        if (!selected && transactionDate) return <div onClick={selectCurrentTransaction}>{transactionDate.toISOString().slice(0, 10)}</div>
         return <DatePicker className="transactionDate" selected={transactionDate} onChange={(date) => { setTransactionDate(date) }} />
     }
     const payeeInputField = () => {
-        if (!selected) return <div className="transactionPayee">{transactionPayee}</div>
+        if (!selected) return <div onClick={selectCurrentTransaction}>{transactionPayee}</div>
         return <Autosuggest startingValue={transactionPayee} suggestions={payees} allowNewValues={true} updateMethod={(payee) => { setTransactionPayee(payee) }} />
     }
     const accountInputField = () => {
-        if (!selected) return <div className="transactionAccount">{transactionAccount}</div>
+        if (!selected) return <div onClick={selectCurrentTransaction}>{transactionAccount}</div>
         return <Autosuggest startingValue={transactionAccount} suggestions={accounts} allowNewValues={false} updateMethod={(account) => { setTransactionAccount(account) }} />
     }
     const memoInputField = () => {
-        if (!selected) return <div className="transactionMemo">{transactionMemo}</div>
+        if (!selected) return <div onClick={selectCurrentTransaction}>{transactionMemo}</div>
         return <input className="transactionMemo" value={transactionMemo} onChange={(e) => { setTransactionMemo(e.target.value) }} />
     }
 
@@ -135,36 +135,23 @@ export const Transaction = ({ key, transaction, categories, payees, accounts, se
             return <TransactionCategory categories={categories} transactionCategories={transactionCategories} setTransactionCategories={(c) => { setTransactionCategories(c) }} />
         } else {
             return transactionCategories.map((c) => {
-                return <div className="transactionCategory"><div className="transactionCategoryName">{categories[c.category_id]}</div><div className="transactionCategoryAmount">{centsToMoney(c.amount)}</div></div>
+                return <div className="transactionCategory" onClick={selectCurrentTransaction}><div className="transactionCategoryName">{categories[c.category_id]}</div><div className="transactionCategoryAmount">{centsToMoney(c.amount)}</div></div>
             })
         }
     }
 
-    if (selected) {
-        return (
-            <tr className={`transactionRow ${selected ? 'selected' : ''}`}>
-                <td> {clearedIcon()} </td>
-                <td> {transactionDateSelector()} </td>
-                <td> {accountInputField()} </td>
-                <td> {payeeInputField()} </td>
-                <td> {memoInputField()} </td>
-                <td> {transactionCategory()} </td>
-                <td className="saveTransactionEdits"> <CheckIcon onClick={updateTransaction} /></td>
-            </tr>
-        );
-    } else {
-        return (
-            <tr className={`transactionRow ${selected ? 'selected' : ''}`}>
-                <td> {clearedIcon()} </td>
-                <td onClick={selectCurrentTransaction}> {transactionDateSelector()} </td>
-                <td onClick={selectCurrentTransaction}> {accountInputField()} </td>
-                <td onClick={selectCurrentTransaction}> {payeeInputField()} </td>
-                <td onClick={selectCurrentTransaction}> {memoInputField()} </td>
-                <td onClick={selectCurrentTransaction}> {transactionCategory()} </td>
-                <td className="saveTransactionEdits"> </td>
-            </tr>
-        );
-    }
+    return (
+        <tr className={`transactionRow ${selected ? 'selected' : ''}`}>
+            <td className="transactionClearedColumn"> {clearedIcon()} </td>
+            <td className="transactionDateColumn"> {transactionDateSelector()} </td>
+            <td className="transactionAccountColumn"> {accountInputField()} </td>
+            <td className="transactionPayeeColumn"> {payeeInputField()} </td>
+            <td className="transactionMemoColumn"> {memoInputField()} </td>
+            <td className="transactionCategoriesColumn"> {transactionCategory()} </td>
+            {(selected) && (<td className="transactionSaveColumn"> <CheckIcon onClick={updateTransaction} /></td>)}
+        </tr>
+    );
+
 }
 
 function convertDateToUTC(date) { return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()); }

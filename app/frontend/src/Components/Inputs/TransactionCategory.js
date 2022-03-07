@@ -1,6 +1,7 @@
 import React from 'react'
 
 import PlusCircleOutlineIcon from 'mdi-react/PlusCircleOutlineIcon'
+import CloseCircleOutlineIcon from 'mdi-react/CloseCircleOutlineIcon'
 import DeleteIcon from 'mdi-react/DeleteIcon'
 
 import { Autosuggest } from './Autosuggest';
@@ -39,20 +40,18 @@ export function TransactionCategory({ categories, transactionCategories, setTran
 
     const categoryField = (c, index) => {
         return (
-            <div className="transactionCategory">
-                <DeleteIcon size={18} onClick={() => { removeCategory(index) }} />
-                <Autosuggest startingValue={categories[c.category_id]} suggestions={categories} allowNewValues={false} updateMethod={(e) => { updateTransactionCategoryNames(index, e) }} />
-                <MoneyInput startingValue={c.amount / 100} updateMethod={(e) => { updateTransactionAmounts(index, e) }} />
-            </div>
+            <table>
+                <td><CloseCircleOutlineIcon size={15} onClick={() => { removeCategory(index) }} /></td>
+                <td><Autosuggest startingValue={categories[c.category_id]} suggestions={categories} allowNewValues={false} updateMethod={(e) => { updateTransactionCategoryNames(index, e) }} /> </td>
+                <td><MoneyInput startingValue={c.amount / 100} updateMethod={(e) => { updateTransactionAmounts(index, e) }} /></td>
+            </table>
         );
     }
-
-
 
     return (
         <div>
             {transactionCategories.map((c, index) => {
-                if (c.deleted === true) return
+                if (c.deleted === true) return null
                 return categoryField(c, index)
 
             }).concat(<PlusCircleOutlineIcon size={16} onClick={addCategory} />)}

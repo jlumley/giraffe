@@ -3,8 +3,6 @@ import instance from '../axois';
 import transactionRequests from '../requests/transaction';
 import categoryRequests from '../requests/category';
 
-import DotsVerticalIcon from 'mdi-react/DotsVerticalIcon'
-import CurrencyInput from 'react-currency-input-field';
 import { centsToMoney } from '../utils/money_utils'
 import CheckboxBlankCircleOutlineIcon from 'mdi-react/CheckboxBlankCircleOutlineIcon'
 import CheckboxMarkedCircleIcon from 'mdi-react/CheckboxMarkedCircleIcon'
@@ -13,7 +11,7 @@ import '../style/Category.css'
 import { MoneyInput } from './Inputs/MoneyInput';
 
 
-export function Category({ key, category, currentDate, screenSize }) {
+export function Category({ key, category, currentDate, smallScreen }) {
     const [categoryName, setCategoryName] = useState(category.name);
     const [categoryAssigned, setCategoryAssigned] = useState(category.assigned_this_month / 100);
     const [categorySpent, setCategorySpent] = useState(0);
@@ -86,9 +84,6 @@ export function Category({ key, category, currentDate, screenSize }) {
     }
 
     const ifSelected = () => {
-        if (screenSize === "smallScreen") {
-            return
-        }
         if (selected) {
             return <CheckboxMarkedCircleIcon className="selectedIcon" onClick={selectCategory} />
         } else {
@@ -111,17 +106,18 @@ export function Category({ key, category, currentDate, screenSize }) {
     }
 
 
+    const category_amount = (amount) => {
+        return centsToMoney(amount)
+    }
+
+
     return (
-        <div>
-            <div className="baseCategory" >
-                {(false) && (< DotsVerticalIcon className="categoryOptions" />)}
-                {ifSelected()}
-                <div className={`categoryCell ${screenSize}CategoryNameBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}><input className="categoryInput" type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} /></div></div>
-                <div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>< MoneyInput startingValue={categoryAssigned} updateMethod={updateCategoryAssignment} /></div></div>
-                {(screenSize === "largeScreen") && (<div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(categorySpent)}</div></div>)}
-                <div className={`categoryCell ${screenSize}CategoryValueBox`}><div className={`categoryValueOutline ${screenSize}CategoryValueOutline`}>{centsToMoney(categoryBalance)}</div></div>
-            </div>
-            <hr className="categoryDividingLine"></hr>
-        </div>
+        <tr className="categoryRow">
+            {(!smallScreen) && (<td className="selectedColumn">{ifSelected()}</td>)}
+            <td className="nameColumn"><input className="categoryName" type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} /></td>
+            <td className="assignedColumn"><MoneyInput startingValue={categoryAssigned} updateMethod={updateCategoryAssignment} /></td>
+            {(!smallScreen) && (<td className="spentColumn">{category_amount(categorySpent)}</td>)}
+            <td className="balanceColumn">{category_amount(categoryBalance)}</td>
+        </tr >
     );
 }

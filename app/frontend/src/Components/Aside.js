@@ -2,7 +2,6 @@ import React from 'react';
 import instance from '../axois';
 import accountRequests from '../requests/account';
 import { centsToMoney } from '../utils/money_utils';
-import { changeScreenSize } from './Layout';
 
 import { Link } from 'react-router-dom';
 
@@ -12,16 +11,12 @@ class Aside extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      screen_size: changeScreenSize(),
       accounts: [],
     }
   }
 
   componentDidMount() {
     this.fetchData();
-    window.addEventListener('resize', () => {
-      this.setState({ screen_size: changeScreenSize() });
-    });
   };
 
   fetchData() {

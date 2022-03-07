@@ -1,83 +1,47 @@
 @import url("colors.css");
 
-.baseCategory {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    color: var(--light-text);
+.categoryRow {
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
-.categoryCell {
-    padding-top: 3px;
-    padding-bottom: 3px;
-    float: left;
-}
-.largeScreenCategoryNameBox {
-    width: 35%;
-}
-.smallScreenCategoryNameBox {
-    font-size: 2.2vmin;
-    width: 50%;
-}
-
-.smallScreenCategoryValueBox {
-    width: 25%;
-    font-size: 12px;
-}
-
-.largeScreenCategoryValueBox {
+.categoryName {
+    min-width: 100px;
     width: 20%;
-    font-size: 12px;
-}
-
-.categoryValueOutline {
-    margin: auto;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    border-radius: 15px;
-    background-color: var(--translucent-background)
-}
-
-.largeScreenCategoryValueOutline {
-    width: 65%;
-}
-
-.smallScreenCategoryValueOutline {
-    width: 85%;
-}
-
-.categoryInput {
-    width: 60%;
-    background-color: transparent;
+    background-color: var(--light-grey);
     border-color: transparent;
     outline: none;
-    padding-left: 10px;
-    color: var(--light-text);
-}
-
-.categoryOptions {
-    color: var(--translucent-background);
-}
-
-.categoryDividingLine {
-    color: var(--translucent-background);
-    margin-left: 1%;
-    margin-right: 1%;
-}
-
-input:focus {
-    background-color: var(--translucent-background);
-}
-
-input {
-    font-size: 12px;
+    color: var(--dark-color);
+    border-radius: 5px;
+    padding-left: 25px;
+    padding-right: 25px;
 }
 
 .selectedIcon {
-    margin-left: 5px;
     color: var(--dark-color);
 }
 
-input:focus {
-    background-color: hsla(0, 9%, 7%, 0.3);
+.selectedColumn {
+    min-width: 10px;
+    width: 5%;
+}
+
+.nameColumn {
+    min-width: 30px;
+    width: 20%;
+}
+
+.spentColumn {
+    min-width: 25px;
+    width: 15%;
+}
+
+.assignedColumn {
+    min-width: 25px;
+    width: 15%;
+}
+
+.balanceColumn {
+    min-width: 25px;
+    width: 15%;
 }

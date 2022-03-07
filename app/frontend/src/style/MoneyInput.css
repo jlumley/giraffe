@@ -1,8 +1,11 @@
 .currencyInput {
     width: 60%;
-    background-color: transparent;
+    background-color: var(--light-grey);
     border-color: transparent;
     outline: none;
-    padding-left: 10px;
     color: var(--dark-color);
+    border-radius: 5px;
+    padding: 1px;
+    padding-left: 15px;
+    padding-right: 15px;
 }

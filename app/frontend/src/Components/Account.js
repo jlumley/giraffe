@@ -70,16 +70,13 @@ export const Account = () => {
             <div className="accountTransactionsContent">
                 <table>
                     <thead className="accountTransactionsTableHeader">
-                        <tr>
-                            <th className="accountTransactionsClearedColumn" />
-                            <th className="accountTransactionsDateColumn">Date</th>
-                            <th className="accountTransactionsAccountColumn">Account</th>
-                            <th className="accountTransactionsPayeeColumn">Payee</th>
-                            <th className="accountTransactionsMemoColumn">Memo</th>
-                            <th className="accountTransactionsCategoryColumn">Category</th>
-                            <th className="accountTransactionsamountColumn"></th>
-                            <th></th>
-                        </tr>
+                        <th className="accountTransactionsClearedColumn" />
+                        <th className="accountTransactionsDateColumn">Date</th>
+                        <th className="accountTransactionsAccountColumn">Account</th>
+                        <th className="accountTransactionsPayeeColumn">Payee</th>
+                        <th className="accountTransactionsMemoColumn">Memo</th>
+                        <th className="accountTransactionsCategoryColumn">Category</th>
+                        <th className="accountTransactionsamountColumn"></th>
                     </thead>
                     <tbody className="accountTransactionsTableBody">
                         {transactions.map((t) => { return createTransactions(t) })}

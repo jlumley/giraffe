@@ -19,7 +19,7 @@ export class Layout extends React.Component {
         super(props);
         this.toggleSidebar = this.toggleSidebar.bind(this)
         this.state = {
-            screen_size: changeScreenSize(),
+            smallScreen: setScreenSize(),
             sidebar: false,
         }
     }
@@ -30,7 +30,9 @@ export class Layout extends React.Component {
 
     componentDidMount() {
         window.addEventListener('resize', () => {
-            this.setState({ screen_size: changeScreenSize() });
+            this.setState({
+                smallScreen: setScreenSize(),
+            });
         });
     }
 
@@ -38,16 +40,16 @@ export class Layout extends React.Component {
     render() {
         return (
             <div className="layout">
-                <Header toggleSidebar={this.toggleSidebar} />
+                <Header smallScreen={this.state.smallScreen} toggleSidebar={this.toggleSidebar} />
                 <div className="mainContent">
-                    {(this.state.sidebar || this.state.screen_size === "largeScreen") && (
+                    {(this.state.sidebar || !this.state.smallScreen) && (
                         <Aside sidebar={this.state.sidebar} />
                     )}
                     <div className="workspaceContent">
                         <Routes>
                             <Route path="/account/:id" element={<Account />} />
                             <Route path="/reports" element={<Reports />} />
-                            <Route path="/" element={<Budget screenSize={this.state.screen_size} />} />
+                            <Route path="/" element={<Budget smallScreen={this.state.smallScreen} />} />
                         </Routes>
                     </div>
                 </div>
@@ -56,10 +58,10 @@ export class Layout extends React.Component {
     }
 }
 
-export function changeScreenSize() {
+function setScreenSize() {
     if (window.innerWidth > smallScreen) {
-        return "largeScreen";
+        return false;
     } else {
-        return "smallScreen"
+        return true;
     }
 }

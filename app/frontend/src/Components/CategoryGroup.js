@@ -8,7 +8,7 @@ import instance from '../axois';
 import categoryRequests from '../requests/category';
 
 
-export const CategoryGroup = ({ name, currentDate, screenSize }) => {
+export const CategoryGroup = ({ name, currentDate, smallScreen }) => {
   const [categoryGroupName, setCategoryGroupName] = useState(name);
   const [categories, setCategories] = useState([]);
   const [newCategories, setNewCategories] = useState([]);
@@ -19,7 +19,7 @@ export const CategoryGroup = ({ name, currentDate, screenSize }) => {
   }, [])
 
   const category = (category) => {
-    return <Category key={category.id} screenSize={screenSize} currentDate={currentDate} category={category} />
+    return <Category key={category.id} smallScreen={smallScreen} currentDate={currentDate} category={category} />
   }
 
   const createNewCategory = () => {
@@ -53,7 +53,7 @@ export const CategoryGroup = ({ name, currentDate, screenSize }) => {
       const today = currentDate.toISOString().slice(0, 10);
       const resp = await instance.get(`${categoryRequests.fetchAllCategories}/${today}`)
 
-      setCategories(resp.data.filter(cat => cat.category_group == categoryGroupName))
+      setCategories(resp.data.filter(cat => cat.category_group === categoryGroupName))
     }
     _fetchCategories()
   };
@@ -64,9 +64,11 @@ export const CategoryGroup = ({ name, currentDate, screenSize }) => {
       <input className="categoryGroupTitleInput" value={categoryGroupName} onChange={editCategoryGroupName} onBlur={updateCategoryGroupName} />
       <PlusCircleOutlineIcon onClick={createNewCategory} className="newCategoryButton" />
     </div>
-    {categories.map(c => {
-      return category(c)
-    })}
+    <table>
+      {categories.map(c => {
+        return category(c)
+      })}
+    </table>
     {newCategories}
   </div>;
 }

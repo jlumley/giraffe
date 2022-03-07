@@ -10,7 +10,7 @@ import categoryRequests from '../requests/category';
 import '../style/Budget.css'
 import { BudgetInfo } from './BudgetInfo';
 
-export function Budget({ screenSize }) {
+export function Budget({ smallScreen }) {
 
   const [categoryGroups, setCategoryGroups] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -32,7 +32,7 @@ export function Budget({ screenSize }) {
   }
 
   const categoryGroup = (name) => {
-    return <CategoryGroup name={name} currentDate={currentDate} screenSize={screenSize} />
+    return <CategoryGroup name={name} currentDate={currentDate} smallScreen={smallScreen} />
   }
   const createNewCategoryGroup = () => {
     const newCategoryGroupName = `New Category Group ${newCategoryGroups.length}`
@@ -40,7 +40,7 @@ export function Budget({ screenSize }) {
   }
 
   const budgetExtraInfo = () => {
-    if (screenSize === "largeScreen") {
+    if (!smallScreen) {
       return <BudgetInfo selectedCategories={selectedCategories} />
     }
   }
@@ -87,18 +87,18 @@ export function Budget({ screenSize }) {
           <div className="newCategoryGroup">
             <TabPlusIcon onClick={createNewCategoryGroup} />
           </div>
-          <div className={`monthSelector ${screenSize}MonthSelector`}>
+          <div className={"monthSelector"}>
             < ArrowLeftCircleOutlineIcon onClick={prevMonth} className="arrowDiv" />
             <div className="currentMonth"> {getMonthString()} </div>
             < ArrowRightCircleOutlineIcon onClick={nextMonth} className="arrowDiv" />
           </div>
         </div>
-        <div className="budgetColumnTitles">
-          <div className={`budgetColumnNameCategory ${screenSize}BudgetColumnNameCategory`}>Category</div>
-          <div className={`budgetColumnName ${screenSize}BudgetColumnName`}>Assigned</div>
-          {(screenSize === "largeScreen") && (<div className={`budgetColumnName ${screenSize}BudgetColumnName`}>Spent</div>)}
-          <div className={`budgetColumnName ${screenSize}BudgetColumnName`}>Balance</div>
-        </div>
+        <table className="budgetColumnTitles">
+          <td className="categeoryNameColumn">Category</td>
+          <td className="categeoryAssignedColumn">Assigned</td>
+          {(!smallScreen) && (<td className="categeorySpentColumn">Spent</td>)}
+          <td className="categeoryBalanceColumn">Balance</td>
+        </table>
         <div className="budgetCategories">
           {(categoryGroups.map((name) => {
             return categoryGroup(name)
@@ -107,7 +107,7 @@ export function Budget({ screenSize }) {
         </div>
       </div>
       {budgetExtraInfo()}
-    </div>
+    </div >
   );
 
 

@@ -2,55 +2,34 @@
 
 .transactionRow {
     color: var(--dark-color);
-    padding-top: 10px;
+    border: 1px solid var(--light-grey);
 }
 .selected {
-    border-color: var(--dark-color);
-    border: solid thin;
+    border: 2px solid var(--dark-color);
 }
+
+.clearedIcon {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
 .saveTransactionEdits {
     min-width: 25px;
     width: 25px;
 }
 .transactionDate {
-    background-color: transparent;
     border: none;
-    min-width: 70px;
-    width: 10%;
     text-align: center;
 }
 .transactionMemo {
-    color: var(--dark-color);
-    background-color: transparent;
-    border-color: transparent;
     outline: none;
-    text-align: left;
-}
-
-.transactionAccount {
-    color: var(--dark-color);
-    background-color: transparent;
     border-color: transparent;
-    outline: none;
-    text-align: left;
-    padding-left: 10px;
 }
-
-.transactionPayee {
-    color: var(--dark-color);
-    background-color: transparent;
-    border-color: transparent;
-    outline: none;
-    text-align: left;
-
-}
-
-
 
 .transactionCategory {
     display: flex;
     flex-direction: row;
-    min-width: 100px;
+
 }
 
 .transactionCategoryName {
@@ -60,4 +39,45 @@
 .transactionAmount{
     width: 30%;
     text-align: right;
+}
+
+
+.transactionClearedColumn {
+    color: var(--dark-color);
+    min-width: 20px;
+}
+
+.transactionDateColumn {
+    color: var(--dark-color);
+    min-width: 50px;
+    width: 10%;
+    text-align: center;
+}
+
+.transactionAccountColumn{
+    color: var(--dark-color);
+    min-width: 70px;
+    width: 10%;
+    text-align: left;
+}
+
+.transactionPayeeColumn {
+    color: var(--dark-color);
+    min-width: 70px;
+    width: 10%;
+    outline: none;
+    text-align: left;
+}
+
+.transactionMemoColumn {
+    color: var(--dark-color);
+    min-width: 70px;
+    width: 10%;
+    text-align: left;
+    background-color: transparent;
+}
+
+.transactionCategoriesColumn {
+    min-width: 120px;
+    width: 10%;
 }
