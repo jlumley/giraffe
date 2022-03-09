@@ -9,7 +9,7 @@
     border-radius: 5px;
     padding-left: 15px;
     padding-right: 15px;
-    min-width: 120px;
+    width: 80%;
 }
 
 .autoSuggestDiv {

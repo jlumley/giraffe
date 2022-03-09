@@ -20,6 +20,7 @@
 .transactionDate {
     border: none;
     text-align: center;
+    width: 90px;
 }
 .transactionMemo {
     outline: none;
@@ -27,20 +28,19 @@
 }
 
 .transactionCategory {
+    padding: 5px;
     display: flex;
     flex-direction: row;
-
 }
 
 .transactionCategoryName {
-    width: 70%;
+    width: 50%;
     text-align: left;
 }
 .transactionAmount{
-    width: 30%;
+    width: 40%;
     text-align: right;
 }
-
 
 .transactionClearedColumn {
     color: var(--dark-color);
@@ -49,35 +49,31 @@
 
 .transactionDateColumn {
     color: var(--dark-color);
-    min-width: 50px;
-    width: 10%;
     text-align: center;
+    min-width: 90px;
 }
 
 .transactionAccountColumn{
     color: var(--dark-color);
-    min-width: 70px;
+    min-width: 100px;
     width: 10%;
     text-align: left;
 }
 
 .transactionPayeeColumn {
     color: var(--dark-color);
-    min-width: 70px;
-    width: 10%;
+    min-width: 100px;
     outline: none;
     text-align: left;
 }
 
 .transactionMemoColumn {
     color: var(--dark-color);
-    min-width: 70px;
-    width: 10%;
+    min-width: 150px;
     text-align: left;
     background-color: transparent;
 }
 
 .transactionCategoriesColumn {
-    min-width: 120px;
-    width: 10%;
+    min-width: 100px;
 }
