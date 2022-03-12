@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import DatePicker from "react-datepicker";
+import { v4 as uuidv4 } from 'uuid';
 import instance from '../axois'
 
 import CheckboxMarkedIcon from "mdi-react/CheckboxMarkedIcon"
 import CheckboxBlankOutlineIcon from "mdi-react/CheckboxBlankOutlineIcon"
-
+import PlusCircleOutlineIcon from 'mdi-react/PlusCircleOutlineIcon'
+import CloseCircleOutlineIcon from 'mdi-react/CloseCircleOutlineIcon'
 import CheckIcon from 'mdi-react/CheckIcon'
 
 import transactionRequests from '../requests/transaction';
 
-import { TransactionCategory } from './Inputs/TransactionCategory';
 import { Autosuggest } from './Inputs/Autosuggest';
 import { centsToMoney } from '../utils/money_utils';
+import { MoneyInput } from './Inputs/MoneyInput';
+
 
 import "react-datepicker/dist/react-datepicker.css";
 import "../style/Transaction.css"
@@ -25,37 +28,55 @@ export const Transaction = ({ key, transaction, categories, payees, accounts, se
     const [transactionAccount, setTransactionAccount] = useState(accounts[transaction.account_id]);
     const [transactionPayee, setTransactionPayee] = useState(payees[transaction.payee_id]);
     const [transactionMemo, setTransactionMemo] = useState(transaction.memo);
-    const [transactionCategories, setTransactionCategories] = useState(transaction.categories);
+    const [transactionCategories, setTransactionCategories] = useState({});
+    const confirmEdits = useRef(null);
 
+    const transactionCategoryArrayToObject = (tempTransactionsCategories) => {
+        var transactionObj = {}
+        tempTransactionsCategories.forEach((c) => {
+            transactionObj[uuidv4()] = c;
+        })
+        return transactionObj
+    }
+
+    const transactionCategoryObjectToArray = (tempTransactionsCategories) => {
+        var transactionArray = [];
+        Object.keys(tempTransactionsCategories).forEach((c) => {
+            transactionArray.push(tempTransactionsCategories[c])
+        })
+        return transactionArray
+    }
 
     const resetTransaction = () => {
-        async function _fetchTransaction() {
-            instance.get(`${transactionRequests.fetchTransaction}${transaction.id}`).then((transaction_data) => {
-                setTransactionDate(convertDateToUTC(new Date(transaction_data.data.date)));
-                setTransactionAccountId(transaction_data.data.account_id);
-                setTransactionPayeeId(transaction_data.data.payee_id);
-                setTransactionAccount(accounts[transaction_data.data.account_id]);
-                setTransactionPayee(payees[transaction_data.data.payee_id]);
-                setTransactionMemo(transaction_data.data.memo);
-                setTransactionCategories(transaction_data.data.categories);
-            })
-        }
-        _fetchTransaction()
+        instance.get(`${transactionRequests.fetchTransaction}${transaction.id}`).then((resp) => {
+            setTransactionDate(convertDateToUTC(new Date(resp.data.date)));
+            setTransactionAccountId(resp.data.account_id);
+            setTransactionPayeeId(resp.data.payee_id);
+            setTransactionAccount(accounts[resp.data.account_id]);
+            setTransactionPayee(payees[resp.data.payee_id]);
+            setTransactionMemo(resp.data.memo);
+            setTransactionCategories(transactionCategoryArrayToObject(resp.data.categories));
+        })
     }
 
     useEffect(() => {
         setTransactionPayee(payees[transactionPayeeId])
         setTransactionAccount(accounts[transactionAccountId])
-    }, [key, payees, categories, accounts])
+        setTransactionCategories(transactionCategoryArrayToObject(transaction.categories))
+    }, [payees, categories, accounts])
+
+    function handleEnter(event) {
+        if (event.key !== 'Enter') return
+        confirmEdits.current.click()
+    }
 
     useEffect(() => {
         resetTransaction()
-        const handleEnter = (event) => {
-            if (event.key !== 'Enter') return
-            updateTransaction()
-        }
         if (selected) {
             window.addEventListener('keypress', handleEnter);
+        }
+        return () => {
+            window.removeEventListener('keypress', handleEnter);
         }
     }, [selected])
 
@@ -69,24 +90,47 @@ export const Transaction = ({ key, transaction, categories, payees, accounts, se
 
     function consolidateCategories() {
         // remove empty categories and consolidate duplicate categories
-        const new_categories = [];
-        transactionCategories.forEach((c) => {
-            if (c.amount === 0 || c.category_id === 0 || c.deleted === true) return
-
+        const new_categories = {};
+        Object.keys(transactionCategories).forEach((k) => {
+            if (transactionCategories[k].category_id === 0) return
             var new_category = true;
-            new_categories.forEach((nc) => {
-                if (nc.category_id === c.category_id) {
-                    nc.amount += c.amount
+            Object.keys(new_categories).forEach((nk) => {
+                if (new_categories[nk].category_id == transactionCategories[k].category_id) {
+                    new_categories[nk].amount += transactionCategories[k].amount
                     new_category = false
                 }
             })
             if (new_category) {
-                new_categories.push({ category_id: parseInt(c.category_id), amount: c.amount });
+                new_categories[uuidv4()] = { category_id: parseInt(transactionCategories[k].category_id), amount: transactionCategories[k].amount };
             }
         });
-        setTransactionCategories(new_categories);
         return new_categories;
     }
+
+    function addCategory() {
+        var tempObj = { ...transactionCategories };
+        tempObj[uuidv4()] = { category_id: 0, amount: 0 };
+        setTransactionCategories(tempObj)
+    }
+
+    function removeCategory(transactionCategoriesKey) {
+        var tempObj = { ...transactionCategories };
+        delete tempObj[transactionCategoriesKey]
+        setTransactionCategories(tempObj)
+    }
+
+    function updateTransactionCategoryNames(transactionCategoriesKey, new_category) {
+        var tempObj = { ...transactionCategories };
+        tempObj[transactionCategoriesKey].category_id = Object.keys(categories).find(id => categories[id].toLowerCase() === new_category.toLowerCase());
+        setTransactionCategories(tempObj);
+    }
+
+    function updateTransactionAmounts(transactionCategoriesKey, new_amount) {
+        var tempObj = { ...transactionCategories };
+        tempObj[transactionCategoriesKey].amount = new_amount * 100;
+        setTransactionCategories(tempObj);
+    }
+
 
     function updateTransaction() {
         instance.put(
@@ -95,10 +139,12 @@ export const Transaction = ({ key, transaction, categories, payees, accounts, se
                 date: transactionDate.toISOString().slice(0, 10),
                 cleared: cleared,
                 memo: transactionMemo,
-                categories: consolidateCategories(),
+                categories: transactionCategoryObjectToArray(consolidateCategories()),
             }
-        )
-        selectTransaction(null)
+        ).then((resp) => {
+            selectTransaction(null)
+        })
+
     }
 
     const selectCurrentTransaction = () => {
@@ -132,10 +178,25 @@ export const Transaction = ({ key, transaction, categories, payees, accounts, se
 
     const transactionCategory = () => {
         if (selected) {
-            return <TransactionCategory categories={categories} transactionCategories={transactionCategories} setTransactionCategories={(c) => { setTransactionCategories(c) }} />
+            return Object.keys(transactionCategories).map((k) => {
+                return (<table key={k} className="transactonCategoryRow">
+                    <tbody><tr>
+                        <td className="deleteTransactonCategory"><CloseCircleOutlineIcon size={15} onClick={() => { removeCategory(k) }} /></td>
+                        <td className="transactonCategoryName"><Autosuggest startingValue={categories[transactionCategories[k].category_id]} suggestions={categories} allowNewValues={false} updateMethod={(e) => { updateTransactionCategoryNames(k, e) }} /> </td>
+                        <td className="transactonCategoryAmount"><MoneyInput startingValue={transactionCategories[k].amount / 100} updateMethod={(e) => { updateTransactionAmounts(k, e) }} updateOnChange={true} /></td>
+                    </tr></tbody>
+                </table>
+                );
+            }).concat(<PlusCircleOutlineIcon size={16} onClick={addCategory} />)
+
         } else {
-            return transactionCategories.map((c) => {
-                return <div className="transactionCategory" onClick={selectCurrentTransaction}><div className="transactionCategoryName">{categories[c.category_id]}</div><div className="transactionCategoryAmount">{centsToMoney(c.amount)}</div></div>
+            return Object.keys(transactionCategories).map((k) => {
+                return (
+                    <div key={k} className="transactionCategory" onClick={selectCurrentTransaction}>
+                        <div className="transactionCategoryName">{categories[transactionCategories[k].category_id]}</div>
+                        <div className="transactionCategoryAmount">{centsToMoney(transactionCategories[k].amount)}</div>
+                    </div>
+                )
             })
         }
     }
@@ -148,7 +209,7 @@ export const Transaction = ({ key, transaction, categories, payees, accounts, se
             <td className="transactionPayeeColumn"> {payeeInputField()} </td>
             <td className="transactionMemoColumn"> {memoInputField()} </td>
             <td className="transactionCategoriesColumn"> {transactionCategory()} </td>
-            {(selected) && (<td className="transactionSaveColumn"> <CheckIcon onClick={updateTransaction} /></td>)}
+            {(selected) && (<td className="transactionSaveColumn"> <div ref={confirmEdits} onClick={updateTransaction}><CheckIcon /></div></td>)}
         </tr>
     );
 

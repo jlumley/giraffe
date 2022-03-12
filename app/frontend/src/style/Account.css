@@ -46,10 +46,9 @@ table {
     padding: 2px;
 }
 .accountTransactionsDateColumn {
-    width: 5%;
-    min-width: fit-content;
     padding-right: 5px;
     padding-left: 5px;
+    width: 80px;
 }
 .accountTransactionsAccountColumn {
     width: 15%;
