@@ -78,7 +78,7 @@ def create_payee(name):
         list: new payee
     """
     payee = db_utils.execute(CREATE_PAYEE, {"name": name}, commit=True)
-    return payee
+    return payee[0]
 
 
 def delete_payee(payee_id):
