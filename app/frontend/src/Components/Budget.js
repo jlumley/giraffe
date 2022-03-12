@@ -24,7 +24,6 @@ export function Budget({ smallScreen }) {
 
   const fetchCategoryGroups = () => {
     async function _fetchCategoryGroups() {
-      const today = currentDate.toISOString().slice(0, 10);
       const resp = await instance.get(`${categoryRequests.fetchAllCategoryGroups}`)
       setCategoryGroups(resp.data)
     }
@@ -40,9 +39,8 @@ export function Budget({ smallScreen }) {
   }
 
   const budgetExtraInfo = () => {
-    if (!smallScreen) {
-      return <BudgetInfo selectedCategories={selectedCategories} />
-    }
+    if (smallScreen) return
+    return <BudgetInfo selectedCategories={selectedCategories} />
   }
 
   function updateDate(monthAdjustment) {

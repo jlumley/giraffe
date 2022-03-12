@@ -7,6 +7,7 @@ import CheckboxMarkedIcon from "mdi-react/CheckboxMarkedIcon"
 import CheckboxBlankOutlineIcon from "mdi-react/CheckboxBlankOutlineIcon"
 import PlusCircleOutlineIcon from 'mdi-react/PlusCircleOutlineIcon'
 import CloseCircleOutlineIcon from 'mdi-react/CloseCircleOutlineIcon'
+import TrashCanOutlineIcon from 'mdi-react/TrashCanOutlineIcon'
 import CheckIcon from 'mdi-react/CheckIcon'
 
 import transactionRequests from '../requests/transaction';
@@ -18,9 +19,10 @@ import { MoneyInput } from './Inputs/MoneyInput';
 
 import "react-datepicker/dist/react-datepicker.css";
 import "../style/Transaction.css"
+import payeeRequests from '../requests/payee';
 
 
-export const Transaction = ({ key, transaction, categories, payees, accounts, selected, selectTransaction }) => {
+export const Transaction = ({ transaction, categories, payees, accounts, selected, selectTransaction, deleteTransaction }) => {
     const [cleared, setCleared] = useState(transaction.cleared);
     const [transactionDate, setTransactionDate] = useState(new Date(transaction.date));
     const [transactionAccountId, setTransactionAccountId] = useState(transaction.account_id);
@@ -29,7 +31,8 @@ export const Transaction = ({ key, transaction, categories, payees, accounts, se
     const [transactionPayee, setTransactionPayee] = useState(payees[transaction.payee_id]);
     const [transactionMemo, setTransactionMemo] = useState(transaction.memo);
     const [transactionCategories, setTransactionCategories] = useState({});
-    const confirmEdits = useRef(null);
+    const updateTransactionButton = useRef(null);
+    const deleteTransactionButton = useRef(null);
 
     const transactionCategoryArrayToObject = (tempTransactionsCategories) => {
         var transactionObj = {}
@@ -47,38 +50,40 @@ export const Transaction = ({ key, transaction, categories, payees, accounts, se
         return transactionArray
     }
 
-    const resetTransaction = () => {
-        instance.get(`${transactionRequests.fetchTransaction}${transaction.id}`).then((resp) => {
-            setTransactionDate(convertDateToUTC(new Date(resp.data.date)));
-            setTransactionAccountId(resp.data.account_id);
-            setTransactionPayeeId(resp.data.payee_id);
-            setTransactionAccount(accounts[resp.data.account_id]);
-            setTransactionPayee(payees[resp.data.payee_id]);
-            setTransactionMemo(resp.data.memo);
-            setTransactionCategories(transactionCategoryArrayToObject(resp.data.categories));
-        })
+    const payeeToPayeeId = () => {
+        return Object.keys(payees).find(id => payees[id].toLowerCase() === transactionPayee.toLowerCase())
     }
 
-    useEffect(() => {
-        setTransactionPayee(payees[transactionPayeeId])
-        setTransactionAccount(accounts[transactionAccountId])
-        setTransactionCategories(transactionCategoryArrayToObject(transaction.categories))
-    }, [payees, categories, accounts])
+    const accountToAccountId = () => {
+        return Object.keys(accounts).find(id => accounts[id].toLowerCase() === transactionAccount.toLowerCase())
+    }
+
+    function reloadTransaction() {
+        async function _reloadTransaction() {
+            const p = await instance.get(payeeRequests.fetchAllPayees)
+            const tempPayees = (p.data.reduce((map, obj) => {
+                map[obj.id] = obj.name
+                return map;
+            }, {}))
+            instance.get(`${transactionRequests.fetchTransaction}${transaction.id}`).then((resp) => {
+                setTransactionDate(convertDateToUTC(new Date(resp.data.date)));
+                setTransactionAccountId(resp.data.account_id);
+                setTransactionPayeeId(resp.data.payee_id);
+                setTransactionAccount(accounts[resp.data.account_id]);
+                setTransactionPayee(tempPayees[resp.data.payee_id]);
+                setTransactionMemo(resp.data.memo);
+                setTransactionCategories(transactionCategoryArrayToObject(resp.data.categories));
+            })
+        }
+        _reloadTransaction()
+    }
 
     function handleEnter(event) {
-        if (event.key !== 'Enter') return
-        confirmEdits.current.click()
+        if (event.key === 'Enter') {
+            event.target.blur()
+            updateTransactionButton.current.click()
+        }
     }
-
-    useEffect(() => {
-        resetTransaction()
-        if (selected) {
-            window.addEventListener('keypress', handleEnter);
-        }
-        return () => {
-            window.removeEventListener('keypress', handleEnter);
-        }
-    }, [selected])
 
     function updateTransactionCleared() {
         instance.put(
@@ -95,7 +100,7 @@ export const Transaction = ({ key, transaction, categories, payees, accounts, se
             if (transactionCategories[k].category_id === 0) return
             var new_category = true;
             Object.keys(new_categories).forEach((nk) => {
-                if (new_categories[nk].category_id == transactionCategories[k].category_id) {
+                if (parseInt(new_categories[nk].category_id) === parseInt(transactionCategories[k].category_id)) {
                     new_categories[nk].amount += transactionCategories[k].amount
                     new_category = false
                 }
@@ -133,21 +138,63 @@ export const Transaction = ({ key, transaction, categories, payees, accounts, se
 
 
     function updateTransaction() {
-        instance.put(
-            `${transactionRequests.updateTransaction}${transaction.id}`,
-            {
-                date: transactionDate.toISOString().slice(0, 10),
-                cleared: cleared,
-                memo: transactionMemo,
-                categories: transactionCategoryObjectToArray(consolidateCategories()),
+        async function _updateTransaction() {
+            var payeeId = payeeToPayeeId();
+            if (!payeeId) {
+                // create new payee if not match found
+                const resp = await instance.post(payeeRequests.createPayee,
+                    { name: transactionPayee }
+                )
+                payeeId = resp.data.id
             }
-        ).then((resp) => {
-            selectTransaction(null)
-        })
+            var accountId = accountToAccountId();
+            var categories = transactionCategoryObjectToArray(consolidateCategories());
+            var totalAmount = categories.reduce(
+                (prev, curr) => prev + curr.amount,
+                0
+            )
+            await instance.put(
+                `${transactionRequests.updateTransaction}${transaction.id}`,
+                {
+                    date: transactionDate.toISOString().slice(0, 10),
+                    cleared: cleared,
+                    memo: transactionMemo,
+                    account_id: parseInt(accountId),
+                    payee_id: parseInt(payeeId),
+                    categories: categories,
+                    amount: totalAmount
+                }
+            )
 
+            selectTransaction(null)
+            reloadTransaction()
+
+        }
+        _updateTransaction()
     }
 
-    const selectCurrentTransaction = () => {
+    useEffect(() => {
+        setTransactionPayee(payees[transactionPayeeId])
+    }, [transactionPayeeId, payees])
+    useEffect(() => {
+        setTransactionAccount(accounts[transactionAccountId])
+    }, [transactionAccountId, accounts])
+    useEffect(() => {
+        setTransactionCategories(transactionCategoryArrayToObject(transaction.categories))
+    }, [transaction, categories])
+    useEffect(() => {
+        if (selected) {
+            reloadTransaction()
+            window.addEventListener('keypress', handleEnter);
+        }
+        return () => {
+            window.removeEventListener('keypress', handleEnter);
+        }
+    }, [selected])
+
+
+    const selectCurrentTransaction = (e) => {
+        e.target.focus()
         selectTransaction(transaction.id)
     }
 
@@ -160,19 +207,19 @@ export const Transaction = ({ key, transaction, categories, payees, accounts, se
     }
 
     const transactionDateSelector = () => {
-        if (!selected && transactionDate) return <div onClick={selectCurrentTransaction}>{transactionDate.toISOString().slice(0, 10)}</div>
+        if (!selected && transactionDate) return <div>{transactionDate.toISOString().slice(0, 10)}</div>
         return <DatePicker className="transactionDate" selected={transactionDate} onChange={(date) => { setTransactionDate(date) }} />
     }
     const payeeInputField = () => {
-        if (!selected) return <div onClick={selectCurrentTransaction}>{transactionPayee}</div>
+        if (!selected) return <div>{transactionPayee}</div>
         return <Autosuggest startingValue={transactionPayee} suggestions={payees} allowNewValues={true} updateMethod={(payee) => { setTransactionPayee(payee) }} />
     }
     const accountInputField = () => {
-        if (!selected) return <div onClick={selectCurrentTransaction}>{transactionAccount}</div>
+        if (!selected) return <div>{transactionAccount}</div>
         return <Autosuggest startingValue={transactionAccount} suggestions={accounts} allowNewValues={false} updateMethod={(account) => { setTransactionAccount(account) }} />
     }
     const memoInputField = () => {
-        if (!selected) return <div onClick={selectCurrentTransaction}>{transactionMemo}</div>
+        if (!selected) return <div>{transactionMemo}</div>
         return <input className="transactionMemo" value={transactionMemo} onChange={(e) => { setTransactionMemo(e.target.value) }} />
     }
 
@@ -192,7 +239,7 @@ export const Transaction = ({ key, transaction, categories, payees, accounts, se
         } else {
             return Object.keys(transactionCategories).map((k) => {
                 return (
-                    <div key={k} className="transactionCategory" onClick={selectCurrentTransaction}>
+                    <div key={k} className="transactionCategory">
                         <div className="transactionCategoryName">{categories[transactionCategories[k].category_id]}</div>
                         <div className="transactionCategoryAmount">{centsToMoney(transactionCategories[k].amount)}</div>
                     </div>
@@ -202,14 +249,18 @@ export const Transaction = ({ key, transaction, categories, payees, accounts, se
     }
 
     return (
-        <tr className={`transactionRow ${selected ? 'selected' : ''}`}>
+        <tr className={`transactionRow ${selected ? 'selected' : ''}`} onClick={selectCurrentTransaction}>
             <td className="transactionClearedColumn"> {clearedIcon()} </td>
             <td className="transactionDateColumn"> {transactionDateSelector()} </td>
             <td className="transactionAccountColumn"> {accountInputField()} </td>
             <td className="transactionPayeeColumn"> {payeeInputField()} </td>
             <td className="transactionMemoColumn"> {memoInputField()} </td>
             <td className="transactionCategoriesColumn"> {transactionCategory()} </td>
-            {(selected) && (<td className="transactionSaveColumn"> <div ref={confirmEdits} onClick={updateTransaction}><CheckIcon /></div></td>)}
+            {(selected) && (<td className="transactionSaveColumn">
+                <div ref={updateTransactionButton} onClick={() => { updateTransaction() }}><CheckIcon /></div>
+                <div ref={deleteTransactionButton} onClick={() => { deleteTransaction() }}> <TrashCanOutlineIcon /> </div>
+            </td>)}
+
         </tr>
     );
 

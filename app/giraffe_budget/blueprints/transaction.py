@@ -176,7 +176,7 @@ def update_transaction(
     if account_id is not None:
         update_statement += ", account_id = :account_id"
     if payee_id is not None:
-        update_statement += ", payee_id = :apyee_id"
+        update_statement += ", payee_id = :payee_id"
     if date is not None:
         update_statement += ", date = :date"
     if memo is not None:
