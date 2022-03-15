@@ -36,3 +36,8 @@ DELETE_TRANSACTION = """DELETE FROM transactions
 WHERE id = :transaction_id
 RETURNING id;
 """
+
+IS_CREDIT_CARD_TRANSACTION = """ SELECT account_type
+FROM accounts
+WHERE id = :account_id;
+"""

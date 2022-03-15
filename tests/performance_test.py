@@ -15,7 +15,10 @@ def main():
 
     # create accounts
     for a in accounts:
-        account = dict(name=a)
+        account = dict(name=a, credit_card=False)
+        if a in ["Visa", "Mastercard"]:
+            account["credit_card"] = True
+
         r = requests.post("http://localhost/api/account/create", json=account)
 
     # create payees

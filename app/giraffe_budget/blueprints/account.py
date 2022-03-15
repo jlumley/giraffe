@@ -5,6 +5,7 @@ from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
 
 from . import transaction
+from . import category
 
 from ..utils import db_utils, money_utils, time_utils
 from ..schemas.account_schema import *
@@ -33,6 +34,7 @@ def create_account():
         date_str,
         notes=data.get("notes"),
         starting_balance=starting_balance,
+        credit_card=data.get("credit_card"),
     )
     return make_response(jsonify(account), 201)
 
@@ -108,7 +110,7 @@ def get_account(account_id):
     return accounts
 
 
-def create_account(name, date, notes=None, starting_balance=0):
+def create_account(name, date, notes=None, starting_balance=0, credit_card=False):
     """create new account
 
     Args:
@@ -116,12 +118,16 @@ def create_account(name, date, notes=None, starting_balance=0):
         date (int): creation date
         notes (str, optional): notes for account. Defaults to None.
         starting_balance (int, optional): starting blanace. Defaults to 0.
+        credit_card (bool, optional): if account type is credit card. Defaults to False.
 
     Returns:
         dict: account dict
     """
+    account_type = "credit" if credit_card else "budget"
     account = db_utils.execute(
-        CREATE_ACCOUNT, {"name": name, "notes": notes, "date": date}, commit=True
+        CREATE_ACCOUNT,
+        {"name": name, "notes": notes, "date": date, "account_type": account_type},
+        commit=True,
     )
     # Creating starting balance transaction
     transaction.create_transaction(
@@ -132,6 +138,12 @@ def create_account(name, date, notes=None, starting_balance=0):
         memo="Starting Balance",
         categories=[{"category_id": 0, "amount": starting_balance}],
     )
+    # If credit card account create credit card category
+    if credit_card:
+        category.create_category(
+            name=name, group="Credit Cards", category_type="credit_card"
+        )
+
     return get_account(account[0]["id"])
 
 
@@ -176,7 +188,7 @@ def reconcile_account(account_id, date, balance):
             date,
             True,
             memo="Reconciliation Transaction",
-            categories=[{"category_id": 0, "amount": adjustment_amount}],
+            categories=[{"category_id": 1, "amount": adjustment_amount}],
         )
 
     # mark cleared transactions as reconciled

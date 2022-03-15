@@ -4,6 +4,8 @@ import sqlite3
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
 
+from . import category
+
 from ..utils import db_utils, time_utils, money_utils
 from ..schemas.transaction_schema import *
 from ..sql.transaction_statements import *
@@ -230,11 +232,9 @@ def create_transaction(
     """
     if len(categories) < 1:
         raise RuntimeError("Missing transaction categories")
-    sum_cat_amount = 0
-    for c in categories:
-        sum_cat_amount += c["amount"]
-    if sum_cat_amount != amount:
+    if sum([c["amount"] for c in categories]) != amount:
         raise RuntimeError("Category amounts do not match transaction amount")
+
     transaction = db_utils.execute(
         CREATE_TRANSACTION,
         {
@@ -246,6 +246,10 @@ def create_transaction(
             "memo": memo,
         },
     )
+
+    ### pull all of this out into a separate func, since it'll be used again for modifying transactions
+    credit_card_transaction = is_credit_card_transaction(account_id)
+
     for c in categories:
         db_utils.execute(
             CREATE_TRANSACTION_CATEGORIES,
@@ -255,6 +259,19 @@ def create_transaction(
                 "amount": c["amount"],
             },
         )
+
+        # if credit card transaction unassign money from categories
+        # to fund credit card account
+        if credit_card_transaction:
+            category.assign_money_to_category(c["category_id"], c["amount"] * -1, date)
+
+    if credit_card_transaction:
+        # get the category id that corresponds to the credit card account
+        account_name = account.get_account(account_id).get("name")
+        category_names = category.get_credit_card_category_names()
+        category_id = [c["id"] for c in category_names if c["name"] == account_name][0]
+        category.assign_money_to_category(category_id, amount, date)
+
     transaction = db_utils.execute(
         GET_TRANSACTION, {"transaction_id": transaction[0]["id"]}, commit=True
     )
@@ -347,3 +364,19 @@ def get_transaction(transaction_id):
         t["categories"] = categories
         t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
     return transactions
+
+
+def is_credit_card_transaction(account_id):
+    """Return True if the transaction was made with a Credit card account
+
+    Args:
+        account_id (int): account id that was used for the transaction
+
+    Returns:
+        bool: true if it is a credit card transaction
+    """
+    credit_card_transaction = db_utils.execute(
+        IS_CREDIT_CARD_TRANSACTION, {"account_id": account_id}
+    )
+
+    return credit_card_transaction == "credit_card"
