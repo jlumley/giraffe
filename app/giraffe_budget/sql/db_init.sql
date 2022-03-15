@@ -70,8 +70,6 @@ ON transactions(payee_id);
 CREATE INDEX IF NOT EXISTS assignments_category_index
 ON assignments(category_id);
 
-INSERT INTO categories (name, category_group) VALUES ("System", NULL);
+INSERT INTO categories (name, category_group) VALUES ("Internal", NULL);
 
 INSERT INTO categories (name, category_group) VALUES ("Income", NULL);
-
-INSERT INTO categories (name, category_group) VALUES ("Transfer", NULL);

@@ -57,7 +57,7 @@ export function Category({ category, currentDate, smallScreen }) {
             const resp = await instance.get(`${categoryRequests.fetchCategory}/${category.id}/${today}`)
 
             setCategoryBalance(resp.data[0].balance)
-            setCategoryAssigned(resp.data[0].assigned_this_month)
+            setCategoryAssigned(resp.data[0].assigned_this_month / 100)
         }
         _fetchCategory()
     };
@@ -92,8 +92,9 @@ export function Category({ category, currentDate, smallScreen }) {
     }
 
     const updateCategoryAssignment = (newValue) => {
+
         const req_data = {
-            amount: (newValue * 100 - categoryAssigned),
+            amount: (newValue - categoryAssigned) * 100,
             date: currentDate.toISOString().slice(0, 10)
         }
         if (req_data.amount < 0) {

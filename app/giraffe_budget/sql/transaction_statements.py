@@ -39,5 +39,6 @@ RETURNING id;
 
 IS_CREDIT_CARD_TRANSACTION = """ SELECT account_type
 FROM accounts
-WHERE id = :account_id;
+WHERE id = :account_id
+AND account_type = "credit_card";
 """
