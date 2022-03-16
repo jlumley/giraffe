@@ -15,9 +15,10 @@ def main():
 
     # create accounts
     for a in accounts:
-        account = dict(name=a, credit_card=False)
+        account = dict(name=a, credit_card=False, starting_balance=10000)
         if a in ["Visa", "Mastercard"]:
             account["credit_card"] = True
+            account["starting_balance"] = -1000
 
         r = requests.post("http://localhost/api/account/create", json=account)
 
@@ -35,7 +36,7 @@ def main():
         # print(r.content)
 
     # fund accounts
-    for i in [3, 4]:
+    for i in []:
         transaction = dict(
             payee_id=1,
             account_id=i,

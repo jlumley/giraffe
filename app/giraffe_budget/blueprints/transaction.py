@@ -164,8 +164,6 @@ def update_transaction(
     Returns:
         dict: new transaction dict
     """
-
-    update_statement = UPDATE_TRANSACTION
     update_vars = {
         "transaction_id": transaction_id,
         "account_id": account_id,
@@ -176,20 +174,6 @@ def update_transaction(
         "cleared": cleared,
         "categories": categories,
     }
-    if account_id is not None:
-        update_statement += ", account_id = :account_id"
-    if payee_id is not None:
-        update_statement += ", payee_id = :payee_id"
-    if date is not None:
-        update_statement += ", date = :date"
-    if memo is not None:
-        update_statement += ", memo = :memo"
-    if amount is not None:
-        update_statement += ", amount = :amount"
-    if cleared is not None:
-        update_statement += ", cleared = :cleared"
-
-    update_statement += " WHERE id = :transaction_id RETURNING id;"
 
     # update categories
     if categories:
@@ -217,7 +201,7 @@ def update_transaction(
                     "amount": c["amount"],
                 },
             )
-    db_utils.execute(update_statement, update_vars, commit=True)
+    db_utils.execute(UPDATE_TRANSACTION, update_vars, commit=True)
     transaction = get_transaction(transaction_id)
 
     return transaction

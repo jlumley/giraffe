@@ -42,4 +42,5 @@ PUT_TRANSACTION_UPDATE_SCHEMA = {
         "cleared": {"type": "boolean"},
         "amount": {"type": "integer"},
     },
+    "required": ["account_id", "categories", "date", "memo", "cleared", "amount"],
 }
