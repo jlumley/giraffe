@@ -4,18 +4,22 @@ import requests
 import uuid
 import time
 
-num_categories = 10
-num_transactions = 50
+num_categories = 5
+num_transactions = 0
 
 
 def main():
-    accounts = ["Checking", "Saving", "Mastercard", "Visa"]
+    accounts = ["Mastercard", "Visa", "Checking", "Saving"]
     payees = ["Amazon", "Loblaws", "LCBO", "Walmart", "Apple"]
     categories = ["Mortgage", "Groceries", "Cellphone", "gifts", "Car Repair"]
 
     # create accounts
     for a in accounts:
-        account = dict(name=a)
+        account = dict(name=a, credit_card=False, starting_balance=10000)
+        if a in ["Visa", "Mastercard"]:
+            account["credit_card"] = True
+            account["starting_balance"] = -1000
+
         r = requests.post("http://localhost/api/account/create", json=account)
 
     # create payees
@@ -32,10 +36,10 @@ def main():
         # print(r.content)
 
     # fund accounts
-    for i in range(len(accounts)):
+    for i in []:
         transaction = dict(
             payee_id=1,
-            account_id=i + 1,
+            account_id=i,
             memo="Income",
             cleared=True,
             date="2022-01-01",

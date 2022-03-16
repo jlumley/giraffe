@@ -4,6 +4,9 @@ import sqlite3
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
 
+from . import category
+from . import account
+
 from ..utils import db_utils, time_utils, money_utils
 from ..schemas.transaction_schema import *
 from ..sql.transaction_statements import *
@@ -161,8 +164,6 @@ def update_transaction(
     Returns:
         dict: new transaction dict
     """
-
-    update_statement = UPDATE_TRANSACTION
     update_vars = {
         "transaction_id": transaction_id,
         "account_id": account_id,
@@ -173,23 +174,21 @@ def update_transaction(
         "cleared": cleared,
         "categories": categories,
     }
-    if account_id is not None:
-        update_statement += ", account_id = :account_id"
-    if payee_id is not None:
-        update_statement += ", payee_id = :payee_id"
-    if date is not None:
-        update_statement += ", date = :date"
-    if memo is not None:
-        update_statement += ", memo = :memo"
-    if amount is not None:
-        update_statement += ", amount = :amount"
-    if cleared is not None:
-        update_statement += ", cleared = :cleared"
-
-    update_statement += " WHERE id = :transaction_id RETURNING id;"
 
     # update categories
     if categories:
+        # move money to credit card category if needed
+        if is_credit_card_transaction(account_id) and payee_id:
+            old_transaction = get_transaction(transaction_id)[0]
+            move_funds_from_credit_card_category(
+                account_id,
+                old_transaction.get("categories"),
+                date if date else old_transaction.get("date"),
+            )
+            move_funds_to_credit_card_category(
+                account_id, categories, date if date else old_transaction.get("date")
+            )
+
         db_utils.execute(
             DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}
         )
@@ -202,7 +201,7 @@ def update_transaction(
                     "amount": c["amount"],
                 },
             )
-    db_utils.execute(update_statement, update_vars, commit=True)
+    db_utils.execute(UPDATE_TRANSACTION, update_vars, commit=True)
     transaction = get_transaction(transaction_id)
 
     return transaction
@@ -230,11 +229,9 @@ def create_transaction(
     """
     if len(categories) < 1:
         raise RuntimeError("Missing transaction categories")
-    sum_cat_amount = 0
-    for c in categories:
-        sum_cat_amount += c["amount"]
-    if sum_cat_amount != amount:
+    if sum([c["amount"] for c in categories]) != amount:
         raise RuntimeError("Category amounts do not match transaction amount")
+
     transaction = db_utils.execute(
         CREATE_TRANSACTION,
         {
@@ -246,6 +243,11 @@ def create_transaction(
             "memo": memo,
         },
     )
+
+    ### pull all of this out into a separate func, since it'll be used again for modifying transactions
+    if is_credit_card_transaction(account_id) and payee_id:
+        move_funds_to_credit_card_category(account_id, categories)
+
     for c in categories:
         db_utils.execute(
             CREATE_TRANSACTION_CATEGORIES,
@@ -255,6 +257,7 @@ def create_transaction(
                 "amount": c["amount"],
             },
         )
+
     transaction = db_utils.execute(
         GET_TRANSACTION, {"transaction_id": transaction[0]["id"]}, commit=True
     )
@@ -347,3 +350,61 @@ def get_transaction(transaction_id):
         t["categories"] = categories
         t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
     return transactions
+
+
+def is_credit_card_transaction(account_id):
+    """Return True if the transaction was made with a Credit card account
+
+    Args:
+        account_id (int): account id that was used for the transaction
+
+    Returns:
+        bool: true if it is a credit card transaction
+    """
+    credit_card_transaction = db_utils.execute(
+        IS_CREDIT_CARD_TRANSACTION, {"account_id": account_id}
+    )
+    return bool(credit_card_transaction)
+
+
+def move_funds_to_credit_card_category(account_id, categories, date):
+    """Move funds from transaction categories to credit card category
+
+    Args:
+        account_id (int): Credit Card account id
+        categories (list): transaction categories
+    """
+
+    # if credit card transaction unassign money from categories
+    # to fund credit card account
+    for c in categories:
+        category.assign_money_to_category(c["category_id"], c["amount"], date)
+
+    amount = sum([c["amount"] for c in categories])
+    # get the category id that corresponds to the credit card account
+    account_name = account.get_account(account_id)[0].get("name")
+    category_names = category.get_credit_card_category_names()
+    category_id = [c["id"] for c in category_names if c["name"] == account_name][0]
+    category.assign_money_to_category(category_id, amount * -1, date)
+
+
+def move_funds_from_credit_card_category(account_id, categories, date):
+    """Move funds form credit card category back to transaction categories
+
+    Args:
+        account_id (int): Credit Card account id
+        categories (list): transaction categories
+    """
+
+    # if credit card transaction unassign money from categories
+    # to fund credit card account
+    for c in categories:
+        category.assign_money_to_category(c["category_id"], c["amount"] * -1, date)
+
+    amount = sum([c["amount"] for c in categories])
+
+    # get the category id that corresponds to the credit card account
+    account_name = account.get_account(account_id)[0].get("name")
+    category_names = category.get_credit_card_category_names()
+    category_id = [c["id"] for c in category_names if c["name"] == account_name][0]
+    category.assign_money_to_category(category_id, amount, date)

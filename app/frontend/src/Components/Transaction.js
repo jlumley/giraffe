@@ -139,31 +139,29 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
 
     function updateTransaction() {
         async function _updateTransaction() {
-            var payeeId = payeeToPayeeId();
-            if (!payeeId) {
-                // create new payee if not match found
-                const resp = await instance.post(payeeRequests.createPayee,
-                    { name: transactionPayee }
-                )
-                payeeId = resp.data.id
+            var _categories = transactionCategoryObjectToArray(consolidateCategories())
+            var transactionData = {
+                date: transactionDate.toISOString().slice(0, 10),
+                cleared: cleared,
+                memo: transactionMemo,
+                account_id: parseInt(accountToAccountId()),
+                categories: _categories,
+                amount: _categories.reduce((prev, curr) => prev + curr.amount, 0)
             }
-            var accountId = accountToAccountId();
-            var categories = transactionCategoryObjectToArray(consolidateCategories());
-            var totalAmount = categories.reduce(
-                (prev, curr) => prev + curr.amount,
-                0
-            )
+            if (transactionPayee) {
+                var payeeId = payeeToPayeeId();
+                if (!payeeId) {
+                    // create new payee if not match found
+                    const resp = await instance.post(payeeRequests.createPayee,
+                        { name: transactionPayee }
+                    )
+                    payeeId = resp.data.id
+                }
+                transactionData.payee_id = parseInt(payeeId)
+            }
             await instance.put(
                 `${transactionRequests.updateTransaction}${transaction.id}`,
-                {
-                    date: transactionDate.toISOString().slice(0, 10),
-                    cleared: cleared,
-                    memo: transactionMemo,
-                    account_id: parseInt(accountId),
-                    payee_id: parseInt(payeeId),
-                    categories: categories,
-                    amount: totalAmount
-                }
+                transactionData
             )
 
             selectTransaction(null)
@@ -212,7 +210,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     }
     const payeeInputField = () => {
         if (!selected) return <div>{transactionPayee}</div>
-        return <Autosuggest startingValue={transactionPayee} suggestions={payees} allowNewValues={true} updateMethod={(payee) => { setTransactionPayee(payee) }} />
+        return <Autosuggest startingValue={transactionPayee} suggestions={payees} allowNewValues={true} allowEmpty={true} updateMethod={(payee) => { setTransactionPayee(payee) }} />
     }
     const accountInputField = () => {
         if (!selected) return <div>{transactionAccount}</div>

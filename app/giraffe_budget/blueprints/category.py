@@ -156,19 +156,25 @@ def _category_unassign(category_id):
     )
 
 
-def create_category(name, group, notes=None):
+def create_category(name, group, category_type=None, notes=None):
     """create new category
 
     Args:
         name (str): Category name
         group (str): Category group
-        notes (str), optional): Category notes. Defaults to None.
+        notes (str, optional): Category notes. Defaults to None.
+        category_type (str, optional): Category Type. Defaults to None
 
     Returns:
         dict: created category
     """
     data = request.get_json()
-    insert_data = {"name": name, "category_group": group, "notes": notes}
+    insert_data = {
+        "name": name,
+        "category_group": group,
+        "notes": notes,
+        "category_type": category_type,
+    }
     category = db_utils.execute(CREATE_CATEGORY, insert_data, commit=True)
     return category[0]
 
@@ -366,7 +372,7 @@ def get_category_transactions_sum(category_id, before=MAX_INT, after=0):
     return transacted
 
 
-def get_categories(date):
+def get_categories(sql_date):
     """get all categories
 
     Args:
@@ -379,7 +385,7 @@ def get_categories(date):
     category_ids = db_utils.execute(GET_ALL_CATEGORIES)
     categories = []
     for c in category_ids:
-        categories += get_category(c["id"], date)
+        categories += get_category(c["id"], sql_date)
 
     return categories
 
@@ -397,11 +403,13 @@ def get_category(category_id, sql_date):
     categories = db_utils.execute(GET_CATEGORY, {"category_id": category_id})
 
     for c in categories:
+        c["credit_card"] = True if c["category_type"] == "credit_card" else False
         target_data = get_category_target_data(category_id, sql_date)
         c["balance"] = get_category_balance(category_id, sql_date)
         c["target_date"] = time_utils.sqlite_date_to_datestr(c["target_date"])
         c["monthly_target"] = target_data["monthly_target"]
         c["assigned_this_month"] = target_data["assigned_this_month"]
+        del c["category_type"]
 
     return categories
 
@@ -410,6 +418,12 @@ def get_category_names():
     """ Fetch all the category names and ids
     """
     return db_utils.execute(GET_CATEGORY_NAMES)
+
+
+def get_credit_card_category_names():
+    """ Fetch all the category names and ids
+    """
+    return db_utils.execute(GET_CREDIT_CARD_CATEGORY_NAMES)
 
 
 def get_category_groups():

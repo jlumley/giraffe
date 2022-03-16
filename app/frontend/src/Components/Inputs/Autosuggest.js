@@ -3,17 +3,18 @@ import { Hint } from 'react-autocomplete-hint';
 
 import '../../style/Autosuggest.css'
 
-export function Autosuggest({ startingValue, suggestions, updateMethod, allowNewValues }) {
+export function Autosuggest({ startingValue, suggestions, updateMethod, allowNewValues, allowEmpty }) {
     const [text, setText] = useState(startingValue);
     useEffect(() => { }, [startingValue, suggestions])
     suggestions = Object.values(suggestions).map(s => { return s.toLowerCase() })
 
     const onBlur = (event) => {
-        if (!allowNewValues && !suggestions.includes(event.target.value.toLowerCase())) {
-            console.log(event.target.value)
-            setText(startingValue)
-        } else {
+        if (allowEmpty && !event.target.value) {
+            updateMethod("")
+        } else if (allowNewValues || suggestions.includes(event.target.value.toLowerCase())) {
             updateMethod(event.target.value)
+        } else {
+            setText(startingValue)
         }
     }
 

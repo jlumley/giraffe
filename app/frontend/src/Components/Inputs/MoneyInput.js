@@ -11,6 +11,7 @@ export function MoneyInput({ startingValue, updateMethod }) {
 
 
     useEffect(() => {
+        setValue(startingValue)
     }, [startingValue])
 
     const handleChange = (event) => {

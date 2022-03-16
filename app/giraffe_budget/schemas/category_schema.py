@@ -4,6 +4,7 @@ POST_CATEGORY_CREATE_SCHEMA = {
         "name": {"type": "string"},
         "group": {"type": "string"},
         "notes": {"type": "string"},
+        "account_type": {"type": "string"},
     },
     "required": ["name", "group"],
 }

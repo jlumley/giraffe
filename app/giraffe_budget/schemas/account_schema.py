@@ -4,6 +4,7 @@ POST_ACCOUNT_CREATE_SCHEMA = {
         "name": {"type": "string"},
         "notes": {"type": "string"},
         "date": {"type": "string"},
+        "credit_card": {"type": "boolean"},
         "starting_balance": {"type": "number"},
     },
     "required": ["name"],

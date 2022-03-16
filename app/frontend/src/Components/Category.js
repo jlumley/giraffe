@@ -11,7 +11,7 @@ import '../style/Category.css'
 import { MoneyInput } from './Inputs/MoneyInput';
 
 
-export function Category({ key, category, currentDate, smallScreen }) {
+export function Category({ category, currentDate, smallScreen }) {
     const [categoryName, setCategoryName] = useState(category.name);
     const [categoryAssigned, setCategoryAssigned] = useState(category.assigned_this_month / 100);
     const [categorySpent, setCategorySpent] = useState(0);
@@ -57,7 +57,7 @@ export function Category({ key, category, currentDate, smallScreen }) {
             const resp = await instance.get(`${categoryRequests.fetchCategory}/${category.id}/${today}`)
 
             setCategoryBalance(resp.data[0].balance)
-            setCategoryAssigned(resp.data[0].assigned_this_month)
+            setCategoryAssigned(resp.data[0].assigned_this_month / 100)
         }
         _fetchCategory()
     };
@@ -92,8 +92,9 @@ export function Category({ key, category, currentDate, smallScreen }) {
     }
 
     const updateCategoryAssignment = (newValue) => {
+
         const req_data = {
-            amount: (newValue * 100 - categoryAssigned),
+            amount: (newValue - categoryAssigned) * 100,
             date: currentDate.toISOString().slice(0, 10)
         }
         if (req_data.amount < 0) {
@@ -114,7 +115,10 @@ export function Category({ key, category, currentDate, smallScreen }) {
     return (
         <tr className="categoryRow">
             {(!smallScreen) && (<td className="selectedColumn">{ifSelected()}</td>)}
-            <td className="nameColumn"><input className="categoryName" type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} /></td>
+            <td className="nameColumn">
+                {(!category.credit_card) && (<input className="categoryName" type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} />)}
+                {(category.credit_card) && (<input className="categoryName" type="text" value={categoryName} />)}
+            </td>
             <td className="assignedColumn"><MoneyInput startingValue={categoryAssigned} updateMethod={updateCategoryAssignment} /></td>
             {(!smallScreen) && (<td className="spentColumn">{category_amount(categorySpent)}</td>)}
             <td className="balanceColumn">{category_amount(categoryBalance)}</td>

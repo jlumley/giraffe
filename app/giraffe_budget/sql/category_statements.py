@@ -7,8 +7,8 @@ WHERE id = :category_id;
 """
 
 CREATE_CATEGORY = """INSERT INTO categories
-(name, category_group, notes)
-VALUES (:name, :category_group, :notes)
+(name, category_type, category_group, notes)
+VALUES (:name, :category_type, :category_group, :notes)
 RETURNING *;
 """
 
@@ -63,6 +63,11 @@ VALUES (:category_id, :amount, :date);
 """
 
 GET_CATEGORY_NAMES = """SELECT id, name
+FROM categories
+WHERE category_type IS NULL;
+"""
+
+GET_CREDIT_CARD_CATEGORY_NAMES = """SELECT id, name, category_type
 FROM categories;
 """
 

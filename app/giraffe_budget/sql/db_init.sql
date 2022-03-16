@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   name text NOT NULL,
   notes text,
   hidden integer,
+  account_type text,
   created_date integer,
   reconciled_date integer
 );
@@ -12,6 +13,7 @@ CREATE TABLE IF NOT EXISTS accounts (
 CREATE TABLE IF NOT EXISTS categories (
   id integer PRIMARY KEY,
   name text NOT NULL,
+  category_type text,
   target_type text,
   target_amount integer,
   target_date integer,
@@ -23,6 +25,7 @@ CREATE TABLE IF NOT EXISTS payees (
   id integer PRIMARY KEY,
   name text NOT NULL,
   category_prediction integer,
+  system_payee integer,
   FOREIGN KEY (category_prediction) REFERENCES categories (id)
 );
 
@@ -67,8 +70,6 @@ ON transactions(payee_id);
 CREATE INDEX IF NOT EXISTS assignments_category_index
 ON assignments(category_id);
 
-INSERT INTO categories (name, category_group) VALUES ("System", NULL);
+INSERT INTO categories (name, category_group) VALUES ("Internal", NULL);
 
 INSERT INTO categories (name, category_group) VALUES ("Income", NULL);
-
-
