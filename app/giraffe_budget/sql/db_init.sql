@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   memo text,
   reconciled integer,
   cleared integer,
-  amount int,
+  amount integer,
   FOREIGN KEY (account_id) REFERENCES accounts (id),
   FOREIGN KEY (payee_id) REFERENCES payees (id)
 );
@@ -55,6 +55,8 @@ CREATE TABLE IF NOT EXISTS assignments (
   date integer,
   amount int,
   category_id integer,
+  transaction_id integer,
+  FOREIGN KEY (transaction_id) REFERENCES transactions (id),
   FOREIGN KEY (category_id) REFERENCES categories (id)
 );
 
@@ -70,6 +72,8 @@ ON transactions(payee_id);
 CREATE INDEX IF NOT EXISTS assignments_category_index
 ON assignments(category_id);
 
-INSERT INTO categories (name, category_group) VALUES ("Internal", NULL);
+INSERT INTO categories (name, category_group) VALUES ("System", NULL);
 
 INSERT INTO categories (name, category_group) VALUES ("Income", NULL);
+
+INSERT INTO categories (name, category_group) VALUES ("Split Transaction", NULL);

@@ -54,12 +54,12 @@ GET_CATEGORY_ASSIGNMENTS = """SELECT
 SUM(amount) AS amount FROM assignments
 WHERE date <= :before
 AND date >= :after
-AND category_id = :category_id;
+AND category_id = :category_id
 """
 
 ASSIGN_CATEGORY = """INSERT INTO assignments
-(category_id, amount, date)
-VALUES (:category_id, :amount, :date);
+(category_id, transaction_id, amount, date)
+VALUES (:category_id, :transaction_id, :amount, :date);
 """
 
 GET_CATEGORY_NAMES = """SELECT id, name
@@ -68,7 +68,7 @@ WHERE category_type IS NULL;
 """
 
 GET_CREDIT_CARD_CATEGORY_NAMES = """SELECT id, name, category_type
-FROM categories;
+FROM categories WHERE category_type="credit_card";
 """
 
 GET_CATEGORY_GROUPS = """SELECT DISTINCT category_group

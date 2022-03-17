@@ -30,25 +30,9 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     const [transactionAccount, setTransactionAccount] = useState(accounts[transaction.account_id]);
     const [transactionPayee, setTransactionPayee] = useState(payees[transaction.payee_id]);
     const [transactionMemo, setTransactionMemo] = useState(transaction.memo);
-    const [transactionCategories, setTransactionCategories] = useState({});
+    const [transactionCategories, setTransactionCategories] = useState([]);
     const updateTransactionButton = useRef(null);
     const deleteTransactionButton = useRef(null);
-
-    const transactionCategoryArrayToObject = (tempTransactionsCategories) => {
-        var transactionObj = {}
-        tempTransactionsCategories.forEach((c) => {
-            transactionObj[uuidv4()] = c;
-        })
-        return transactionObj
-    }
-
-    const transactionCategoryObjectToArray = (tempTransactionsCategories) => {
-        var transactionArray = [];
-        Object.keys(tempTransactionsCategories).forEach((c) => {
-            transactionArray.push(tempTransactionsCategories[c])
-        })
-        return transactionArray
-    }
 
     const payeeToPayeeId = () => {
         return Object.keys(payees).find(id => payees[id].toLowerCase() === transactionPayee.toLowerCase())
@@ -72,7 +56,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
                 setTransactionAccount(accounts[resp.data.account_id]);
                 setTransactionPayee(tempPayees[resp.data.payee_id]);
                 setTransactionMemo(resp.data.memo);
-                setTransactionCategories(transactionCategoryArrayToObject(resp.data.categories));
+                setTransactionCategories(resp.data.categories.map(obj=> ({ ...obj, uuid: uuidv4() })));
             })
         }
         _reloadTransaction()
@@ -95,51 +79,51 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
 
     function consolidateCategories() {
         // remove empty categories and consolidate duplicate categories
-        const new_categories = {};
-        Object.keys(transactionCategories).forEach((k) => {
-            if (transactionCategories[k].category_id === 0) return
+        const new_categories = [];
+        transactionCategories.forEach((c) => {
+            if (c.category_id === 0) return
             var new_category = true;
-            Object.keys(new_categories).forEach((nk) => {
-                if (parseInt(new_categories[nk].category_id) === parseInt(transactionCategories[k].category_id)) {
-                    new_categories[nk].amount += transactionCategories[k].amount
+            new_categories.forEach((nc) => {
+                if (parseInt(nc.category_id) === parseInt(c.category_id)) {
+                    nc.amount += c.amount
                     new_category = false
                 }
             })
             if (new_category) {
-                new_categories[uuidv4()] = { category_id: parseInt(transactionCategories[k].category_id), amount: transactionCategories[k].amount };
+                new_categories.push({ category_id: parseInt(c.category_id), amount: c.amount });
             }
         });
         return new_categories;
     }
 
     function addCategory() {
-        var tempObj = { ...transactionCategories };
-        tempObj[uuidv4()] = { category_id: 0, amount: 0 };
-        setTransactionCategories(tempObj)
+        var tempArray = [ ...transactionCategories ];
+        tempArray.push({ category_id: 0, amount: 0, uuid:uuidv4() });
+        setTransactionCategories(tempArray)
     }
 
-    function removeCategory(transactionCategoriesKey) {
-        var tempObj = { ...transactionCategories };
-        delete tempObj[transactionCategoriesKey]
-        setTransactionCategories(tempObj)
+    function removeCategory(index) {
+        var tempArray = [ ...transactionCategories ];
+        tempArray.splice(index, 1)
+        setTransactionCategories(tempArray)
     }
 
-    function updateTransactionCategoryNames(transactionCategoriesKey, new_category) {
-        var tempObj = { ...transactionCategories };
-        tempObj[transactionCategoriesKey].category_id = Object.keys(categories).find(id => categories[id].toLowerCase() === new_category.toLowerCase());
-        setTransactionCategories(tempObj);
+    function updateTransactionCategoryNames(index, new_category) {
+        var tempArray = [ ...transactionCategories ];
+        tempArray[index].category_id = Object.keys(categories).find(id => categories[id].toLowerCase() === new_category.toLowerCase());
+        setTransactionCategories(tempArray);
     }
 
-    function updateTransactionAmounts(transactionCategoriesKey, new_amount) {
-        var tempObj = { ...transactionCategories };
-        tempObj[transactionCategoriesKey].amount = new_amount * 100;
-        setTransactionCategories(tempObj);
+    function updateTransactionAmounts(index, new_amount) {
+        var tempArray = [ ...transactionCategories ];
+        tempArray[index].amount = new_amount * 100;
+        setTransactionCategories(tempArray);
     }
 
 
     function updateTransaction() {
         async function _updateTransaction() {
-            var _categories = transactionCategoryObjectToArray(consolidateCategories())
+            var _categories = consolidateCategories()
             var transactionData = {
                 date: transactionDate.toISOString().slice(0, 10),
                 cleared: cleared,
@@ -178,7 +162,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
         setTransactionAccount(accounts[transactionAccountId])
     }, [transactionAccountId, accounts])
     useEffect(() => {
-        setTransactionCategories(transactionCategoryArrayToObject(transaction.categories))
+        setTransactionCategories(transaction.categories)
     }, [transaction, categories])
     useEffect(() => {
         if (selected) {
@@ -223,23 +207,23 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
 
     const transactionCategory = () => {
         if (selected) {
-            return Object.keys(transactionCategories).map((k) => {
-                return (<table key={k} className="transactonCategoryRow">
+            return transactionCategories.map((_category, index) => {
+                return (<table key={_category.uuid} className="transactonCategoryRow">
                     <tbody><tr>
-                        <td className="deleteTransactonCategory"><CloseCircleOutlineIcon size={15} onClick={() => { removeCategory(k) }} /></td>
-                        <td className="transactonCategoryName"><Autosuggest startingValue={categories[transactionCategories[k].category_id]} suggestions={categories} allowNewValues={false} updateMethod={(e) => { updateTransactionCategoryNames(k, e) }} /> </td>
-                        <td className="transactonCategoryAmount"><MoneyInput startingValue={transactionCategories[k].amount / 100} updateMethod={(e) => { updateTransactionAmounts(k, e) }} updateOnChange={true} /></td>
+                        <td className="deleteTransactonCategory"><CloseCircleOutlineIcon size={15} onClick={() => { removeCategory(index) }} /></td>
+                        <td className="transactonCategoryName"><Autosuggest startingValue={categories[_category.category_id]} suggestions={categories} allowNewValues={false} updateMethod={(e) => { updateTransactionCategoryNames(index, e) }} /> </td>
+                        <td className="transactonCategoryAmount"><MoneyInput startingValue={_category.amount / 100} updateMethod={(e) => { updateTransactionAmounts(index, e) }} updateOnChange={true} /></td>
                     </tr></tbody>
                 </table>
                 );
             }).concat(<PlusCircleOutlineIcon size={16} onClick={addCategory} />)
 
         } else {
-            return Object.keys(transactionCategories).map((k) => {
+            return transactionCategories.map((_category) => {
                 return (
-                    <div key={k} className="transactionCategory">
-                        <div className="transactionCategoryName">{categories[transactionCategories[k].category_id]}</div>
-                        <div className="transactionCategoryAmount">{centsToMoney(transactionCategories[k].amount)}</div>
+                    <div key={_category.uuid} className="transactionCategory">
+                        <div className="transactionCategoryName">{categories[_category.category_id]}</div>
+                        <div className="transactionCategoryAmount">{centsToMoney(_category.amount)}</div>
                     </div>
                 )
             })

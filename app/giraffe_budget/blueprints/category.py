@@ -300,47 +300,63 @@ def get_category_balance(category_id, sql_date):
     Returns:
         int: category balance at given date
     """
+    allowHiddenAssignments = category_id in [
+        c["id"] for c in get_credit_card_category_names()
+    ]
 
-    total_assigned = get_category_assignments_sum(category_id, before=sql_date)
+    total_assigned = get_category_assignments_sum(
+        category_id, before=sql_date, allowHiddenAssignments=allowHiddenAssignments
+    )
     total_transacted = get_category_transactions_sum(category_id, before=sql_date)
 
     return total_assigned + total_transacted
 
 
-def assign_money_to_category(category_id, amount, date):
+def assign_money_to_category(category_id, amount, date, transaction_id=None):
     """Assign money to category
 
     Args:
         category_id (int): category id
         amount (int): amount to assign (negative to unassign)
         date (int): assignment date
+        transaction_id(int): if the assignment is accociated with a transaction (i.e credit card transactions)
 
     Returns:
         int : category balance after money is assigned
     """
     db_utils.execute(
         ASSIGN_CATEGORY,
-        {"category_id": category_id, "amount": amount, "date": date},
+        {
+            "category_id": category_id,
+            "amount": amount,
+            "date": date,
+            "transaction_id": transaction_id,
+        },
         commit=True,
     )
 
     return get_category_balance(category_id, date)
 
 
-def get_category_assignments_sum(category_id, before=MAX_INT, after=0):
+def get_category_assignments_sum(
+    category_id, before=MAX_INT, after=0, allowHiddenAssignments=False
+):
     """Get the sum of all category assignmtnts between two dates
 
     Args:
         category_id (int): category id
         before (int, optional): fetch assignments before date. Defaults to MAX_INT.
         after (int, optional): fetch assignments before date. Defaults to 0.
+        allowhiddenAssignments (bool, optional): used to get true credit card balance. Defaults to False.
 
     Returns:
         int: sum of assignments
     """
+    statement = GET_CATEGORY_ASSIGNMENTS
+    if not allowHiddenAssignments:
+        statement += "AND transaction_id IS NULL;"
     assigned_cents = db_utils.execute(
-        GET_CATEGORY_ASSIGNMENTS,
-        {"category_id": category_id, "before": before, "after": after},
+        statement, {"category_id": category_id, "before": before, "after": after}
     )
     assigned = 0
     if assigned_cents[0]["amount"]:

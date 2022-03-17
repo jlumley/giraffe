@@ -179,14 +179,12 @@ def update_transaction(
     if categories:
         # move money to credit card category if needed
         if is_credit_card_transaction(account_id) and payee_id:
-            old_transaction = get_transaction(transaction_id)[0]
-            move_funds_from_credit_card_category(
-                account_id,
-                old_transaction.get("categories"),
-                date if date else old_transaction.get("date"),
-            )
+            old_transaction = get_transaction(transaction_id)
             move_funds_to_credit_card_category(
-                account_id, categories, date if date else old_transaction.get("date")
+                account_id,
+                transaction_id,
+                categories,
+                date if date else old_transaction.get("date"),
             )
 
         db_utils.execute(
@@ -367,44 +365,28 @@ def is_credit_card_transaction(account_id):
     return bool(credit_card_transaction)
 
 
-def move_funds_to_credit_card_category(account_id, categories, date):
+def move_funds_to_credit_card_category(account_id, transaction_id, categories, date):
     """Move funds from transaction categories to credit card category
 
     Args:
         account_id (int): Credit Card account id
+        transaction_id (int): Transaction id  associated with the assignments
         categories (list): transaction categories
     """
-
+    # delete all previous assignments for this transaction
+    db_utils.execute(DELETE_TRANSACTION_ASSIGNMENTS, {"transaction_id": transaction_id})
     # if credit card transaction unassign money from categories
     # to fund credit card account
     for c in categories:
-        category.assign_money_to_category(c["category_id"], c["amount"], date)
+        category.assign_money_to_category(
+            c["category_id"], c["amount"], date, transaction_id=transaction_id
+        )
 
     amount = sum([c["amount"] for c in categories])
     # get the category id that corresponds to the credit card account
     account_name = account.get_account(account_id)[0].get("name")
     category_names = category.get_credit_card_category_names()
     category_id = [c["id"] for c in category_names if c["name"] == account_name][0]
-    category.assign_money_to_category(category_id, amount * -1, date)
-
-
-def move_funds_from_credit_card_category(account_id, categories, date):
-    """Move funds form credit card category back to transaction categories
-
-    Args:
-        account_id (int): Credit Card account id
-        categories (list): transaction categories
-    """
-
-    # if credit card transaction unassign money from categories
-    # to fund credit card account
-    for c in categories:
-        category.assign_money_to_category(c["category_id"], c["amount"] * -1, date)
-
-    amount = sum([c["amount"] for c in categories])
-
-    # get the category id that corresponds to the credit card account
-    account_name = account.get_account(account_id)[0].get("name")
-    category_names = category.get_credit_card_category_names()
-    category_id = [c["id"] for c in category_names if c["name"] == account_name][0]
-    category.assign_money_to_category(category_id, amount, date)
+    category.assign_money_to_category(
+        category_id, amount * -1, date, transaction_id=transaction_id
+    )

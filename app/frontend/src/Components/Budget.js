@@ -95,7 +95,7 @@ export function Budget({ smallScreen }) {
           <td className="categeoryNameColumn">Category</td>
           <td className="categeoryAssignedColumn">Assigned</td>
           {(!smallScreen) && (<td className="categeorySpentColumn">Spent</td>)}
-          <td className="categeoryBalanceColumn">Balance</td>
+          <td className="categeoryBalanceColumn">Available</td>
         </table>
         <div className="budgetCategories">
           {(categoryGroups.map((name) => {
