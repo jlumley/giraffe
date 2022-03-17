@@ -68,7 +68,7 @@ WHERE category_type IS NULL;
 """
 
 GET_CREDIT_CARD_CATEGORY_NAMES = """SELECT id, name, category_type
-FROM categories;
+FROM categories WHERE category_type="credit_card";
 """
 
 GET_CATEGORY_GROUPS = """SELECT DISTINCT category_group

@@ -300,9 +300,9 @@ def get_category_balance(category_id, sql_date):
     Returns:
         int: category balance at given date
     """
-    allowHiddenAssignments = False
-    if category_id in [c["id"] for c in get_credit_card_category_names()]:
-        allowHiddenAssignments = True
+    allowHiddenAssignments = category_id in [
+        c["id"] for c in get_credit_card_category_names()
+    ]
 
     total_assigned = get_category_assignments_sum(
         category_id, before=sql_date, allowHiddenAssignments=allowHiddenAssignments
