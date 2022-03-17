@@ -162,6 +162,9 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
         setTransactionAccount(accounts[transactionAccountId])
     }, [transactionAccountId, accounts])
     useEffect(() => {
+        setTransactionCategories(transaction.categories)
+    }, [transaction, categories])
+    useEffect(() => {
         if (selected) {
             reloadTransaction()
             window.addEventListener('keypress', handleEnter);

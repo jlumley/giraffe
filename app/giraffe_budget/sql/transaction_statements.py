@@ -43,6 +43,10 @@ WHERE id = :transaction_id
 RETURNING id;
 """
 
+DELETE_TRANSACTION_ASSIGNMENTS = """DELETE FROM assignments
+WHERE transaction_id = :transaction_id;
+"""
+
 IS_CREDIT_CARD_TRANSACTION = """ SELECT account_type
 FROM accounts
 WHERE id = :account_id
