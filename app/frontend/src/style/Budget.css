@@ -24,6 +24,8 @@
     float: left;
     padding: 1%;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
 }
 .monthSelector {
     vertical-align: middle;

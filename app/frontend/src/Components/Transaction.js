@@ -31,6 +31,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     const [transactionPayee, setTransactionPayee] = useState(payees[transaction.payee_id]);
     const [transactionMemo, setTransactionMemo] = useState(transaction.memo);
     const [transactionCategories, setTransactionCategories] = useState([]);
+    const [splitTransaction, setSplitTransaction] = useState(null);
     const updateTransactionButton = useRef(null);
     const deleteTransactionButton = useRef(null);
 
@@ -56,7 +57,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
                 setTransactionAccount(accounts[resp.data.account_id]);
                 setTransactionPayee(tempPayees[resp.data.payee_id]);
                 setTransactionMemo(resp.data.memo);
-                setTransactionCategories(resp.data.categories.map(obj=> ({ ...obj, uuid: uuidv4() })));
+                setTransactionCategories(resp.data.categories.map(obj => ({ ...obj, uuid: uuidv4() })));
             })
         }
         _reloadTransaction()
@@ -97,25 +98,25 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     }
 
     function addCategory() {
-        var tempArray = [ ...transactionCategories ];
-        tempArray.push({ category_id: 0, amount: 0, uuid:uuidv4() });
+        var tempArray = [...transactionCategories];
+        tempArray.push({ category_id: 0, amount: 0, uuid: uuidv4() });
         setTransactionCategories(tempArray)
     }
 
     function removeCategory(index) {
-        var tempArray = [ ...transactionCategories ];
+        var tempArray = [...transactionCategories];
         tempArray.splice(index, 1)
         setTransactionCategories(tempArray)
     }
 
     function updateTransactionCategoryNames(index, new_category) {
-        var tempArray = [ ...transactionCategories ];
+        var tempArray = [...transactionCategories];
         tempArray[index].category_id = Object.keys(categories).find(id => categories[id].toLowerCase() === new_category.toLowerCase());
         setTransactionCategories(tempArray);
     }
 
     function updateTransactionAmounts(index, new_amount) {
-        var tempArray = [ ...transactionCategories ];
+        var tempArray = [...transactionCategories];
         tempArray[index].amount = new_amount * 100;
         setTransactionCategories(tempArray);
     }

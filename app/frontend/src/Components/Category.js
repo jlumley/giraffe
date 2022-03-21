@@ -85,9 +85,9 @@ export function Category({ category, currentDate, smallScreen }) {
 
     const ifSelected = () => {
         if (selected) {
-            return <CheckboxMarkedCircleIcon className="selectedIcon" onClick={selectCategory} />
+            return <CheckboxMarkedCircleIcon size={15} className="selectedIcon" onClick={selectCategory} />
         } else {
-            return <CheckboxBlankCircleOutlineIcon className="selectedIcon" onClick={selectCategory} />
+            return <CheckboxBlankCircleOutlineIcon size={15} className="selectedIcon" onClick={selectCategory} />
         }
     }
 
