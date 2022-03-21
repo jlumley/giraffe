@@ -68,7 +68,8 @@ export const CategoryGroup = ({ name, currentDate, smallScreen }) => {
       {categories.map(c => {
         return category(c)
       })}
+      {newCategories}
     </table>
-    {newCategories}
+
   </div>;
 }
