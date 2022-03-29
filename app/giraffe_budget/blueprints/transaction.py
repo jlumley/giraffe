@@ -1,8 +1,10 @@
-import time
 import sqlite3
+import time
+
 
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
+from hashlib import md5
 
 from . import category
 from . import account
@@ -91,6 +93,26 @@ def _create_transaction():
         return make_response(jsonify(str(e)), 400)
 
     return make_response(jsonify({"id": transaction_id}), 201)
+
+
+@transaction.route("/transfer/create", methods=("POST",))
+@expects_json(POST_TRANSFER_CREATE_SCHEMA)
+def _create_transfer():
+    """Create new transfer"""
+    data = request.get_json()
+
+    try:
+        transfer_id = create_transfer(
+            data.get("from_account_id"),
+            data.get("to_account_id"),
+            data.get("amount"),
+            time_utils.datestr_to_sqlite_date(data.get("date")),
+            memo=data.get("memo"),
+        )
+    except RuntimeError as e:
+        return make_response(jsonify(str(e)), 400)
+
+    return make_response(jsonify({"id": transfer_id}), 201)
 
 
 @transaction.route("/update/<int:transaction_id>", methods=("PUT",))
@@ -225,9 +247,7 @@ def create_transaction(
     Returns:
         int: trnasaction id
     """
-    if len(categories) < 1:
-        raise RuntimeError("Missing transaction categories")
-    if sum([c["amount"] for c in categories]) != amount:
+    if categories and sum([c["amount"] for c in categories]) != amount:
         raise RuntimeError("Category amounts do not match transaction amount")
 
     transaction = db_utils.execute(
@@ -243,7 +263,7 @@ def create_transaction(
     )
 
     ### pull all of this out into a separate func, since it'll be used again for modifying transactions
-    if is_credit_card_transaction(account_id) and payee_id:
+    if is_credit_card_transaction(account_id) and categories:
         move_funds_to_credit_card_category(account_id, categories)
 
     for c in categories:
@@ -263,6 +283,46 @@ def create_transaction(
     return transaction[0]["id"]
 
 
+def create_transfer(from_account_id, to_account_id, amount, date, memo=None):
+    """Create a new transfer between accounts
+
+    Args:
+        from_account_id (int): account id money is leaving
+        to_account_id (int): account id money is going to
+        amount (int): amount being transferred in cents
+        date (int): date of the transfer
+        memo (str, optional): memo. Defaults to None.
+
+    Returns:
+        string: unqiue transfer id
+    """
+    transfer_id = md5().hexdigest()
+
+    db_utils.execute(
+        CREATE_TRANSFER,
+        {
+            "account_id": from_account_id,
+            "amount": abs(amount) * -1,
+            "date": date,
+            "memo": memo,
+            "transfer_id": transfer_id,
+        },
+    )
+    db_utils.execute(
+        CREATE_TRANSFER,
+        {
+            "account_id": to_account_id,
+            "amount": abs(amount),
+            "date": date,
+            "memo": memo,
+            "transfer_id": transfer_id,
+        },
+    )
+    db_utils.execute(GET_TRANSFER, {"transfer_id": transfer_id}, commit=True)
+
+    return transfer_id
+
+
 def get_transactions(
     accounts, categories, payees, before, after, cleared, reconciled, limit
 ):
@@ -279,7 +339,7 @@ def get_transactions(
         limit (int): limit number of transactions returned
 
     Returns:
-        [type]: [description]
+        list: list of transactions
     """
 
     query = GET_ALL_TRANSACTIONS

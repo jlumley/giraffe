@@ -48,6 +48,15 @@ def main():
         )
         r = requests.post("http://localhost/api/transaction/create", json=transaction)
         # print(r.content)
+
+    # create trasfer between accounts
+    transfer_data = dict(
+        from_account_id=3, to_account_id=1, amount=50, date="2022-02-01"
+    )
+    r = requests.post(
+        "http://localhost/api/transaction/transfer/create", json=transfer_data
+    )
+
     # fund categories
     for i in range(len(categories)):
         if i % 2 == 0:
