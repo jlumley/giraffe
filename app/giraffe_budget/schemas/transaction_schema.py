@@ -21,6 +21,17 @@ POST_TRANSACTION_CREATE_SCHEMA = {
     "required": ["account_id", "date", "cleared", "amount"],
 }
 
+POST_TRANSFER_CREATE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "from_account_id": {"type": "integer"},
+        "to_account_id": {"type": "integer"},
+        "date": {"type": "string"},
+        "memo": {"type": "string"},
+        "amount": {"type": "integer"},
+    },
+    "required": ["from_account_id", "to_account_id", "date", "amount"],
+}
 
 PUT_TRANSACTION_UPDATE_SCHEMA = {
     "type": "object",

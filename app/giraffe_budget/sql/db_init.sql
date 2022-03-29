@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   reconciled integer,
   cleared integer,
   amount integer,
+  transfer_id text,
   FOREIGN KEY (account_id) REFERENCES accounts (id),
   FOREIGN KEY (payee_id) REFERENCES payees (id)
 );
@@ -72,8 +73,4 @@ ON transactions(payee_id);
 CREATE INDEX IF NOT EXISTS assignments_category_index
 ON assignments(category_id);
 
-INSERT INTO categories (name, category_group) VALUES ("System", NULL);
-
-INSERT INTO categories (name, category_group) VALUES ("Income", NULL);
-
-INSERT INTO categories (name, category_group) VALUES ("Split Transaction", NULL);
+INSERT INTO categories (name, category_group) VALUES ("To be Assigned", NULL);

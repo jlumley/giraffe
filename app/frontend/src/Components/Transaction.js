@@ -30,8 +30,8 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     const [transactionAccount, setTransactionAccount] = useState(accounts[transaction.account_id]);
     const [transactionPayee, setTransactionPayee] = useState(payees[transaction.payee_id]);
     const [transactionMemo, setTransactionMemo] = useState(transaction.memo);
+    const [transactionAmount, setTransactionAmount] = useState(transaction.amount);
     const [transactionCategories, setTransactionCategories] = useState([]);
-    const [splitTransaction, setSplitTransaction] = useState(null);
     const updateTransactionButton = useRef(null);
     const deleteTransactionButton = useRef(null);
 
@@ -128,10 +128,10 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
             var transactionData = {
                 date: transactionDate.toISOString().slice(0, 10),
                 cleared: cleared,
-                memo: transactionMemo,
+                memo: transactionMemo ? transactionMemo : '',
                 account_id: parseInt(accountToAccountId()),
                 categories: _categories,
-                amount: _categories.reduce((prev, curr) => prev + curr.amount, 0)
+                amount: transactionAmount ? transactionAmount : _categories.reduce((prev, curr) => prev + curr.amount, 0)
             }
             if (transactionPayee) {
                 var payeeId = payeeToPayeeId();
@@ -231,6 +231,14 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
         }
     }
 
+    const transactionAmountDiv = () => {
+        if (selected) {
+            return (<div ><MoneyInput startingValue={transactionAmount / 100} updateMethod={(e) => { setTransactionAmount(e * 100) }} updateOnChange={true} /></div>);
+        } else {
+            return (<div>{centsToMoney(transactionAmount)}</div>)
+        }
+    }
+
     return (
         <tr className={`transactionRow ${selected ? 'selected' : ''}`} onClick={selectCurrentTransaction}>
             <td className="transactionClearedColumn"> {clearedIcon()} </td>
@@ -239,6 +247,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
             <td className="transactionPayeeColumn"> {payeeInputField()} </td>
             <td className="transactionMemoColumn"> {memoInputField()} </td>
             <td className="transactionCategoriesColumn"> {transactionCategory()} </td>
+            <td className="transactionAmountColumn"> {transactionAmountDiv()} </td>
             {(selected) && (<td className="transactionSaveColumn">
                 <div ref={updateTransactionButton} onClick={() => { updateTransaction() }}><CheckIcon /></div>
                 <div ref={deleteTransactionButton} onClick={() => { deleteTransaction() }}> <TrashCanOutlineIcon /> </div>
