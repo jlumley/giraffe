@@ -12,6 +12,7 @@ export const CategoryGroup = ({ name, currentDate, smallScreen }) => {
   const [categoryGroupName, setCategoryGroupName] = useState(name);
   const [categories, setCategories] = useState([]);
   const [newCategories, setNewCategories] = useState([]);
+  const [isCreditCardGroup, setIsCreditCardGroup] = useState(categoryGroupName === "Credit Cards")
 
 
   useEffect(() => {
@@ -38,6 +39,7 @@ export const CategoryGroup = ({ name, currentDate, smallScreen }) => {
   }
 
   const editCategoryGroupName = (event) => {
+    if (isCreditCardGroup) return
     setCategoryGroupName(event.target.value);
   }
   const updateCategoryGroupName = (event) => {
@@ -62,7 +64,7 @@ export const CategoryGroup = ({ name, currentDate, smallScreen }) => {
   return <div>
     <div className="categoryGroupTitle">
       <input className="categoryGroupTitleInput" value={categoryGroupName} onChange={editCategoryGroupName} onBlur={updateCategoryGroupName} />
-      <PlusCircleOutlineIcon onClick={createNewCategory} className="newCategoryButton" />
+      {(!isCreditCardGroup) && (<PlusCircleOutlineIcon onClick={createNewCategory} className="newCategoryButton" />)}
     </div>
     <table>
       {categories.map(c => {

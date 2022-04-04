@@ -24,11 +24,10 @@ import payeeRequests from '../requests/payee';
 
 export const Transaction = ({ transaction, categories, payees, accounts, selected, selectTransaction, deleteTransaction }) => {
     const [cleared, setCleared] = useState(transaction.cleared);
+    const [transferId, setTransferId] = useState(transaction.transfer_id);
     const [transactionDate, setTransactionDate] = useState(new Date(transaction.date));
     const [transactionAccountId, setTransactionAccountId] = useState(transaction.account_id);
     const [transactionPayeeId, setTransactionPayeeId] = useState(transaction.payee_id);
-    const [transactionAccount, setTransactionAccount] = useState(accounts[transaction.account_id]);
-    const [transactionPayee, setTransactionPayee] = useState(payees[transaction.payee_id]);
     const [transactionMemo, setTransactionMemo] = useState(transaction.memo);
     const [transactionAmount, setTransactionAmount] = useState(transaction.amount);
     const [transactionCategories, setTransactionCategories] = useState([]);
@@ -43,19 +42,22 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
         return Object.keys(accounts).find(id => accounts[id].toLowerCase() === transactionAccount.toLowerCase())
     }
 
+    const payeeFromPayeeId = () => {
+        if (!transferId) return payees[transactionPayeeId]
+        return `Transfer to/from ${accounts[transactionPayeeId]}`
+    }
+
+    const [transactionAccount, setTransactionAccount] = useState(accounts[transaction.account_id]);
+    const [transactionPayee, setTransactionPayee] = useState(payeeFromPayeeId());
+
     function reloadTransaction() {
         async function _reloadTransaction() {
-            const p = await instance.get(payeeRequests.fetchAllPayees)
-            const tempPayees = (p.data.reduce((map, obj) => {
-                map[obj.id] = obj.name
-                return map;
-            }, {}))
             instance.get(`${transactionRequests.fetchTransaction}${transaction.id}`).then((resp) => {
                 setTransactionDate(convertDateToUTC(new Date(resp.data.date)));
                 setTransactionAccountId(resp.data.account_id);
                 setTransactionPayeeId(resp.data.payee_id);
                 setTransactionAccount(accounts[resp.data.account_id]);
-                setTransactionPayee(tempPayees[resp.data.payee_id]);
+                setTransactionPayee(payeeFromPayeeId());
                 setTransactionMemo(resp.data.memo);
                 setTransactionCategories(resp.data.categories.map(obj => ({ ...obj, uuid: uuidv4() })));
             })
@@ -157,7 +159,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     }
 
     useEffect(() => {
-        setTransactionPayee(payees[transactionPayeeId])
+        setTransactionPayee(payeeFromPayeeId())
     }, [transactionPayeeId, payees])
     useEffect(() => {
         setTransactionAccount(accounts[transactionAccountId])
@@ -207,6 +209,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     }
 
     const transactionCategory = () => {
+        if (transferId) return
         if (selected) {
             return transactionCategories.map((_category, index) => {
                 return (<table key={_category.uuid} className="transactonCategoryRow">

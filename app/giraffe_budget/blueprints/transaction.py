@@ -302,6 +302,7 @@ def create_transfer(from_account_id, to_account_id, amount, date, memo=None):
         CREATE_TRANSFER,
         {
             "account_id": from_account_id,
+            "payee_id": to_account_id,
             "amount": abs(amount) * -1,
             "date": date,
             "memo": memo,
@@ -312,6 +313,7 @@ def create_transfer(from_account_id, to_account_id, amount, date, memo=None):
         CREATE_TRANSFER,
         {
             "account_id": to_account_id,
+            "payee_id": from_account_id,
             "amount": abs(amount),
             "date": date,
             "memo": memo,

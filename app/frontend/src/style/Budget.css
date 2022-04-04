@@ -60,3 +60,25 @@
     float: inline-end;
     overflow-y: scroll;
 }
+.categeorySelectedColumn {
+    min-width: 10px;
+    width: 2%;
+}
+.categeoryNameColumn {
+    min-width: 30px;
+    width: 20%;
+}
+.categeoryAssignedColumn {
+    min-width: 25px;
+    width: 15%;
+}
+
+.categeorySpentColumn {
+    min-width: 25px;
+    width: 15%;
+}
+
+.categeoryAvailableColumn {
+    min-width: 25px;
+    width: 15%;
+}

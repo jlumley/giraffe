@@ -92,10 +92,11 @@ export function Budget({ smallScreen }) {
           </div>
         </div>
         <table className="budgetColumnTitles">
+          <td className="categeorySelectedColumn"></td>
           <td className="categeoryNameColumn">Category</td>
           <td className="categeoryAssignedColumn">Assigned</td>
           {(!smallScreen) && (<td className="categeorySpentColumn">Spent</td>)}
-          <td className="categeoryBalanceColumn">Available</td>
+          <td className="categeoryAvailableColumn">Available</td>
         </table>
         <div className="budgetCategories">
           {(categoryGroups.map((name) => {
