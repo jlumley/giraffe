@@ -7,14 +7,12 @@
 
 .categoryName {
     min-width: 100px;
-    width: 20%;
     background-color: var(--light-grey);
     border-color: transparent;
     outline: none;
     color: var(--dark-color);
     border-radius: 5px;
-    padding-left: 25px;
-    padding-right: 25px;
+    padding-left: 10px;
 }
 
 .selectedIcon {
@@ -23,7 +21,7 @@
 
 .selectedColumn {
     min-width: 10px;
-    width: 5%;
+    width: 2%;
 }
 
 .nameColumn {

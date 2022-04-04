@@ -26,8 +26,8 @@ RETURNING id;
 """
 
 CREATE_TRANSFER = """INSERT INTO transactions
-(account_id, date, memo, amount, transfer_id)
-VALUES (:account_id, :date, :memo, :amount, :transfer_id)
+(account_id, payee_id, date, memo, amount, transfer_id)
+VALUES (:account_id, :payee_id, :date, :memo, :amount, :transfer_id)
 RETURNING transfer_id;
 """
 
