@@ -83,7 +83,7 @@ export function Budget({ smallScreen }) {
       <div className="budgetContent">
         <div className="budgetHeader">
           <div className="newCategoryGroup" onClick={createNewCategoryGroup}>
-            <TabPlusIcon size={16} /> Category Group
+            <TabPlusIcon size={16} />&nbsp;Category Group
           </div>
           <div className={"monthSelector"}>
             < ArrowLeftCircleOutlineIcon onClick={prevMonth} className="arrowDiv" />

@@ -14,11 +14,12 @@
     color: var(--dark-color);
     font-weight: bold;
     flex-grow: 1;
-
 }
 .budgetHeader {
     height: 100px;
     border-radius: 15px;
+    margin: 5px;
+    background-color: var(--translucent-background);
 }
 .newCategoryGroup{
     float: left;
@@ -33,10 +34,8 @@
     margin: 1%;
     display: flex;
     flex-direction: row;
-    border-radius: 5px;
-    background-color: var(--translucent-background);
     width: 20%;
-    min-width: 100px;
+    min-width: 160px;
 }
 
 .arrowDiv {
@@ -47,10 +46,10 @@
 .currentMonth {
     width: 50%;
     margin: auto;
+    text-align: center;
 }
 
 .budgetColumnTitles {
-    margin-left: 18px;
     height: 15px;
 }
 .budgetCategories {
@@ -62,7 +61,7 @@
 }
 .categeorySelectedColumn {
     min-width: 10px;
-    width: 2%;
+    width: 7%;
 }
 .categeoryNameColumn {
     min-width: 30px;

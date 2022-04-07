@@ -3,6 +3,7 @@
 .transactionRow {
     color: var(--dark-color);
     border: 1px solid var(--light-grey);
+    vertical-align: top;
 }
 .selected {
     box-shadow: 0px 3px 10px var(--dark-color);
@@ -32,18 +33,13 @@
 }
 
 .transactionCategory {
-    padding: 5px;
     display: flex;
     flex-direction: row;
     border-bottom: var(--light-grey) solid 1px;
 }
 
-.transactionCategoryName {
-    width: 50%;
-    text-align: left;
-}
 .transactionAmount{
-    width: 40%;
+    width: 20%;
     text-align: right;
 }
 
@@ -92,7 +88,7 @@
 }
 
 .transactionCategoryName {
-    width: 30%;
+    width: 65%;
 }
 
 .transactionCategoryAmount {

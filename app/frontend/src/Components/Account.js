@@ -21,12 +21,8 @@ export const Account = () => {
     const newEmptyTransaction = {
         date: new Date().toLocaleString().slice(0, 10),
         account_id: (id !== 'all') ? parseInt(id) : 0,
-        payee_id: 0,
         memo: "",
-        categories: [{
-            category_id: 0,
-            amount: 0
-        }],
+        categories: [],
         cleared: false,
         amount: 0
     };
