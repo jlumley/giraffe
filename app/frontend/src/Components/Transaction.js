@@ -11,6 +11,9 @@ import TrashCanOutlineIcon from 'mdi-react/TrashCanOutlineIcon'
 import CheckIcon from 'mdi-react/CheckIcon'
 
 import transactionRequests from '../requests/transaction';
+import payeeRequests from '../requests/payee';
+import accountRequests from '../requests/account';
+import categoryRequests from '../requests/category';
 
 import { Autosuggest } from './Inputs/Autosuggest';
 import { centsToMoney } from '../utils/money_utils';
@@ -19,7 +22,6 @@ import { MoneyInput } from './Inputs/MoneyInput';
 
 import "react-datepicker/dist/react-datepicker.css";
 import "../style/Transaction.css"
-import payeeRequests from '../requests/payee';
 
 
 export const Transaction = ({ transaction, categories, payees, accounts, selected, selectTransaction, deleteTransaction }) => {
@@ -33,14 +35,6 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     const [transactionCategories, setTransactionCategories] = useState([]);
     const updateTransactionButton = useRef(null);
     const deleteTransactionButton = useRef(null);
-
-    const payeeToPayeeId = () => {
-        return Object.keys(payees).find(id => payees[id].toLowerCase() === transactionPayee.toLowerCase())
-    }
-
-    const accountToAccountId = () => {
-        return Object.keys(accounts).find(id => accounts[id].toLowerCase() === transactionAccount.toLowerCase())
-    }
 
     const payeeFromPayeeId = () => {
         if (!transferId) return payees[transactionPayeeId]
@@ -113,7 +107,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
 
     function updateTransactionCategoryNames(index, new_category) {
         var tempArray = [...transactionCategories];
-        tempArray[index].category_id = Object.keys(categories).find(id => categories[id].toLowerCase() === new_category.toLowerCase());
+        tempArray[index].category_id = parseInt(new_category)
         setTransactionCategories(tempArray);
     }
 
@@ -131,29 +125,17 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
                 date: transactionDate.toISOString().slice(0, 10),
                 cleared: cleared,
                 memo: transactionMemo ? transactionMemo : '',
-                account_id: parseInt(accountToAccountId()),
+                account_id: parseInt(transactionAccountId),
                 categories: _categories,
                 amount: transactionAmount ? transactionAmount : _categories.reduce((prev, curr) => prev + curr.amount, 0)
             }
-            if (transactionPayee) {
-                var payeeId = payeeToPayeeId();
-                if (!payeeId) {
-                    // create new payee if not match found
-                    const resp = await instance.post(payeeRequests.createPayee,
-                        { name: transactionPayee }
-                    )
-                    payeeId = resp.data.id
-                }
-                transactionData.payee_id = parseInt(payeeId)
-            }
+            if (transactionPayeeId) transactionData.payee_id = parseInt(transactionPayeeId)
             await instance.put(
                 `${transactionRequests.updateTransaction}${transaction.id}`,
                 transactionData
             )
-
             selectTransaction(null)
             reloadTransaction()
-
         }
         _updateTransaction()
     }
@@ -197,11 +179,11 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     }
     const payeeInputField = () => {
         if (!selected) return <div>{transactionPayee}</div>
-        return <Autosuggest startingValue={transactionPayee} suggestions={payees} allowNewValues={true} allowEmpty={true} updateMethod={(payee) => { setTransactionPayee(payee) }} />
+        return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayee }} suggestionsUrl={payeeRequests.fetchAllPayees} createOptionUrl={payeeRequests.createPayee} allowNewValues={true} allowEmpty={true} updateMethod={(payee_id) => { setTransactionPayeeId(payee_id) }} />
     }
     const accountInputField = () => {
         if (!selected) return <div>{transactionAccount}</div>
-        return <Autosuggest startingValue={transactionAccount} suggestions={accounts} allowNewValues={false} updateMethod={(account) => { setTransactionAccount(account) }} />
+        return <Autosuggest startingValue={{ value: transactionAccountId, label: transactionAccount }} suggestionsUrl={accountRequests.fetchAllAccounts} updateMethod={(account_id) => { setTransactionAccountId(account_id) }} />
     }
     const memoInputField = () => {
         if (!selected) return <div>{transactionMemo}</div>
@@ -212,15 +194,15 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
         if (transferId) return
         if (selected) {
             return transactionCategories.map((_category, index) => {
-                return (<table key={_category.uuid} className="transactonCategoryRow">
+                return (<table key={_category.uuid} className="transactionCategoryRow">
                     <tbody><tr>
-                        <td className="deleteTransactonCategory"><CloseCircleOutlineIcon size={15} onClick={() => { removeCategory(index) }} /></td>
-                        <td className="transactonCategoryName"><Autosuggest startingValue={categories[_category.category_id]} suggestions={categories} allowNewValues={false} updateMethod={(e) => { updateTransactionCategoryNames(index, e) }} /> </td>
-                        <td className="transactonCategoryAmount"><MoneyInput startingValue={_category.amount / 100} updateMethod={(e) => { updateTransactionAmounts(index, e) }} updateOnChange={true} /></td>
+                        <td className="deleteTransactionCategory"><CloseCircleOutlineIcon size={15} onClick={() => { removeCategory(index) }} /></td>
+                        <td className="transactionCategoryName"><Autosuggest startingValue={{ value: _category.id, label: categories[_category.id] }} suggestionsUrl={categoryRequests.fetchAllCategoryNames} updateMethod={(e) => { updateTransactionCategoryNames(index, e) }} /> </td>
+                        <td className="transactionCategoryAmount"><MoneyInput startingValue={_category.amount / 100} updateMethod={(e) => { updateTransactionAmounts(index, e) }} updateOnChange={true} /></td>
                     </tr></tbody>
                 </table>
                 );
-            }).concat(<PlusCircleOutlineIcon size={16} onClick={addCategory} />)
+            }).concat(<PlusCircleOutlineIcon size={15} onClick={addCategory} />)
 
         } else {
             return transactionCategories.map((_category) => {

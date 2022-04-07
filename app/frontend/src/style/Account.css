@@ -5,7 +5,7 @@
     flex-direction: column;
     overflow-x: auto;
     max-width: 100vw;
-    max-height: 100%;
+    height: 100%;
 }
 
 .accountHeader {
@@ -26,6 +26,7 @@
 }
 
 .accountTransactionsContent {
+    min-height:200px;
     flex-grow: 1;
     overflow: auto;
 }

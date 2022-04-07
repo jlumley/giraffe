@@ -1,10 +1,10 @@
 .currencyInput {
     width: 80%;
-    background-color: var(--light-grey);
-    border-color: transparent;
-    outline: none;
+    border-color: hsl(0,0%, 80%);
+    border-style: solid;
+    min-height: 34px;
+    border-width: 1px;
     color: var(--dark-color);
-    border-radius: 5px;
-    padding: 3px;
+    border-radius: 4px;
     padding-left: 5px;
 }
