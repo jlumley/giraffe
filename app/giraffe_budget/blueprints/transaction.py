@@ -264,7 +264,9 @@ def create_transaction(
 
     ### pull all of this out into a separate func, since it'll be used again for modifying transactions
     if is_credit_card_transaction(account_id) and categories:
-        move_funds_to_credit_card_category(account_id, categories)
+        move_funds_to_credit_card_category(
+            account_id, transaction[0]["id"], categories, date
+        )
 
     for c in categories:
         db_utils.execute(
