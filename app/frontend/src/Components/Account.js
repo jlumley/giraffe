@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router';
+
 import instance from '../axois'
+import { Transaction } from './Transaction';
+
 import categoryRequests from '../requests/category';
 import payeeRequests from '../requests/payee';
 import transactionRequests from '../requests/transaction';
 import accountRequests from '../requests/account';
 
 import '../style/Account.css'
-import { Transaction } from './Transaction';
-import TrashCanOutlineIcon from 'mdi-react/TrashCanOutlineIcon';
+
 
 export const Account = () => {
     const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -20,11 +22,13 @@ export const Account = () => {
 
     const newEmptyTransaction = {
         date: new Date().toLocaleString().slice(0, 10),
-        account_id: (id !== 'all') ? parseInt(id) : 0,
+        account_id: (id !== 'all') ? parseInt(id) : null,
         memo: "",
         categories: [],
         cleared: false,
-        amount: 0
+        amount: 0,
+        id: 0,
+        new_transaction: true
     };
 
 
@@ -36,6 +40,7 @@ export const Account = () => {
     }, [id]);
 
     useEffect(() => {
+        if (selectedTransaction !== null) return
         setTransactions(transactions.sort((e1, e2) => {
             // sort transactions by date and break ties with id field
             if (e1.date < e2.date) return 1;
@@ -96,23 +101,15 @@ export const Account = () => {
 
     function addNewTransaction() {
         async function _addNewTransaction() {
-            const resp = await instance.post(
-                transactionRequests.createNewTransaction,
-                { ...newEmptyTransaction }
-            )
-
-            const r = await instance.get(
-                `${transactionRequests.fetchTransaction}${resp.data.id}`
-            )
             var tempTransactions = [...transactions]
-            tempTransactions.push({
-                ...r.data
+            tempTransactions.unshift({
+                ...newEmptyTransaction
             })
             setTransactions(tempTransactions);
-            setSelectedTransaction(r.data.id)
+            setSelectedTransaction(0)
         }
-
-        if (selectedTransaction > 0) return
+        console.log(selectedTransaction)
+        if (selectedTransaction !== null) return
         _addNewTransaction()
     }
 
@@ -121,20 +118,19 @@ export const Account = () => {
             const resp = instance.delete(
                 `${transactionRequests.deleteTransaction}${transaction_id}`,
             )
-            console.log(resp)
             const tempTransactions = transactions.filter(t => t.id !== transaction_id);
 
             setTransactions(tempTransactions);
             setSelectedTransaction(null)
         }
 
-        if (selectedTransaction <= 0) return
+        if (selectedTransaction !== null) return
         _deleteTransaction()
     }
 
     const selectTransaction = (transaction_id) => {
         // allow one and only one row to be modified at once
-        if (!transaction_id) {
+        if (transaction_id === null) {
             fetchPayees()
         }
         if (transaction_id && selectedTransaction) return

@@ -4,6 +4,8 @@
     color: var(--dark-color);
     border: 1px solid var(--light-grey);
     vertical-align: top;
+    border-collapse: separate;
+    border-spacing: 0 18em;
 }
 .selected {
     box-shadow: 0px 3px 10px var(--dark-color);
@@ -24,12 +26,16 @@
     width: 90px;
 }
 .transactionMemo {
-    outline: none;
-    border-color: transparent;
-    background-color: var(--light-grey);
     width: 80%;
-    border-radius: 5px;
-    padding: 3px;
+    border-color: hsl(0,0%, 80%);
+    border-style: solid;
+    min-height: 34px;
+    border-width: 1px;
+    color: var(--dark-color);
+    border-radius: 4px;
+    padding-left: 5px;
+    min-width: 100px;
+    outline: none;
 }
 
 .transactionCategory {
