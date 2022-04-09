@@ -5,6 +5,7 @@ const transactionRequests = {
     fetchTransactions: `${PREFIX}`,
     updateTransaction: `${PREFIX}/update/`,
     createNewTransaction: `${PREFIX}/create`,
+    createNewTransfer: `${PREFIX}/transfer/create`,
     deleteTransaction: `${PREFIX}/delete/`
 }
 
