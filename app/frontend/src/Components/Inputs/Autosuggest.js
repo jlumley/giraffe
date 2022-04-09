@@ -19,7 +19,7 @@ export function Autosuggest({ startingValue, options, createOptionUrl, updateMet
     }
 
     function handleChange(newValue) {
-        updateMethod(newValue.value)
+        updateMethod(newValue)
         setValue(newValue)
     }
 

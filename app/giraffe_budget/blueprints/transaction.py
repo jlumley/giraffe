@@ -102,7 +102,7 @@ def _create_transfer():
     data = request.get_json()
 
     try:
-        transfer_id = create_transfer(
+        transactions = create_transfer(
             data.get("from_account_id"),
             data.get("to_account_id"),
             data.get("amount"),
@@ -112,7 +112,7 @@ def _create_transfer():
     except RuntimeError as e:
         return make_response(jsonify(str(e)), 400)
 
-    return make_response(jsonify({"id": transfer_id}), 201)
+    return make_response(jsonify(transactions), 201)
 
 
 @transaction.route("/update/<int:transaction_id>", methods=("PUT",))
