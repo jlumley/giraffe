@@ -28,7 +28,7 @@ RETURNING id;
 CREATE_TRANSFER = """INSERT INTO transactions
 (account_id, payee_id, date, memo, amount, transfer_id)
 VALUES (:account_id, :payee_id, :date, :memo, :amount, :transfer_id)
-RETURNING transfer_id;
+RETURNING *;
 """
 
 CREATE_TRANSACTION_CATEGORIES = """INSERT INTO transaction_categories

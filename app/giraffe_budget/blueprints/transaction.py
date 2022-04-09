@@ -299,8 +299,9 @@ def create_transfer(from_account_id, to_account_id, amount, date, memo=None):
         string: unqiue transfer id
     """
     transfer_id = md5().hexdigest()
+    transactions = []
 
-    db_utils.execute(
+    transactions += (db_utils.execute(
         CREATE_TRANSFER,
         {
             "account_id": from_account_id,
@@ -310,8 +311,9 @@ def create_transfer(from_account_id, to_account_id, amount, date, memo=None):
             "memo": memo,
             "transfer_id": transfer_id,
         },
-    )
-    db_utils.execute(
+    ))
+
+    transactions += (db_utils.execute(
         CREATE_TRANSFER,
         {
             "account_id": to_account_id,
@@ -321,10 +323,11 @@ def create_transfer(from_account_id, to_account_id, amount, date, memo=None):
             "memo": memo,
             "transfer_id": transfer_id,
         },
-    )
+    ))
     db_utils.execute(GET_TRANSFER, {"transfer_id": transfer_id}, commit=True)
 
-    return transfer_id
+    return [get_transaction(t['id']) for t in transactions]
+
 
 
 def get_transactions(
