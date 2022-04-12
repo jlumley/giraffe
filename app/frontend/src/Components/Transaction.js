@@ -24,7 +24,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import "../style/Transaction.css"
 
 
-export const Transaction = ({ transaction, categories, payees, accounts, selected, selectTransaction, deleteTransaction }) => {
+export const Transaction = ({ transaction, categories, payees, accounts, selected, selectTransaction, deleteTransaction, deleteTransfer }) => {
     const [transactionId, setTransactionId] = useState(transaction.id);
     const [transfer, setTransfer] = useState(transaction.transfer_id ? true : false)
     const [cleared, setCleared] = useState(transaction.cleared);
@@ -53,6 +53,10 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
 
     const transferOptions = () => {
         return Object.keys(accounts).map((id) => { return { value: id, label: `Transfer to/from ${accounts[id]}`, transfer: true } })
+    }
+
+    const categoryOptions = () => {
+        return Object.keys(categories).map((id) => { return { value: id, label: categories[id] } })
     }
 
     const [transactionAccount, setTransactionAccount] = useState(accounts[transaction.account_id]);
@@ -173,7 +177,6 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
                 transferData
             )
             var _transactionId;
-            console.log(resp.data)
             for (const t in resp.data) { if (t.account_id === transactionAccountId) _transactionId = t.id }
             setTransactionId(_transactionId)
             setTransferId(resp.data[0].transfer_id)
@@ -279,7 +282,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
                 return (<table key={_category.uuid} className="transactionCategoryRow">
                     <tbody><tr>
                         <td className="deleteTransactionCategory"><CloseCircleOutlineIcon size={15} onClick={() => { removeCategory(index) }} /></td>
-                        <td className="transactionCategoryName"><Autosuggest startingValue={{ value: _category.id, label: categories[_category.id] }} suggestionsUrl={categoryRequests.fetchAllCategoryNames} updateMethod={(e) => { updateTransactionCategoryNames(index, e) }} /> </td>
+                        <td className="transactionCategoryName"><Autosuggest startingValue={{ value: _category.id, label: categories[_category.id] }} options={categoryOptions} updateMethod={(newValue) => { updateTransactionCategoryNames(index, newValue.value) }} /> </td>
                         <td className="transactionCategoryAmount"><MoneyInput startingValue={_category.amount / 100} updateMethod={(e) => { updateTransactionAmounts(index, e) }} updateOnChange={true} /></td>
                     </tr></tbody>
                 </table>
@@ -317,7 +320,10 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
             <td className="transactionAmountColumn"> {transactionAmountDiv()} </td>
             {(selected) && (<td className="transactionSaveColumn">
                 <div ref={updateTransactionButton} onClick={() => { updateTransaction() }}><CheckIcon /></div>
-                <div ref={deleteTransactionButton} onClick={() => { deleteTransaction() }}> <TrashCanOutlineIcon /> </div>
+                <div ref={deleteTransactionButton} onClick={() => {
+                    if (!transferId) deleteTransaction();
+                    if (transferId) deleteTransfer();
+                }}> <TrashCanOutlineIcon /> </div>
             </td>)}
 
         </tr>

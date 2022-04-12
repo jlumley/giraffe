@@ -108,24 +108,36 @@ export const Account = () => {
             setTransactions(tempTransactions);
             setSelectedTransaction(0)
         }
-        console.log(selectedTransaction)
         if (selectedTransaction !== null) return
         _addNewTransaction()
     }
 
     function deleteTransaction(transaction_id) {
         async function _deleteTransaction() {
-            const resp = instance.delete(
+            const resp = await instance.delete(
                 `${transactionRequests.deleteTransaction}${transaction_id}`,
             )
-            const tempTransactions = transactions.filter(t => t.id !== transaction_id);
+            console.log(resp.data)
+            const tempTransactions = transactions.filter(t => !resp.data.includes(t.id));
 
             setTransactions(tempTransactions);
             setSelectedTransaction(null)
         }
-
-        if (selectedTransaction !== null) return
         _deleteTransaction()
+    }
+
+    function deleteTransfer(transfer_id) {
+        async function _deleteTransfer() {
+            const resp = await instance.delete(
+                `${transactionRequests.deleteTransfer}${transfer_id}`,
+            )
+            console.log(resp.data)
+            const tempTransactions = transactions.filter(t => !resp.data.includes(t.id));
+
+            setTransactions(tempTransactions);
+            setSelectedTransaction(null)
+        }
+        _deleteTransfer()
     }
 
     const selectTransaction = (transaction_id) => {
@@ -149,7 +161,8 @@ export const Account = () => {
             accounts={accounts}
             selected={(selectedTransaction === transaction.id)}
             selectTransaction={selectTransaction}
-            deleteTransaction={() => { deleteTransaction(transaction.id) }} />
+            deleteTransaction={() => { deleteTransaction(transaction.id) }}
+            deleteTransfer={() => { deleteTransfer(transaction.transfer_id) }} />
     }
 
     return (

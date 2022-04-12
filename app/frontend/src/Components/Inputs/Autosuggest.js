@@ -7,7 +7,6 @@ import instance from '../../axois';
 export function Autosuggest({ startingValue, options, createOptionUrl, updateMethod, allowNewValues, allowEmpty }) {
     const [optionsArray, setOptionsArray] = useState(options);
     const [value, setValue] = useState(startingValue);
-    console.log(optionsArray)
 
     async function createNewOption(newValue) {
         const resp = await instance.post(createOptionUrl, { name: newValue })
