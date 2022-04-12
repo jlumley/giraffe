@@ -40,6 +40,12 @@ DELETE_TRANSACTION_CATEGORIES = """DELETE FROM transaction_categories
 WHERE transaction_id = :transaction_id;
 """
 
+DELETE_TRANSFER = """DELETE FROM transactions
+WHERE transfer_id = :transfer_id
+RETURNING id;
+"""
+
+
 UPDATE_TRANSACTION = """UPDATE transactions
 SET account_id = :account_id,
 payee_id = :payee_id,

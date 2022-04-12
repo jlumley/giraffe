@@ -6,7 +6,8 @@ const transactionRequests = {
     updateTransaction: `${PREFIX}/update/`,
     createNewTransaction: `${PREFIX}/create`,
     createNewTransfer: `${PREFIX}/transfer/create`,
-    deleteTransaction: `${PREFIX}/delete/`
+    deleteTransaction: `${PREFIX}/delete/`,
+    deleteTransfer: `${PREFIX}/delete/transfer/`
 }
 
 export default transactionRequests;

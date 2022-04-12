@@ -141,8 +141,29 @@ def update_transaction(transaction_id):
 def _delete_transaction(transaction_id):
     """Delete transaction"""
     deleted_id = delete_transaction(transaction_id)
-    return make_response(jsonify({"id": deleted_id}), 200)
+    return make_response(jsonify(deleted_id), 200)
 
+@transaction.route("/delete/transfer/<string:transfer_id>", methods=("DELETE",))
+def _delete_transfer(transfer_id):
+    """Delete transfer"""
+    deleted_id = delete_transfer(transfer_id)
+    return make_response(jsonify(deleted_id), 200)
+
+
+def delete_transfer(transfer_id):
+    """Delete a transfer
+
+    Args:
+        transfer_id (int): transfer id
+
+    Returns:
+        int: id of deleted transfer
+    """
+    transactions = db_utils.execute(
+        DELETE_TRANSFER, {"transfer_id": transfer_id}, commit=True
+    )
+
+    return [t['id'] for t in transactions]
 
 def delete_transaction(transaction_id):
     """Delete a Transaction
@@ -154,11 +175,11 @@ def delete_transaction(transaction_id):
         int: id of deleted transaction
     """
     db_utils.execute(DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id})
-    transaction_id = db_utils.execute(
+    db_utils.execute(
         DELETE_TRANSACTION, {"transaction_id": transaction_id}, commit=True
     )
 
-    return transaction_id[0]["id"]
+    return [transaction_id]
 
 
 def update_transaction(
