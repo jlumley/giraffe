@@ -151,7 +151,6 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
                 transactionData
             )
             setTransactionId(resp.data.id)
-            selectTransaction(null)
         }
         _createTransaction()
     }
@@ -179,7 +178,6 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
             for (const t in resp.data) { if (t.account_id === transactionAccountId) _transactionId = t.id }
             setTransactionId(_transactionId)
             setTransferId(resp.data[0].transfer_id)
-            selectTransaction(null)
         }
         _createTransfer()
     }
@@ -199,12 +197,10 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
                 transferData.from_account_id = parseInt(transactionAccountId)
                 transferData.to_account_id = parseInt(transactionPayeeId)
             }
-            console.log(transferData)
             const resp = await instance.put(
                 `${transactionRequests.updateTransfer}${transferId}`,
                 transferData
             )
-            selectTransaction(null)
         }
         _updateTransfer()
     }
@@ -225,9 +221,12 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
                 `${transactionRequests.updateTransaction}${transactionId}`,
                 transactionData
             )
-            selectTransaction(null)
             reloadTransaction()
         }
+        _updateTransaction()
+    }
+
+    function update() {
         if (transfer) {
             if (transaction.new_transaction) {
                 console.log('create new transfer')
@@ -243,9 +242,10 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
                 createTransaction()
             } else {
                 console.log('update exiting transaction')
-                _updateTransaction()
+                updateTransaction()
             }
         }
+        selectTransaction(null)
     }
 
     useEffect(() => {
@@ -345,7 +345,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
             <td className="transactionCategoriesColumn"> {transactionCategory()} </td>
             <td className="transactionAmountColumn"> {transactionAmountDiv()} </td>
             {(selected) && (<td className="transactionSaveColumn">
-                <div ref={updateTransactionButton} onClick={() => { updateTransaction() }}><CheckIcon /></div>
+                <div ref={updateTransactionButton} onClick={() => { update() }}><CheckIcon /></div>
                 <div ref={deleteTransactionButton} onClick={() => {
                     if (!transferId) deleteTransaction();
                     if (transferId) deleteTransfer();
