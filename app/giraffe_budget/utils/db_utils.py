@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS db_version (
 );
 """
 
+
 def init_db(app):
     db = get_db()
     db_cur = db.cursor()

@@ -45,6 +45,8 @@ WHERE transfer_id = :transfer_id
 RETURNING id;
 """
 
+UPDATE_TRANSFER = """ UPDATE transactions
+SET id = id """
 
 UPDATE_TRANSACTION = """UPDATE transactions
 SET account_id = :account_id,

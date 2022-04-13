@@ -96,7 +96,7 @@ def _create_transaction():
 
 
 @transaction.route("/transfer/create", methods=("POST",))
-@expects_json(POST_TRANSFER_CREATE_SCHEMA)
+@expects_json(TRANSFER_SCHEMA)
 def _create_transfer():
     """Create new transfer"""
     data = request.get_json()
@@ -113,6 +113,27 @@ def _create_transfer():
         return make_response(jsonify(str(e)), 400)
 
     return make_response(jsonify(transactions), 201)
+
+
+@transaction.route("/transfer/update/<string:transfer_id>", methods=("PUT",))
+@expects_json(TRANSFER_SCHEMA)
+def _update_transfer(transfer_id):
+    """Update transfer"""
+    data = request.get_json()
+
+    try:
+        transfer_id = update_transfer(
+            transfer_id,
+            data.get("from_account_id"),
+            data.get("to_account_id"),
+            data.get("amount"),
+            time_utils.datestr_to_sqlite_date(data.get("date")),
+            memo=data.get("memo"),
+        )
+    except RuntimeError as e:
+        return make_response(jsonify(str(e)), 400)
+
+    return make_response(jsonify(transfer_id), 200)
 
 
 @transaction.route("/update/<int:transaction_id>", methods=("PUT",))
@@ -180,6 +201,71 @@ def delete_transaction(transaction_id):
     )
 
     return [transaction_id]
+
+def update_transfer(
+    transfer_id, 
+    from_account_id, 
+    to_account_id, 
+    amount, 
+    date, 
+    memo=None):
+    """update existing transfer
+
+    Args:
+        transfer_id (string): existing transfer id 
+        from_account_id (int): account id where money is coming from
+        to_account_id (int): account id where money is going to
+        amount (int): amount of money in cents
+        date (int): date of transfer (YYYMMDD).
+        memo (str, optional): memo. Defaults to None.
+    """
+
+    # update transaction of account money is leaving
+
+    update_vars = dict(
+        transfer_id=transfer_id,
+        from_account_id=from_account_id,
+        to_account_id=to_account_id,
+        amount=abs(amount),
+        date=date,
+        memo=memo
+    )
+
+    update_from_statement = UPDATE_TRANSFER
+    update_to_statement = UPDATE_TRANSFER
+    if from_account_id:
+        update_from_statement += ", account_id = :from_account_id"
+        update_to_statement += ", payee_id = :from_account_id"
+
+    if to_account_id:
+        update_from_statement += ", payee_id = :to_account_id"
+        update_to_statement += ", account_id = :to_account_id"
+    
+    if date:
+        update_from_statement += ", date = :date"
+        update_to_statement += ", date = :date"
+    
+    if amount:
+        update_from_statement += ", amount = :amount"
+        update_to_statement += ", amount = :amount"
+    
+    if memo:
+        update_from_statement += ", memo = :memo"
+        update_to_statement += ", memo = :memo"
+    
+    update_to_statement += " WHERE transfer_id = :transfer_id AND amount >= 0;"
+    update_from_statement += " WHERE transfer_id = :transfer_id AND amount <= 0;"
+
+
+    db_utils.execute(update_to_statement, update_vars)
+    update_vars['amount'] *= -1
+    db_utils.execute(update_from_statement, update_vars)
+
+    db_utils.execute(GET_TRANSFER, update_vars, commit=True)
+
+
+    return transfer_id
+
 
 
 def update_transaction(
