@@ -431,18 +431,15 @@ def get_category(category_id, sql_date):
 
 
 def get_category_names():
-    """ Fetch all the category names and ids
-    """
+    """Fetch all the category names and ids"""
     return db_utils.execute(GET_CATEGORY_NAMES)
 
 
 def get_credit_card_category_names():
-    """ Fetch all the category names and ids
-    """
+    """Fetch all the category names and ids"""
     return db_utils.execute(GET_CREDIT_CARD_CATEGORY_NAMES)
 
 
 def get_category_groups():
-    """ Fetch all the category groups
-    """
+    """Fetch all the category groups"""
     return db_utils.execute(GET_CATEGORY_GROUPS)

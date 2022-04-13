@@ -22,6 +22,8 @@ export function Autosuggest({ startingValue, options, createOptionUrl, updateMet
         setValue(newValue)
     }
 
+    useEffect(() => { }, [options])
+
     return (
         <div className="autoSuggestDiv">
             {(allowNewValues) && (
