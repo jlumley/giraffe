@@ -19,7 +19,15 @@ RUN pip install --no-cache --upgrade pip
 RUN pip install \
 Flask==2.0.1 \
 Flask-expects-json==1.7.0 \
-Uwsgi==2.0.19.1
+Uwsgi==2.0.19.1 \
+pytest
+
+COPY app/frontend/package-lock.json /src/app/frontend/package-lock.json
+COPY app/frontend/package.json /src/app/frontend/package.json
+WORKDIR /src/app/frontend
+RUN npm ci
+RUN npm install -g serve
+
 
 VOLUME /data
 VOLUME /logs
@@ -31,10 +39,7 @@ COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY app /src/app
 COPY bin/start.sh /src/bin/start.sh
 
-#WORKDIR "/src/app/frontend"
-#RUN npm install
-#RUN npm install -g serve
-#RUN npm run build
+RUN npm run build
 
 
 ENTRYPOINT /src/bin/start.sh
