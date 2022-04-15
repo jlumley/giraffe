@@ -35,7 +35,7 @@ class TestTransactionEndpoints(unittest.TestCase):
             payee_id = requests.post(
                 f"http://{API_HOST}:{API_PORT}/api/payee/create",
                 json={"name": uuid.uuid4().hex[:8]},
-            ).json()[0]["id"]
+            ).json()["id"]
             payees.append(payee_id)
 
         for i in range(num_accounts):

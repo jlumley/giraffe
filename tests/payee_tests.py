@@ -43,7 +43,7 @@ class TestPayeeEndpoints(unittest.TestCase):
         """
         payee = {"name": uuid.uuid4().hex[:8]}
         resp = create_payee(payee)
-        payee_id = resp.json()[0]["id"]
+        payee_id = resp.json()["id"]
 
         self.assertEqual(resp.status_code, 201)
 
@@ -68,7 +68,7 @@ class TestPayeeEndpoints(unittest.TestCase):
         """
         payee = {"name": uuid.uuid4().hex[:8]}
         resp = create_payee(payee)
-        payee_id = resp.json()[0]["id"]
+        payee_id = resp.json()["id"]
 
         self.assertEqual(resp.status_code, 201)
 
