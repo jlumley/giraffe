@@ -15,4 +15,4 @@ clean: ## cleanup after dev instance
 	docker rm -f giraffe-budget-dev && rm -rf /tmp/giraffe-budget
 
 test:
-	docker run -it --rm -e APP_MODE="TEST" --name giraffe-budget-test  giraffe-budget python -m pytest -v
+	make build && docker run -it --rm -e APP_MODE="TEST" --name giraffe-budget-test  giraffe-budget python -m pytest -v
