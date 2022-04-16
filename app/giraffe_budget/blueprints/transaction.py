@@ -20,9 +20,11 @@ transaction = Blueprint("transaction", __name__, url_prefix="/transaction")
 def _get_transaction(transaction_id):
     """Get transaction by id"""
 
-    transaction = get_transaction(transaction_id)[0]
+    transaction = get_transaction(transaction_id)
+    if not transaction:
+        return make_response(jsonify("Transaction Not Found"), 404)
 
-    return make_response(jsonify(transaction), 200)
+    return make_response(jsonify(transaction[0]), 200)
 
 
 @transaction.route(
@@ -89,7 +91,7 @@ def _create_transaction():
             memo=data.get("memo"),
             categories=data.get("categories", []),
         )
-    except RuntimeError as e:
+    except (RuntimeError, TypeError, sqlite3.IntegrityError) as e:
         return make_response(jsonify(str(e)), 400)
 
     return make_response(jsonify({"id": transaction_id}), 201)
@@ -109,7 +111,7 @@ def _create_transfer():
             time_utils.datestr_to_sqlite_date(data.get("date")),
             memo=data.get("memo"),
         )
-    except RuntimeError as e:
+    except (RuntimeError, TypeError, sqlite3.IntegrityError) as e:
         return make_response(jsonify(str(e)), 400)
 
     return make_response(jsonify(transactions), 201)
@@ -130,7 +132,7 @@ def _update_transfer(transfer_id):
             time_utils.datestr_to_sqlite_date(data.get("date")),
             memo=data.get("memo"),
         )
-    except RuntimeError as e:
+    except (RuntimeError, TypeError, ) as e:
         return make_response(jsonify(str(e)), 400)
 
     return make_response(jsonify(transfer_id), 200)
@@ -142,17 +144,12 @@ def update_transaction(transaction_id):
     """Update transaction"""
     data = request.get_json()
     try:
-        transaction = update_transaction(
-            transaction_id,
-            account_id=data.get("account_id"),
-            payee_id=data.get("payee_id"),
-            date=time_utils.datestr_to_sqlite_date(data.get("date")),
-            memo=data.get("memo"),
-            amount=data.get("amount"),
-            cleared=data.get("cleared"),
-            categories=data.get("categories"),
-        )
-    except Exception as e:
+        update_data = data | {
+            "transaction_id": transaction_id,
+            "date": time_utils.datestr_to_sqlite_date(data.get("date"))
+        }
+        transaction = update_transaction(**update_data)
+    except (RuntimeError, TypeError, sqlite3.IntegrityError) as e:
         return make_response(jsonify(e), 400)
 
     return make_response(jsonify(transaction), 200)
@@ -264,19 +261,10 @@ def update_transfer(
     return transfer_id
 
 
-def update_transaction(
-    transaction_id,
-    account_id=None,
-    payee_id=None,
-    date=None,
-    memo=None,
-    amount=None,
-    cleared=None,
-    categories=[],
-):
+def update_transaction(**kwargs):
     """update a transaction
 
-    Args:
+    Kwargs:
         transaction_id (int): transaction_id
         account_id (int, optional): new account id. Defaults to None.
         payee_id (int, optional): new payee id. Defaults to None.
@@ -287,47 +275,60 @@ def update_transaction(
         categories (list, optional): new categories. Defaults to [].
 
     Returns:
-        dict: new transaction dict
+        transaction id
     """
-    update_vars = {
-        "transaction_id": transaction_id,
-        "account_id": account_id,
-        "payee_id": payee_id,
-        "date": date,
-        "memo": memo,
-        "amount": amount,
-        "cleared": cleared,
-        "categories": categories,
-    }
+    transaction_id = kwargs["transaction_id"]
+    old_transaction = get_transaction(transaction_id)
+    if not old_transaction:
+        raise RuntimeError(f"Invalid transaction id: {transaction_id}")
+    else:
+        old_transaction = old_transaction[0]
+    
+    update_statement = "UPDATE transactions SET id = :transaction_id"
+    
+    if old_transaction.get("transfer_id"):
+        raise RuntimeError("Unable to update transfer transaction")
 
     # update categories
-    if categories:
-        # move money to credit card category if needed
+    if "categories" in kwargs:
+        # unfund credit cards
+        unassign_credit_card_category(transaction_id)
+        # create transaction categories
+        create_transaction_categories(transaction_id, kwargs["categories"])
+        # fund credit cards (if neccessary)
+        payee_id = kwargs.get("payee_id", old_transaction.get("payee_id"))
+        account_id = kwargs.get("account_id", old_transaction.get("account_id"))
+        date = kwargs.get("account_id", old_transaction.get("account_id"))
         if is_credit_card_transaction(account_id) and payee_id:
-            old_transaction = get_transaction(transaction_id)
             move_funds_to_credit_card_category(
                 account_id,
                 transaction_id,
                 categories,
-                date if date else old_transaction.get("date"),
+                date,
             )
+    
+    if "payee_id" in kwargs:
+        update_statement += ", payee_id = :payee_id"
 
-        db_utils.execute(
-            DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}
-        )
-        for c in categories:
-            db_utils.execute(
-                CREATE_TRANSACTION_CATEGORIES,
-                {
-                    "transaction_id": transaction_id,
-                    "category_id": c["category_id"],
-                    "amount": c["amount"],
-                },
-            )
-    db_utils.execute(UPDATE_TRANSACTION, update_vars, commit=True)
-    transaction = get_transaction(transaction_id)
+    if "account_id" in kwargs:
+        update_statement += ", account_id = :account_id"
 
-    return transaction
+    if "date" in kwargs:
+        update_statement += ", date = :date"
+    
+    if "amount" in kwargs:
+        update_statement += ", amount = :amount"
+
+    if "memo" in kwargs:
+        update_statement += ", memo = :memo"
+
+    if "cleared" in kwargs:
+        update_statement += ", cleared = :cleared"
+
+    update_statement += " WHERE id = :transaction_id RETURNING id;" 
+    transaction_id = db_utils.execute(update_statement, kwargs, commit=True)
+
+    return transaction_id[0]
 
 
 def create_transaction(
@@ -365,7 +366,6 @@ def create_transaction(
         },
     )
 
-    ### pull all of this out into a separate func, since it'll be used again for modifying transactions
     if is_credit_card_transaction(account_id) and categories:
         move_funds_to_credit_card_category(
             account_id, transaction[0]["id"], categories, date
@@ -511,6 +511,7 @@ def get_transaction(transaction_id):
         GET_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}
     )
     transactions = db_utils.int_to_bool(transactions, ["cleared", "reconciled"])
+
     for c in categories:
         del c["transaction_id"]
     for t in transactions:
@@ -542,10 +543,7 @@ def move_funds_to_credit_card_category(account_id, transaction_id, categories, d
         transaction_id (int): Transaction id  associated with the assignments
         categories (list): transaction categories
     """
-    # delete all previous assignments for this transaction
-    db_utils.execute(DELETE_TRANSACTION_ASSIGNMENTS, {"transaction_id": transaction_id})
-    # if credit card transaction unassign money from categories
-    # to fund credit card account
+    # remove money from categories to fund credit card account
     for c in categories:
         category.assign_money_to_category(
             c["category_id"], c["amount"], date, transaction_id=transaction_id
@@ -559,3 +557,33 @@ def move_funds_to_credit_card_category(account_id, transaction_id, categories, d
     category.assign_money_to_category(
         category_id, amount * -1, date, transaction_id=transaction_id
     )
+
+def unassign_credit_card_category(transaction_id):
+    """Remove assignments to credit card for the given transaction
+
+    Args:
+        transaction_id (int): transaction id
+    """
+    db_utils.execute(DELETE_TRANSACTION_ASSIGNMENTS, {"transaction_id": transaction_id})
+
+def create_transaction_categories(transaction_id, categories):
+    """Create transaction categories
+
+    Args:
+        transaction_id (int): transaction id
+        categories (list): list of categories and amounts
+    """
+    # remove old transaction categories
+    db_utils.execute(
+        DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}
+    )
+    # create new tranasaction categories
+    for c in categories:
+        db_utils.execute(
+            CREATE_TRANSACTION_CATEGORIES,
+            {
+                "transaction_id": transaction_id,
+                "category_id": c["category_id"],
+                "amount": c["amount"],
+            },
+        )
