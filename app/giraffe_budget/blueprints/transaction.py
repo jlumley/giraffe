@@ -164,6 +164,7 @@ def _delete_transaction(transaction_id):
     deleted_id = delete_transaction(transaction_id)
     return make_response(jsonify(deleted_id), 200)
 
+
 @transaction.route("/delete/transfer/<string:transfer_id>", methods=("DELETE",))
 def _delete_transfer(transfer_id):
     """Delete transfer"""
@@ -184,7 +185,8 @@ def delete_transfer(transfer_id):
         DELETE_TRANSFER, {"transfer_id": transfer_id}, commit=True
     )
 
-    return [t['id'] for t in transactions]
+    return [t["id"] for t in transactions]
+
 
 def delete_transaction(transaction_id):
     """Delete a Transaction
@@ -202,17 +204,14 @@ def delete_transaction(transaction_id):
 
     return [transaction_id]
 
+
 def update_transfer(
-    transfer_id, 
-    from_account_id, 
-    to_account_id, 
-    amount, 
-    date, 
-    memo=None):
+    transfer_id, from_account_id, to_account_id, amount, date, memo=None
+):
     """update existing transfer
 
     Args:
-        transfer_id (string): existing transfer id 
+        transfer_id (string): existing transfer id
         from_account_id (int): account id where money is coming from
         to_account_id (int): account id where money is going to
         amount (int): amount of money in cents
@@ -228,7 +227,7 @@ def update_transfer(
         to_account_id=to_account_id,
         amount=abs(amount),
         date=date,
-        memo=memo
+        memo=memo,
     )
 
     update_from_statement = UPDATE_TRANSFER
@@ -240,32 +239,29 @@ def update_transfer(
     if to_account_id:
         update_from_statement += ", payee_id = :to_account_id"
         update_to_statement += ", account_id = :to_account_id"
-    
+
     if date:
         update_from_statement += ", date = :date"
         update_to_statement += ", date = :date"
-    
+
     if amount:
         update_from_statement += ", amount = :amount"
         update_to_statement += ", amount = :amount"
-    
+
     if memo:
         update_from_statement += ", memo = :memo"
         update_to_statement += ", memo = :memo"
-    
+
     update_to_statement += " WHERE transfer_id = :transfer_id AND amount >= 0;"
     update_from_statement += " WHERE transfer_id = :transfer_id AND amount <= 0;"
 
-
     db_utils.execute(update_to_statement, update_vars)
-    update_vars['amount'] *= -1
+    update_vars["amount"] *= -1
     db_utils.execute(update_from_statement, update_vars)
 
     db_utils.execute(GET_TRANSFER, update_vars, commit=True)
 
-
     return transfer_id
-
 
 
 def update_transaction(
@@ -408,7 +404,7 @@ def create_transfer(from_account_id, to_account_id, amount, date, memo=None):
     transfer_id = md5().hexdigest()
     transactions = []
 
-    transactions += (db_utils.execute(
+    transactions += db_utils.execute(
         CREATE_TRANSFER,
         {
             "account_id": from_account_id,
@@ -418,9 +414,9 @@ def create_transfer(from_account_id, to_account_id, amount, date, memo=None):
             "memo": memo,
             "transfer_id": transfer_id,
         },
-    ))
+    )
 
-    transactions += (db_utils.execute(
+    transactions += db_utils.execute(
         CREATE_TRANSFER,
         {
             "account_id": to_account_id,
@@ -430,11 +426,10 @@ def create_transfer(from_account_id, to_account_id, amount, date, memo=None):
             "memo": memo,
             "transfer_id": transfer_id,
         },
-    ))
+    )
     db_utils.execute(GET_TRANSFER, {"transfer_id": transfer_id}, commit=True)
 
-    return [get_transaction(t['id']) for t in transactions]
-
+    return [get_transaction(t["id"]) for t in transactions]
 
 
 def get_transactions(

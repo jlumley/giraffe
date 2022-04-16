@@ -49,20 +49,14 @@ def _create_account():
 @account.route("/hide/<int:account_id>", methods=("PUT",))
 def _hide_account(account_id):
     """Hide an account"""
-    assert account_id == request.view_args["account_id"]
-
     account = hide_account(account_id, True)
-
     return make_response(jsonify(account), 200)
 
 
 @account.route("/unhide/<int:account_id>", methods=("PUT",))
 def _unhide_account(account_id):
     """Unhide an account"""
-    assert account_id == request.view_args["account_id"]
-
     account = hide_account(account_id, False)
-
     return make_response(jsonify(account), 200)
 
 
@@ -73,14 +67,17 @@ def _reconcile_account(account_id):
     with this account as reconciled and set the
     reconciled_date to now
     """
-    assert account_id == request.view_args["account_id"]
-    data = request.get_json()
-    date = time_utils.datestr_to_sqlite_date(data.get("date"))
-    balance = data.get("balance")
-    if not balance:
-        balance = 0
+    try:
+        data = request.get_json()
+        date = time_utils.datestr_to_sqlite_date(data.get("date"))
+        balance = data.get("balance")
+        if not balance:
+            balance = 0
 
-    account = reconcile_account(account_id, date, balance)
+        account = reconcile_account(account_id, date, balance)
+
+    except TypeError as e:
+        return make_response(jsonify(dict(error=str(e))), 400)
 
     return make_response(jsonify(account), 200)
 
@@ -114,6 +111,8 @@ def get_account(account_id):
         a["credit_card"] = True if a["account_type"] == "credit_card" else False
         a["cleared_balance"] = get_account_balance(a["id"])
         a["uncleared_balance"] = get_account_balance(a["id"], cleared=False)
+        a["reconciled_date"] = time_utils.sqlite_date_to_datestr(a["reconciled_date"])
+        a["created_date"] = time_utils.sqlite_date_to_datestr(a["created_date"])
         del a["account_type"]
 
     return accounts
@@ -168,7 +167,7 @@ def hide_account(account_id, hide=True):
     )
     accounts = db_utils.int_to_bool(accounts, ["hidden"])
 
-    return get_account(account_id)
+    return get_account(account_id)[0]
 
 
 def reconcile_account(account_id, date, balance):
@@ -196,7 +195,7 @@ def reconcile_account(account_id, date, balance):
     # mark account as reconciled
     db_utils.execute(RECONCILE_ACCOUNT, {"id": account_id, "now": date}, commit=True)
 
-    return get_account(account_id)
+    return get_account(account_id)[0]
 
 
 def get_account_balance(account_id, cleared=True):

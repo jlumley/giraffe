@@ -4,8 +4,11 @@ import re
 def datestr_to_sqlite_date(date_str):
     if not date_str:
         return None
-    date_str = str(date_str)
-    return re.sub("-", "", date_str)
+    if re.match(r"(\d{4})-(\d{2})-(\d{2})", date_str):
+        date_str = str(date_str)
+        return re.sub("-", "", date_str)
+    else:
+        raise TypeError(f"Date string {date_str} does not match format YYYY-MM-DD")
 
 
 def sqlite_date_to_datestr(sql_date):

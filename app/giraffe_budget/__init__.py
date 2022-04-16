@@ -8,8 +8,6 @@ from .utils.db_utils import *
 from flask import Flask, g, current_app
 
 
-
-
 # Application Factory Function
 def create_app():
     app = Flask(__name__)
@@ -20,14 +18,12 @@ def create_app():
     app.logger.info(f"App Mode: {os.environ['APP_MODE']}")
     with app.app_context():
         init_db(app)
-    
 
     @app.before_request
     def before_each_request():
         # Set up database connection
         g.db_con = get_db()
         g.db_cur = g.db_con.cursor()
-
 
     @app.after_request
     def after_each_request(response):
@@ -51,12 +47,9 @@ def setup_logger(app):
     logging.basicConfig(level=app.config["LOG_LEVEL"])
 
 
-
 # Register Blueprints
 def register_blueprints(app):
     app.register_blueprint(account.account)
     app.register_blueprint(transaction.transaction)
     app.register_blueprint(category.category)
     app.register_blueprint(payee.payee)
-
-
