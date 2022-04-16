@@ -18,7 +18,7 @@ def test_create_account_success(test_client):
     for account in accounts:
         create_response = test_client.post("/account/create", json=account)
         assert create_response.status_code == 201
-        assert b"id" in create_response.data
+        assert 'id' in create_response.json.keys()
         if account.get("starting_balance"):
             assert create_response.json.get("cleared_balance") == account.get(
                 "starting_balance"

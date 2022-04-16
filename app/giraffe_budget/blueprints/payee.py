@@ -15,6 +15,13 @@ def _get_payees():
     return make_response(jsonify(payees), 200)
 
 
+@payee.route("/<int:payee_id>", methods=("GET",))
+def _get_payee(payee_id):
+    """Get single payee by id"""
+    payee = get_payee(payee_id)[0]
+    return make_response(jsonify(payee), 200)
+
+
 @payee.route("/create", methods=("POST",))
 @expects_json(POST_PAYEE_CREATE_SCHEMA)
 def _create_payee():
@@ -91,7 +98,7 @@ def delete_payee(payee_id):
         lsit: list of deleted payee ids
     """
     payee = db_utils.execute(DELETE_PAYEE, {"payee_id": payee_id}, commit=True)
-    return payee
+    return payee[0]
 
 
 def update_payee(payee_id, name=None):
