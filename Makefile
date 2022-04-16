@@ -5,14 +5,14 @@ build: ## build docker image
 	docker build . -t giraffe-budget
 
 dev: ## run container interactively
-	docker run  -it -v /tmp/giraffe-budget/data:/data -v /tmp/giraffe-budget/logs:/logs -p 80:80 -e APP_MODE="DEV" --name giraffe-budget-dev  giraffe-budget
+	docker run --rm -it -v /tmp/giraffe-budget/data:/data -v /tmp/giraffe-budget/logs:/logs -p 80:80 -e APP_MODE="DEV" --name giraffe-budget-dev  giraffe-budget /bin/sh -c /src/bin/start.sh
 
 
 dev-api: ## run only api
-	docker run  -d -v /tmp/giraffe-budget/data:/data -v /tmp/giraffe-budget/logs:/logs -p 80:80 -e APP_MODE="DEV" -e API_ONLY="true" --name giraffe-budget-dev  giraffe-budget
+	docker run --rm -d -v /tmp/giraffe-budget/data:/data -v /tmp/giraffe-budget/logs:/logs -p 80:80 -e APP_MODE="DEV" -e API_ONLY="true" --name giraffe-budget-dev  giraffe-budget /bin/sh -c /src/bin/start.sh
 
 clean: ## cleanup after dev instance
 	docker rm -f giraffe-budget-dev && rm -rf /tmp/giraffe-budget
 
 test:
-	bin/run_tests.sh
+	docker run -it --rm -e APP_MODE="TEST" --name giraffe-budget-test  giraffe-budget python -m pytest -v

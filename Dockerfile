@@ -20,14 +20,15 @@ RUN pip install \
 Flask==2.0.1 \
 Flask-expects-json==1.7.0 \
 Uwsgi==2.0.19.1 \
+werkzeug==2.0.3 \
 pytest
 
-COPY app/frontend/package-lock.json /src/app/frontend/package-lock.json
-COPY app/frontend/package.json /src/app/frontend/package.json
+COPY app/frontend /src/app/frontend
 WORKDIR /src/app/frontend
+
 RUN npm ci
 RUN npm install -g serve
-
+RUN npm run build
 
 VOLUME /data
 VOLUME /logs
@@ -39,7 +40,5 @@ COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY app /src/app
 COPY bin/start.sh /src/bin/start.sh
 
-RUN npm run build
+WORKDIR /src/app
 
-
-ENTRYPOINT /src/bin/start.sh

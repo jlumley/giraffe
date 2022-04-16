@@ -13,49 +13,6 @@ BASE_URL = f"http://{API_HOST}:{API_PORT}{API_BASE_PATH}"
 
 
 class TestAccountEndpoints(unittest.TestCase):
-    def test_create_account_success(self):
-        """
-        Testing creating new accounts successfully
-        """
-        accounts = [
-            {"name": uuid.uuid4().hex[:8]},
-            {"name": uuid.uuid4().hex[:8], "starting_balance": 100},
-            {"name": uuid.uuid4().hex[:8], "notes": uuid.uuid4().hex[:8]},
-            {"name": uuid.uuid4().hex[:8], "starting_balanace": -100},
-        ]
-        for account in accounts:
-            resp = create_account(account)
-            self.assertEqual(resp.status_code, 201)
-
-    def test_create_account_fail(self):
-        """
-        Test Creating Accounts Unseccessfully
-        """
-        accounts = [
-            {"nam": uuid.uuid4().hex[:8]},
-            {"nae": uuid.uuid4().hex[:8], "starting_balace": 100},
-            {"notes": uuid.uuid4().hex[:8]},
-            {},
-        ]
-        for account in accounts:
-            resp = create_account(account)
-            self.assertEqual(resp.status_code, 400)
-
-    def test_hide_account(self):
-        """
-        Testing hiding an account
-        """
-        # create account
-        resp = create_account(dict(name="foo"))
-        account_id = resp.json()[0]["id"]
-
-        resp = hide_account(account_id)
-        self.assertEqual(resp.status_code, 200)
-
-        accounts = get_accounts().json()
-        accounts = [a for a in accounts if a["id"] == account_id]
-        for a in accounts:
-            self.assertEqual(a["hidden"], True)
 
     def test_unhide_account(self):
         """
