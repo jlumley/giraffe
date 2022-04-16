@@ -24,6 +24,7 @@ def create_app():
         # Set up database connection
         g.db_con = get_db()
         g.db_cur = g.db_con.cursor()
+        g.db_con.execute("PRAGMA foreign_keys = 1;")
 
     @app.after_request
     def after_each_request(response):

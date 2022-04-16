@@ -48,15 +48,6 @@ RETURNING id;
 UPDATE_TRANSFER = """ UPDATE transactions
 SET id = id """
 
-UPDATE_TRANSACTION = """UPDATE transactions
-SET account_id = :account_id,
-payee_id = :payee_id,
-date = :date,
-memo = :memo,
-amount = :amount,
-cleared = :cleared
-WHERE id = :transaction_id RETURNING id;"""
-
 DELETE_TRANSACTION = """DELETE FROM transactions
 WHERE id = :transaction_id
 RETURNING id;
