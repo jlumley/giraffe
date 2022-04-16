@@ -15,15 +15,22 @@ account = Blueprint("account", __name__, url_prefix="/account")
 
 
 @account.route("", methods=("GET",))
-def get_accounts():
+def _get_accounts():
     """Fetch all accounts"""
     accounts = get_accounts()
     return make_response(jsonify(accounts), 200)
 
 
+@account.route("/<int:account_id>", methods=("GET",))
+def _get_account(account_id):
+    """Fetch single account"""
+    account = get_account(account_id)
+    return make_response(jsonify(account[0]), 200)
+
+
 @account.route("/create", methods=("POST",))
 @expects_json(POST_ACCOUNT_CREATE_SCHEMA)
-def create_account():
+def _create_account():
     """Create new account"""
     data = request.get_json()
     starting_balance = data.get("starting_balance", 0)
@@ -36,11 +43,11 @@ def create_account():
         starting_balance=starting_balance,
         credit_card=data.get("credit_card"),
     )
-    return make_response(jsonify(account), 201)
+    return make_response(jsonify(account[0]), 201)
 
 
 @account.route("/hide/<int:account_id>", methods=("PUT",))
-def hide_account(account_id):
+def _hide_account(account_id):
     """Hide an account"""
     assert account_id == request.view_args["account_id"]
 
@@ -50,7 +57,7 @@ def hide_account(account_id):
 
 
 @account.route("/unhide/<int:account_id>", methods=("PUT",))
-def unhide_account(account_id):
+def _unhide_account(account_id):
     """Unhide an account"""
     assert account_id == request.view_args["account_id"]
 
