@@ -11,6 +11,7 @@ import TrashCanOutlineIcon from 'mdi-react/TrashCanOutlineIcon'
 import CheckIcon from 'mdi-react/CheckIcon'
 
 import transactionRequests from '../requests/transaction';
+import transferRequests from '../requests/transfer';
 import payeeRequests from '../requests/payee';
 
 import { Autosuggest } from './Inputs/Autosuggest';
@@ -30,7 +31,6 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     const [transactionDate, setTransactionDate] = useState(new Date(transaction.date));
     const [transactionAccountId, setTransactionAccountId] = useState(transaction.account_id);
     const [transactionPayeeId, setTransactionPayeeId] = useState(transaction.payee_id);
-    const [transactionPayeeString, setTransactionPayeeString] = useState('');
     const [transactionMemo, setTransactionMemo] = useState(transaction.memo);
     const [transactionAmount, setTransactionAmount] = useState(transaction.amount);
     const [transactionCategories, setTransactionCategories] = useState([]);
@@ -171,7 +171,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
                 transferData.to_account_id = parseInt(transactionPayeeId)
             }
             const resp = await instance.post(
-                `${transactionRequests.createNewTransfer}`,
+                `${transferRequests.createNewTransfer}`,
                 transferData
             )
             var _transactionId;
@@ -198,7 +198,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
                 transferData.to_account_id = parseInt(transactionPayeeId)
             }
             const resp = await instance.put(
-                `${transactionRequests.updateTransfer}${transferId}`,
+                `${transferRequests.updateTransfer}${transferId}`,
                 transferData
             )
         }
