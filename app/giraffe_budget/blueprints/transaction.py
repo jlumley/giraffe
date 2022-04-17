@@ -97,47 +97,6 @@ def _create_transaction():
     return make_response(jsonify({"id": transaction_id}), 201)
 
 
-@transaction.route("/transfer/create", methods=("POST",))
-@expects_json(TRANSFER_SCHEMA)
-def _create_transfer():
-    """Create new transfer"""
-    data = request.get_json()
-
-    try:
-        transactions = create_transfer(
-            data.get("from_account_id"),
-            data.get("to_account_id"),
-            data.get("amount"),
-            time_utils.datestr_to_sqlite_date(data.get("date")),
-            memo=data.get("memo"),
-        )
-    except (RuntimeError, TypeError, sqlite3.IntegrityError) as e:
-        return make_response(jsonify(str(e)), 400)
-
-    return make_response(jsonify(transactions), 201)
-
-
-@transaction.route("/transfer/update/<string:transfer_id>", methods=("PUT",))
-@expects_json(TRANSFER_SCHEMA)
-def _update_transfer(transfer_id):
-    """Update transfer"""
-    data = request.get_json()
-
-    try:
-        transfer_id = update_transfer(
-            transfer_id,
-            data.get("from_account_id"),
-            data.get("to_account_id"),
-            data.get("amount"),
-            time_utils.datestr_to_sqlite_date(data.get("date")),
-            memo=data.get("memo"),
-        )
-    except (RuntimeError, TypeError, ) as e:
-        return make_response(jsonify(str(e)), 400)
-
-    return make_response(jsonify(transfer_id), 200)
-
-
 @transaction.route("/update/<int:transaction_id>", methods=("PUT",))
 @expects_json(PUT_TRANSACTION_UPDATE_SCHEMA)
 def update_transaction(transaction_id):
@@ -162,29 +121,6 @@ def _delete_transaction(transaction_id):
     return make_response(jsonify(deleted_id), 200)
 
 
-@transaction.route("/delete/transfer/<string:transfer_id>", methods=("DELETE",))
-def _delete_transfer(transfer_id):
-    """Delete transfer"""
-    deleted_id = delete_transfer(transfer_id)
-    return make_response(jsonify(deleted_id), 200)
-
-
-def delete_transfer(transfer_id):
-    """Delete a transfer
-
-    Args:
-        transfer_id (int): transfer id
-
-    Returns:
-        int: id of deleted transfer
-    """
-    transactions = db_utils.execute(
-        DELETE_TRANSFER, {"transfer_id": transfer_id}, commit=True
-    )
-
-    return [t["id"] for t in transactions]
-
-
 def delete_transaction(transaction_id):
     """Delete a Transaction
 
@@ -200,65 +136,6 @@ def delete_transaction(transaction_id):
     )
 
     return [transaction_id]
-
-
-def update_transfer(
-    transfer_id, from_account_id, to_account_id, amount, date, memo=None
-):
-    """update existing transfer
-
-    Args:
-        transfer_id (string): existing transfer id
-        from_account_id (int): account id where money is coming from
-        to_account_id (int): account id where money is going to
-        amount (int): amount of money in cents
-        date (int): date of transfer (YYYMMDD).
-        memo (str, optional): memo. Defaults to None.
-    """
-
-    # update transaction of account money is leaving
-
-    update_vars = dict(
-        transfer_id=transfer_id,
-        from_account_id=from_account_id,
-        to_account_id=to_account_id,
-        amount=abs(amount),
-        date=date,
-        memo=memo,
-    )
-
-    update_from_statement = UPDATE_TRANSFER
-    update_to_statement = UPDATE_TRANSFER
-    if from_account_id:
-        update_from_statement += ", account_id = :from_account_id"
-        update_to_statement += ", payee_id = :from_account_id"
-
-    if to_account_id:
-        update_from_statement += ", payee_id = :to_account_id"
-        update_to_statement += ", account_id = :to_account_id"
-
-    if date:
-        update_from_statement += ", date = :date"
-        update_to_statement += ", date = :date"
-
-    if amount:
-        update_from_statement += ", amount = :amount"
-        update_to_statement += ", amount = :amount"
-
-    if memo:
-        update_from_statement += ", memo = :memo"
-        update_to_statement += ", memo = :memo"
-
-    update_to_statement += " WHERE transfer_id = :transfer_id AND amount >= 0;"
-    update_from_statement += " WHERE transfer_id = :transfer_id AND amount <= 0;"
-
-    db_utils.execute(update_to_statement, update_vars)
-    update_vars["amount"] *= -1
-    db_utils.execute(update_from_statement, update_vars)
-
-    db_utils.execute(GET_TRANSFER, update_vars, commit=True)
-
-    return transfer_id
 
 
 def update_transaction(**kwargs):
@@ -278,16 +155,21 @@ def update_transaction(**kwargs):
         transaction id
     """
     transaction_id = kwargs["transaction_id"]
+
+    ## input validation stuff
     old_transaction = get_transaction(transaction_id)
     if not old_transaction:
         raise RuntimeError(f"Invalid transaction id: {transaction_id}")
     else:
         old_transaction = old_transaction[0]
-    
-    update_statement = "UPDATE transactions SET id = :transaction_id"
+    is_valid_payee_id(kwargs.get("payee_id"))
+    is_valid_account_id(kwargs.get("account_id"))
     
     if old_transaction.get("transfer_id"):
         raise RuntimeError("Unable to update transfer transaction")
+
+
+    update_statement = "UPDATE transactions SET id = :transaction_id"
 
     # update categories
     if "categories" in kwargs:
@@ -354,6 +236,10 @@ def create_transaction(
     if categories and sum([c["amount"] for c in categories]) != amount:
         raise RuntimeError("Category amounts do not match transaction amount")
 
+ 
+    is_valid_payee_id(payee_id)
+    is_valid_account_id(account_id)
+
     transaction = db_utils.execute(
         CREATE_TRANSACTION,
         {
@@ -386,51 +272,6 @@ def create_transaction(
     )
 
     return transaction[0]["id"]
-
-
-def create_transfer(from_account_id, to_account_id, amount, date, memo=None):
-    """Create a new transfer between accounts
-
-    Args:
-        from_account_id (int): account id money is leaving
-        to_account_id (int): account id money is going to
-        amount (int): amount being transferred in cents
-        date (int): date of the transfer
-        memo (str, optional): memo. Defaults to None.
-
-    Returns:
-        string: unqiue transfer id
-    """
-    transfer_id = md5().hexdigest()
-    transactions = []
-
-    transactions += db_utils.execute(
-        CREATE_TRANSFER,
-        {
-            "account_id": from_account_id,
-            "payee_id": to_account_id,
-            "amount": abs(amount) * -1,
-            "date": date,
-            "memo": memo,
-            "transfer_id": transfer_id,
-        },
-    )
-
-    transactions += db_utils.execute(
-        CREATE_TRANSFER,
-        {
-            "account_id": to_account_id,
-            "payee_id": from_account_id,
-            "amount": abs(amount),
-            "date": date,
-            "memo": memo,
-            "transfer_id": transfer_id,
-        },
-    )
-    db_utils.execute(GET_TRANSFER, {"transfer_id": transfer_id}, commit=True)
-
-    return [get_transaction(t["id"]) for t in transactions]
-
 
 def get_transactions(
     accounts, categories, payees, before, after, cleared, reconciled, limit
@@ -587,3 +428,29 @@ def create_transaction_categories(transaction_id, categories):
                 "amount": c["amount"],
             },
         )
+
+def is_valid_account_id(account_id):
+    """returns true if account id exists
+
+    Args:
+        account_id (int): account id to be tested
+    """
+    if not account_id:
+        return None
+    if db_utils.execute("SELECT id FROM accounts WHERE id = :account_id;", dict(account_id=account_id)):
+        return True
+    raise RuntimeError(f"Account id: {account_id} Not Found") 
+
+
+def is_valid_payee_id(payee_id):
+    """returns true if payee id exists
+
+    Args:
+        payee_id (int): payee id to be tested
+    """
+    if not payee_id:
+        return None
+    if db_utils.execute("SELECT id FROM payees WHERE id = :payee_id;", dict(payee_id=payee_id)):
+        return True
+    
+    raise  RuntimeError(f"Payee id: {payee_id} Not Found")

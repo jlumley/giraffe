@@ -1,6 +1,4 @@
 import pytest
-import random
-import uuid
 
 from . import test_client
 

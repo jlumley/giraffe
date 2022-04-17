@@ -38,9 +38,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   reconciled integer,
   cleared integer,
   amount integer,
-  transfer_id text,
-  FOREIGN KEY (account_id) REFERENCES accounts (id),
-  FOREIGN KEY (payee_id) REFERENCES payees (id)
+  transfer_id text
 );
 
 CREATE TABLE IF NOT EXISTS transaction_categories (

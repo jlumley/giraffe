@@ -3,15 +3,9 @@ FROM transactions
 WHERE True
 """
 
-
 GET_TRANSACTION = """SELECT *
 FROM transactions
 WHERE id = :transaction_id;
-"""
-
-GET_TRANSFER = """SELECT *
-FROM transactions
-WHERE transfer_id = :transfer_id;
 """
 
 GET_TRANSACTION_CATEGORIES = """SELECT *
@@ -25,12 +19,6 @@ VALUES (:account_id, :payee_id, :date, :memo, :cleared, 0, :amount)
 RETURNING id;
 """
 
-CREATE_TRANSFER = """INSERT INTO transactions
-(account_id, payee_id, date, memo, amount, transfer_id)
-VALUES (:account_id, :payee_id, :date, :memo, :amount, :transfer_id)
-RETURNING *;
-"""
-
 CREATE_TRANSACTION_CATEGORIES = """INSERT INTO transaction_categories
 (transaction_id, category_id, amount)
 VALUES (:transaction_id, :category_id, :amount);
@@ -39,14 +27,6 @@ VALUES (:transaction_id, :category_id, :amount);
 DELETE_TRANSACTION_CATEGORIES = """DELETE FROM transaction_categories
 WHERE transaction_id = :transaction_id;
 """
-
-DELETE_TRANSFER = """DELETE FROM transactions
-WHERE transfer_id = :transfer_id
-RETURNING id;
-"""
-
-UPDATE_TRANSFER = """ UPDATE transactions
-SET id = id """
 
 DELETE_TRANSACTION = """DELETE FROM transactions
 WHERE id = :transaction_id
