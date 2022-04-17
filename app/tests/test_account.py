@@ -14,6 +14,7 @@ def test_create_account_success(test_client):
         {"name": uuid.uuid4().hex, "starting_balance": 100},
         {"name": uuid.uuid4().hex, "notes": uuid.uuid4().hex},
         {"name": uuid.uuid4().hex, "starting_balanace": -100},
+        {"name": uuid.uuid4().hex, "credit_card": True},
     ]
     for account in accounts:
         create_response = test_client.post("/account/create", json=account)
