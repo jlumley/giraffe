@@ -15,9 +15,7 @@ MAX_INT = 2 ** 31 - 1
 
 @category.route("/groups", methods=("GET",))
 def _get_category_groups():
-    """
-    Get all the category groups
-    """
+    """Get all the category groups"""
     category_groups = get_category_groups()
     category_groups = [c["category_group"] for c in category_groups]
     return make_response(jsonify(category_groups), 200)
@@ -25,33 +23,29 @@ def _get_category_groups():
 
 @category.route("/names", methods=("GET",))
 def _get_category_names():
-    """Get a mapping of category names to ids
-
-    Returns:
-        [type]: [description]
-    """
+    """Get a mapping of category names to ids"""
     return make_response(jsonify(get_category_names()), 200)
 
 
-@category.route("/<date>", methods=("GET",))
+@category.route("/<string:date>", methods=("GET",))
 def _get_categories(date):
     """Get all categories"""
-    assert date == request.view_args["date"]
     date = time_utils.datestr_to_sqlite_date(date)
     categories = get_categories(date)
 
     return make_response(jsonify(categories), 200)
 
 
-@category.route("/<int:category_id>/<date>", methods=("GET",))
+@category.route("/<int:category_id>/<string:date>", methods=("GET",))
 def _get_category(category_id, date):
     """Get category at a given date"""
-    assert category_id == request.view_args["category_id"]
-    assert date == request.view_args["date"]
     date = time_utils.datestr_to_sqlite_date(date)
-    resp = get_category(category_id, date)
+    category = get_category(category_id, date)
+    if not category:
+        return make_response(jsonify("Category Not Found"), 404)
+        
 
-    return make_response(jsonify(resp), 200)
+    return make_response(jsonify(category[0]), 200)
 
 
 @category.route("/create", methods=("POST",))
@@ -68,8 +62,6 @@ def _create_category():
 @expects_json(PUT_CATEGORY_UPDATE_SCHEMA)
 def _update_category(category_id):
     """Update Category"""
-    assert category_id == request.view_args["category_id"]
-
     data = request.get_json()
     category = update_category(
         category_id,
@@ -84,8 +76,6 @@ def _update_category(category_id):
 @expects_json(PUT_CATEGORY_UPDATE_TARGET_SCHEMA)
 def _update_category_target(category_id):
     """Update Category target"""
-    assert category_id == request.view_args["category_id"]
-
     data = request.get_json()
     if data["target_type"] not in ALLOWED_TARGET_TYPES:
         return make_response(
@@ -115,8 +105,6 @@ def _update_category_target(category_id):
 @category.route("/delete/<int:category_id>/target", methods=("DELETE",))
 def delete_cateogry_target(category_id):
     """Remove Category target"""
-    assert category_id == request.view_args["category_id"]
-
     delete_cateogry_target(category_id)
 
     return make_response(jsonify({"id": category_id}), 200)
@@ -126,8 +114,6 @@ def delete_cateogry_target(category_id):
 @expects_json(PUT_CATEGORY_ASSIGN_SCHEMA)
 def _category_assign(category_id):
     """Assign money to category"""
-    assert category_id == request.view_args["category_id"]
-
     data = request.get_json()
     date = time_utils.datestr_to_sqlite_date(data["date"])
     amount = abs(data["amount"])
@@ -143,8 +129,6 @@ def _category_assign(category_id):
 @expects_json(PUT_CATEGORY_UNASSIGN_SCHEMA)
 def _category_unassign(category_id):
     """Unassign money from category"""
-    assert category_id == request.view_args["category_id"]
-
     data = request.get_json()
     date = time_utils.datestr_to_sqlite_date(data["date"])
     amount = abs(data["amount"]) * -1
@@ -417,15 +401,17 @@ def get_category(category_id, sql_date):
         dict: category dict
     """
     categories = db_utils.execute(GET_CATEGORY, {"category_id": category_id})
+    target_data = get_category_target_data(category_id, sql_date)
 
     for c in categories:
-        c["credit_card"] = True if c["category_type"] == "credit_card" else False
-        target_data = get_category_target_data(category_id, sql_date)
+        c["credit_card"] = True if c["category_type"] == "credit_card" else False    
         c["balance"] = get_category_balance(category_id, sql_date)
         c["target_date"] = time_utils.sqlite_date_to_datestr(c["target_date"])
         c["monthly_target"] = target_data["monthly_target"]
         c["assigned_this_month"] = target_data["assigned_this_month"]
+        c["group"] = c["category_group"]
         del c["category_type"]
+        del c["category_group"]
 
     return categories
 
