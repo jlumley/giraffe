@@ -5,6 +5,7 @@
     flex-direction: row;
     height: 100%;
 }
+
 .budgetContent {
     background-color: transparent;
     display: flex;
@@ -15,19 +16,22 @@
     font-weight: bold;
     flex-grow: 1;
 }
+
 .budgetHeader {
     height: 100px;
     border-radius: 15px;
     margin: 5px;
     background-color: var(--translucent-background);
 }
-.newCategoryGroup{
+
+.newCategoryGroup {
     float: left;
     padding: 1%;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
 }
+
 .monthSelector {
     vertical-align: middle;
     float: right;
@@ -43,6 +47,7 @@
     width: 25%;
     cursor: pointer;
 }
+
 .currentMonth {
     width: 50%;
     margin: auto;
@@ -52,6 +57,7 @@
 .budgetColumnTitles {
     height: 15px;
 }
+
 .budgetCategories {
     width: 100%;
     flex-grow: 1;
@@ -59,14 +65,17 @@
     float: inline-end;
     overflow-y: scroll;
 }
+
 .categeorySelectedColumn {
     min-width: 10px;
     width: 7%;
 }
+
 .categeoryNameColumn {
     min-width: 30px;
     width: 20%;
 }
+
 .categeoryAssignedColumn {
     min-width: 25px;
     width: 15%;
@@ -80,4 +89,16 @@
 .categeoryAvailableColumn {
     min-width: 25px;
     width: 15%;
+}
+
+.negativeToBeAssigned {
+    background-color: red;
+}
+
+.neutralToBeAssigned {
+    background-color: lightgreen;
+}
+
+.positiveToBeAssigned {
+    background-color: skyblue;
 }

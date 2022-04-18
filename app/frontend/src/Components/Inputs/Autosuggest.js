@@ -22,7 +22,7 @@ export function Autosuggest({ startingValue, options, createOptionUrl, updateMet
         setValue(newValue)
     }
 
-    useEffect(() => { }, [options])
+    //useEffect(() => { }, [options])
 
     return (
         <div className="autoSuggestDiv">

@@ -56,8 +56,8 @@ export function Category({ category, currentDate, smallScreen }) {
             const today = currentDate.toISOString().slice(0, 10);
             const resp = await instance.get(`${categoryRequests.fetchCategory}/${category.id}/${today}`)
 
-            setCategoryBalance(resp.data[0].balance)
-            setCategoryAssigned(resp.data[0].assigned_this_month / 100)
+            setCategoryBalance(resp.data.balance)
+            setCategoryAssigned(resp.data.assigned_this_month / 100)
         }
         _fetchCategory()
     };

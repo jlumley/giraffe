@@ -23,11 +23,14 @@ Uwsgi==2.0.19.1 \
 werkzeug==2.0.3 \
 pytest
 
-COPY app/frontend /src/app/frontend
+COPY app/frontend/package.json /src/app/frontend/package.json
+COPY app/frontend/package-lock.json /src/app/frontend/package-lock.json
 WORKDIR /src/app/frontend
 
 RUN npm ci
 RUN npm install -g serve
+
+COPY app/frontend /src/app/frontend
 RUN npm run build
 
 VOLUME /data

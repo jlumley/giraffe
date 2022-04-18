@@ -185,7 +185,7 @@ def update_transaction(**kwargs):
             move_funds_to_credit_card_category(
                 account_id,
                 transaction_id,
-                categories,
+                kwargs["categories"],
                 date,
             )
     

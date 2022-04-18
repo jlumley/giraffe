@@ -30,10 +30,7 @@ export const CategoryGroup = ({ name, currentDate, smallScreen }) => {
       group: categoryGroupName
     }).then((resp) => {
       instance.get(`${categoryRequests.fetchCategory}/${resp.data.id}/${today}`).then((resp) => {
-        resp.data.forEach((c) => {
-          setNewCategories(newCategories.concat(category(c)))
-        })
-
+        setNewCategories(newCategories.concat(category(resp.data)))
       })
     })
   }
@@ -54,8 +51,7 @@ export const CategoryGroup = ({ name, currentDate, smallScreen }) => {
     async function _fetchCategories() {
       const today = currentDate.toISOString().slice(0, 10);
       const resp = await instance.get(`${categoryRequests.fetchAllCategories}/${today}`)
-
-      setCategories(resp.data.filter(cat => cat.category_group === categoryGroupName))
+      setCategories(resp.data.filter(cat => cat.group === categoryGroupName))
     }
     _fetchCategories()
   };
