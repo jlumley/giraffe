@@ -83,7 +83,7 @@ def main():
     #   print(r.content)
     r = requests.get("http://localhost/api/category/1/2022-01-01").content
     before_resp = json.loads(r)
-    print(f"Category balance before spending: ${before_resp[0]['balance']}")
+    #print(f"Category balance before spending: ${before_resp[0]['balance']}")
 
     r = requests.get("http://localhost/api/category/2022-01-01").content
     r = json.loads(r)
@@ -131,8 +131,8 @@ def main():
 
     r = requests.get("http://localhost/api/category/1/2022-01-01").content
     after_resp = json.loads(r)
-    print(f"Category balance after spending: ${after_resp[0]['balance']}")
-    print(f"Difference: ${round(before_resp[0]['balance']-after_resp[0]['balance'],2)}")
+    #print(f"Category balance after spending: ${after_resp[0]['balance']}")
+    #print(f"Difference: ${round(before_resp[0]['balance']-after_resp[0]['balance'],2)}")
 
 
 if __name__ == "__main__":

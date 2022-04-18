@@ -6,6 +6,7 @@ import ArrowRightCircleOutlineIcon from 'mdi-react/ArrowRightCircleOutlineIcon';
 import TabPlusIcon from 'mdi-react/TabPlusIcon'
 
 import categoryRequests from '../requests/category';
+import accountRequests from '../requests/account';
 
 import '../style/Budget.css'
 import { BudgetInfo } from './BudgetInfo';
@@ -16,16 +17,36 @@ export function Budget({ smallScreen }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [newCategoryGroups, setNewCategoryGroups] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [toBeAssignedAmount, setToBeAssignedAmount] = useState(0);
+
 
   useEffect(() => {
     fetchCategoryGroups()
+    fetchToBeAssigned()
   }, [])
+  useEffect(() => { fetchToBeAssigned() }, [currentDate])
 
+
+  const fetchToBeAssigned = () => {
+    async function _fetchToBeAssigned() {
+      const accounts = await instance.get(`${accountRequests.fetchAllAccounts}`)
+      const amountInBudget = accounts.data.reduce((prevValue, currValue) => (
+        prevValue + currValue.cleared_balance + currValue.uncleared_balance
+      ), 0)
+      const categories = await instance.get(`${categoryRequests.fetchAllCategories}/${currentDate.toISOString().slice(0, 10)}`)
+      const amountAssigned = categories.data.reduce((prevValue, currValue) => (
+        prevValue + currValue.balance
+      ), 0)
+
+      setToBeAssignedAmount(amountInBudget - amountAssigned)
+    }
+    _fetchToBeAssigned()
+  }
 
   const fetchCategoryGroups = () => {
     async function _fetchCategoryGroups() {
-      const resp = await instance.get(`${categoryRequests.fetchAllCategoryGroups}`)
-      setCategoryGroups(resp.data)
+      const categoryGroups = await instance.get(`${categoryRequests.fetchAllCategoryGroups}`)
+      setCategoryGroups(categoryGroups.data)
     }
     _fetchCategoryGroups()
   }
@@ -82,13 +103,16 @@ export function Budget({ smallScreen }) {
     <div className="budgetWorkspace">
       <div className="budgetContent">
         <div className="budgetHeader">
-          <div className="newCategoryGroup" onClick={createNewCategoryGroup}>
+          <div onClick={createNewCategoryGroup}>
             <TabPlusIcon size={16} />&nbsp;Category Group
           </div>
-          <div className={"monthSelector"}>
+          <div className="monthSelector">
             < ArrowLeftCircleOutlineIcon onClick={prevMonth} className="arrowDiv" />
             <div className="currentMonth"> {getMonthString()} </div>
             < ArrowRightCircleOutlineIcon onClick={nextMonth} className="arrowDiv" />
+          </div>
+          <div className={`ToBeAssignedDiv ${toBeAssignedAmount < 0 ? 'negativeToBeAssigned' : ''} ${toBeAssignedAmount === 0 ? 'neutralToBeAssigned' : ''} ${toBeAssignedAmount > 0 ? 'positiveToBeAssigned' : ''}`}>
+            {toBeAssignedAmount}
           </div>
         </div>
         <table className="budgetColumnTitles">

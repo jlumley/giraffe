@@ -33,7 +33,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     const [transactionPayeeId, setTransactionPayeeId] = useState(transaction.payee_id);
     const [transactionMemo, setTransactionMemo] = useState(transaction.memo);
     const [transactionAmount, setTransactionAmount] = useState(transaction.amount);
-    const [transactionCategories, setTransactionCategories] = useState([]);
+    const [transactionCategories, setTransactionCategories] = useState(transaction.categories.map(obj => ({ ...obj, uuid: uuidv4() })));
     const updateTransactionButton = useRef(null);
     const deleteTransactionButton = useRef(null);
 
@@ -256,7 +256,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
         setTransactionPayee(payeeFromPayeeId())
     }, [transactionAccountId, accounts])
     useEffect(() => {
-        setTransactionCategories(transaction.categories)
+        setTransactionCategories(transaction.categories.map(obj => ({ ...obj, uuid: uuidv4() })))
     }, [transaction, categories])
     useEffect(() => {
         if (selected) {
@@ -308,7 +308,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
                 return (<table key={_category.uuid} className="transactionCategoryRow">
                     <tbody><tr>
                         <td className="deleteTransactionCategory"><CloseCircleOutlineIcon size={15} onClick={() => { removeCategory(index) }} /></td>
-                        <td className="transactionCategoryName"><Autosuggest startingValue={{ value: _category.id, label: categories[_category.id] }} options={categoryOptions} updateMethod={(newValue) => { updateTransactionCategoryNames(index, newValue.value) }} /> </td>
+                        <td className="transactionCategoryName"><Autosuggest startingValue={{ value: _category.category_id, label: categories[_category.category_id] }} options={categoryOptions()} updateMethod={(newValue) => { updateTransactionCategoryNames(index, newValue.value) }} /> </td>
                         <td className="transactionCategoryAmount"><MoneyInput startingValue={_category.amount / 100} updateMethod={(e) => { updateTransactionAmounts(index, e) }} updateOnChange={true} /></td>
                     </tr></tbody>
                 </table>
