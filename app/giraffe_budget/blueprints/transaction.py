@@ -105,7 +105,7 @@ def update_transaction(transaction_id):
     try:
         update_data = data | {
             "transaction_id": transaction_id,
-            "date": time_utils.datestr_to_sqlite_date(data.get("date"))
+            "date": time_utils.datestr_to_sqlite_date(data.get("date")),
         }
         transaction = update_transaction(**update_data)
     except (RuntimeError, TypeError, sqlite3.IntegrityError) as e:
@@ -164,10 +164,9 @@ def update_transaction(**kwargs):
         old_transaction = old_transaction[0]
     is_valid_payee_id(kwargs.get("payee_id"))
     is_valid_account_id(kwargs.get("account_id"))
-    
+
     if old_transaction.get("transfer_id"):
         raise RuntimeError("Unable to update transfer transaction")
-
 
     update_statement = "UPDATE transactions SET id = :transaction_id"
 
@@ -188,7 +187,7 @@ def update_transaction(**kwargs):
                 kwargs["categories"],
                 date,
             )
-    
+
     if "payee_id" in kwargs:
         update_statement += ", payee_id = :payee_id"
 
@@ -197,7 +196,7 @@ def update_transaction(**kwargs):
 
     if "date" in kwargs:
         update_statement += ", date = :date"
-    
+
     if "amount" in kwargs:
         update_statement += ", amount = :amount"
 
@@ -207,7 +206,7 @@ def update_transaction(**kwargs):
     if "cleared" in kwargs:
         update_statement += ", cleared = :cleared"
 
-    update_statement += " WHERE id = :transaction_id RETURNING id;" 
+    update_statement += " WHERE id = :transaction_id RETURNING id;"
     transaction_id = db_utils.execute(update_statement, kwargs, commit=True)
 
     return transaction_id[0]
@@ -236,7 +235,6 @@ def create_transaction(
     if categories and sum([c["amount"] for c in categories]) != amount:
         raise RuntimeError("Category amounts do not match transaction amount")
 
- 
     is_valid_payee_id(payee_id)
     is_valid_account_id(account_id)
 
@@ -272,6 +270,7 @@ def create_transaction(
     )
 
     return transaction[0]["id"]
+
 
 def get_transactions(
     accounts, categories, payees, before, after, cleared, reconciled, limit
@@ -399,6 +398,7 @@ def move_funds_to_credit_card_category(account_id, transaction_id, categories, d
         category_id, amount * -1, date, transaction_id=transaction_id
     )
 
+
 def unassign_credit_card_category(transaction_id):
     """Remove assignments to credit card for the given transaction
 
@@ -406,6 +406,7 @@ def unassign_credit_card_category(transaction_id):
         transaction_id (int): transaction id
     """
     db_utils.execute(DELETE_TRANSACTION_ASSIGNMENTS, {"transaction_id": transaction_id})
+
 
 def create_transaction_categories(transaction_id, categories):
     """Create transaction categories
@@ -415,9 +416,7 @@ def create_transaction_categories(transaction_id, categories):
         categories (list): list of categories and amounts
     """
     # remove old transaction categories
-    db_utils.execute(
-        DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}
-    )
+    db_utils.execute(DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id})
     # create new tranasaction categories
     for c in categories:
         db_utils.execute(
@@ -429,6 +428,7 @@ def create_transaction_categories(transaction_id, categories):
             },
         )
 
+
 def is_valid_account_id(account_id):
     """returns true if account id exists
 
@@ -437,9 +437,11 @@ def is_valid_account_id(account_id):
     """
     if not account_id:
         return None
-    if db_utils.execute("SELECT id FROM accounts WHERE id = :account_id;", dict(account_id=account_id)):
+    if db_utils.execute(
+        "SELECT id FROM accounts WHERE id = :account_id;", dict(account_id=account_id)
+    ):
         return True
-    raise RuntimeError(f"Account id: {account_id} Not Found") 
+    raise RuntimeError(f"Account id: {account_id} Not Found")
 
 
 def is_valid_payee_id(payee_id):
@@ -450,7 +452,9 @@ def is_valid_payee_id(payee_id):
     """
     if not payee_id:
         return None
-    if db_utils.execute("SELECT id FROM payees WHERE id = :payee_id;", dict(payee_id=payee_id)):
+    if db_utils.execute(
+        "SELECT id FROM payees WHERE id = :payee_id;", dict(payee_id=payee_id)
+    ):
         return True
-    
-    raise  RuntimeError(f"Payee id: {payee_id} Not Found")
+
+    raise RuntimeError(f"Payee id: {payee_id} Not Found")

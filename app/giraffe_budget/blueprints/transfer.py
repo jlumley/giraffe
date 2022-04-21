@@ -15,6 +15,7 @@ from ..sql.transfer_statements import *
 
 transfer = Blueprint("transfer", __name__, url_prefix="/transfer")
 
+
 @transfer.route("/<string:transfer_id>", methods=("GET",))
 def _get_transfer(transfer_id):
     """Get a transfer"""
@@ -22,8 +23,11 @@ def _get_transfer(transfer_id):
         transfer = get_transfer(transfer_id)
         if not transfer:
             return make_response(jsonify(f"Transfer id: {transfer_id} Not Found"), 404)
-    
-    except (RuntimeError, TypeError, ) as e:
+
+    except (
+        RuntimeError,
+        TypeError,
+    ) as e:
         return make_response(jsonify(str(e)), 400)
 
     return make_response(jsonify(transfer), 200)
@@ -60,7 +64,10 @@ def _update_transfer(transfer_id):
             time_utils.datestr_to_sqlite_date(data.get("date")),
             memo=data.get("memo"),
         )
-    except (RuntimeError, TypeError, ) as e:
+    except (
+        RuntimeError,
+        TypeError,
+    ) as e:
         return make_response(jsonify(str(e)), 400)
 
     return make_response(jsonify(transfer_id), 200)
@@ -180,7 +187,7 @@ def create_transfer(**kwargs):
 
     db_utils.execute(
         CREATE_TRANSFER,
-        {   
+        {
             **kwargs,
             "account_id": kwargs["to_account_id"],
             "payee_id": kwargs["from_account_id"],
@@ -204,4 +211,3 @@ def get_transfer(transfer_id):
         t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
 
     return transactions
-    

@@ -1,4 +1,3 @@
-
 GET_TRANSFER = """SELECT *
 FROM transactions
 WHERE transfer_id = :transfer_id

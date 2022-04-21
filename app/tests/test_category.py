@@ -7,12 +7,7 @@ from . import test_client
 
 def test_create_category(test_client):
     """Test create new category"""
-    categories = [
-        dict(
-            name="new category 1",
-            group="group1"
-        )
-    ]
+    categories = [dict(name="new category 1", group="group1")]
 
     for category in categories:
         create_response = test_client.post("/category/create", json=category)
@@ -22,15 +17,7 @@ def test_create_category(test_client):
 
 def test_create_category_invalid_data(test_client):
     """Test create new category fail cases"""
-    categories = [
-        dict(
-            name="test category"
-        ),
-        dict(
-            group="test group"
-        ),
-        dict()
-    ]
+    categories = [dict(name="test category"), dict(group="test group"), dict()]
     for category in categories:
         create_response = test_client.post("/category/create", json=category)
         assert create_response.status_code == 400
@@ -38,20 +25,16 @@ def test_create_category_invalid_data(test_client):
 
 def test_update_category(test_client):
     """Test update category"""
-    category_data = dict(
-        name="category foo",
-        group="group foo"
-    )
+    category_data = dict(name="category foo", group="group foo")
     new_name = "new category name"
     new_group = "new group name"
-    updates = [
-        dict(name=new_name),
-        dict(group=new_group)
-    ]
+    updates = [dict(name=new_name), dict(group=new_group)]
     create_response = test_client.post("/category/create", json=category_data)
     category_id = create_response.json.get("id")
     for update in updates:
-        update_response = test_client.put(f"/category/update/{category_id}", json=update)
+        update_response = test_client.put(
+            f"/category/update/{category_id}", json=update
+        )
         assert update_response.status_code == 200
 
     category_response = test_client.get(f"/category/{category_id}/2022-04-05")
@@ -68,10 +51,7 @@ def test_get_categories(test_client):
 
 def test_get_category(test_client):
     """Test single category by id"""
-    category_data = dict(
-        name="category foo2",
-        group="group foo2"
-    )
+    category_data = dict(name="category foo2", group="group foo2")
 
     create_response = test_client.post("/category/create", json=category_data)
     category_id = create_response.json.get("id")

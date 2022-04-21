@@ -2,12 +2,19 @@ import pytest
 
 from . import test_client
 
+
 def test_create_transaction_success(test_client):
     """Test successfully creating transaction"""
-    payee_id = test_client.post("/payee/create",json=dict(name="amazontest")).json.get("id")
-    account_id = test_client.post("/account/create", json=dict(name="new_account1")).json.get("id")
-    category_id = test_client.post("/category/create", json=dict(group="new_group1",name="new_account1")).json.get("id")
-    
+    payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
+        "id"
+    )
+    account_id = test_client.post(
+        "/account/create", json=dict(name="new_account1")
+    ).json.get("id")
+    category_id = test_client.post(
+        "/category/create", json=dict(group="new_group1", name="new_account1")
+    ).json.get("id")
+
     transactions = [
         dict(
             payee_id=payee_id,
@@ -16,20 +23,20 @@ def test_create_transaction_success(test_client):
             date="2022-04-22",
             cleared=True,
             memo="testing new transaction",
-            amount=-5000
+            amount=-5000,
         ),
         dict(
             payee_id=payee_id,
             account_id=account_id,
             date="2022-04-22",
             cleared=True,
-            amount=500
-        )
+            amount=500,
+        ),
     ]
     for transaction in transactions:
         create_response = test_client.post("/transaction/create", json=transaction)
         transaction_id = create_response.json.get("id")
-        transaction_response  = test_client.get(f"/transaction/{transaction_id}")
+        transaction_response = test_client.get(f"/transaction/{transaction_id}")
         assert create_response.status_code == 201
         assert transaction_response.json.get("amount") == transaction.get("amount")
         assert transaction_response.json.get("date") == transaction.get("date")
@@ -38,10 +45,16 @@ def test_create_transaction_success(test_client):
 
 def test_create_transaction_fail(test_client):
     """Test successfully creating transaction"""
-    payee_id = test_client.post("/payee/create",json=dict(name="amazontest")).json.get("id")
-    account_id = test_client.post("/account/create", json=dict(name="new_account1")).json.get("id")
-    category_id = test_client.post("/category/create", json=dict(group="new_group1",name="new_account1")).json.get("id")
-    
+    payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
+        "id"
+    )
+    account_id = test_client.post(
+        "/account/create", json=dict(name="new_account1")
+    ).json.get("id")
+    category_id = test_client.post(
+        "/category/create", json=dict(group="new_group1", name="new_account1")
+    ).json.get("id")
+
     transactions = [
         dict(
             payee_id=payee_id,
@@ -50,48 +63,56 @@ def test_create_transaction_fail(test_client):
             date="2022-04-22",
             cleared=True,
             memo="testing new transaction",
-            amount=899
+            amount=899,
         ),
         dict(
             payee_id=payee_id,
             account_id=99999,
             date="2022-04-22",
             cleared=True,
-            amount=500
+            amount=500,
         ),
         dict(
             payee_id=99999,
             account_id=account_id,
             date="2022-04-22",
             cleared=True,
-            amount=500
+            amount=500,
         ),
-        dict(
-            payee_id=99999,
-            account_id=account_id,
-            date="2022-04-22",
-            cleared=True
-        )
+        dict(payee_id=99999, account_id=account_id, date="2022-04-22", cleared=True),
     ]
     for transaction in transactions:
         create_response = test_client.post("/transaction/create", json=transaction)
         assert create_response.status_code == 400
 
+
 def test_update_transaction(test_client):
     """Test successfully updating transaction"""
-    payee_id = test_client.post("/payee/create",json=dict(name="amazontest")).json.get("id")
-    account_id = test_client.post("/account/create", json=dict(name="new_account1")).json.get("id")
-    category_id = test_client.post("/category/create", json=dict(group="new_group1",name="new_account1")).json.get("id")
-    
-    new_payee_id = test_client.post("/payee/create",json=dict(name="amazontest2")).json.get("id")
-    new_account_id = test_client.post("/account/create", json=dict(name="new_account12")).json.get("id")
-    new_category_id = test_client.post("/category/create", json=dict(group="new_group12",name="new_account1")).json.get("id")
+    payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
+        "id"
+    )
+    account_id = test_client.post(
+        "/account/create", json=dict(name="new_account1")
+    ).json.get("id")
+    category_id = test_client.post(
+        "/category/create", json=dict(group="new_group1", name="new_account1")
+    ).json.get("id")
+
+    new_payee_id = test_client.post(
+        "/payee/create", json=dict(name="amazontest2")
+    ).json.get("id")
+    new_account_id = test_client.post(
+        "/account/create", json=dict(name="new_account12")
+    ).json.get("id")
+    new_category_id = test_client.post(
+        "/category/create", json=dict(group="new_group12", name="new_account1")
+    ).json.get("id")
     new_memo = "some new memo"
     new_date = "2022-05-22"
     new_categories = [dict(category_id=new_category_id, amount=50)]
     new_amount = 50
     new_cleared = False
-    
+
     transaction = dict(
         payee_id=payee_id,
         account_id=account_id,
@@ -99,7 +120,7 @@ def test_update_transaction(test_client):
         date="2022-04-22",
         cleared=True,
         memo="testing new transaction",
-        amount=-5000
+        amount=-5000,
     )
     create_response = test_client.post("/transaction/create", json=transaction)
     transaction_id = create_response.json.get("id")
@@ -110,14 +131,16 @@ def test_update_transaction(test_client):
         dict(categories=new_categories, amount=new_amount),
         dict(memo=new_memo),
         dict(cleared=new_cleared),
-        dict(date=new_date)
+        dict(date=new_date),
     ]
 
     for update in updates:
-        update_response = test_client.put(f"/transaction/update/{transaction_id}", json=update)
+        update_response = test_client.put(
+            f"/transaction/update/{transaction_id}", json=update
+        )
         assert update_response.status_code == 200
         assert update_response.json.get("id") == transaction_id
-    
+
     transaction_response = test_client.get(f"/transaction/{transaction_id}")
     assert transaction_response.status_code == 200
     assert transaction_response.json.get("payee_id") == new_payee_id
@@ -130,9 +153,15 @@ def test_update_transaction(test_client):
 
 def test_delete_transaction(test_client):
     """Test deleting transaction"""
-    payee_id = test_client.post("/payee/create",json=dict(name="amazontest")).json.get("id")
-    account_id = test_client.post("/account/create", json=dict(name="new_account1")).json.get("id")
-    category_id = test_client.post("/category/create", json=dict(group="new_group1",name="new_account1")).json.get("id")
+    payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
+        "id"
+    )
+    account_id = test_client.post(
+        "/account/create", json=dict(name="new_account1")
+    ).json.get("id")
+    category_id = test_client.post(
+        "/category/create", json=dict(group="new_group1", name="new_account1")
+    ).json.get("id")
 
     transaction = dict(
         payee_id=payee_id,
@@ -141,7 +170,7 @@ def test_delete_transaction(test_client):
         date="2022-04-26",
         cleared=True,
         memo="testing deleting transaction",
-        amount=99
+        amount=99,
     )
     create_response = test_client.post("/transaction/create", json=transaction)
     transaction_id = create_response.json.get("id")
@@ -156,7 +185,7 @@ def test_delete_transaction(test_client):
 
 def test_delete_transaction_invalid_id(test_client):
     """Test deleting transactions with invalid ids"""
-    transaction_ids = [None, 'foo123']
+    transaction_ids = [None, "foo123"]
     for transaction_id in transaction_ids:
         delete_response = test_client.delete(f"/transaction/delete/{transaction_id}")
         assert delete_response.status_code == 404
@@ -164,9 +193,15 @@ def test_delete_transaction_invalid_id(test_client):
 
 def test_get_transaction(test_client):
     """Test get single transaction by id"""
-    payee_id = test_client.post("/payee/create",json=dict(name="amazontest")).json.get("id")
-    account_id = test_client.post("/account/create", json=dict(name="new_account1")).json.get("id")
-    category_id = test_client.post("/category/create", json=dict(group="new_group1",name="new_account1")).json.get("id")
+    payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
+        "id"
+    )
+    account_id = test_client.post(
+        "/account/create", json=dict(name="new_account1")
+    ).json.get("id")
+    category_id = test_client.post(
+        "/category/create", json=dict(group="new_group1", name="new_account1")
+    ).json.get("id")
 
     transaction = dict(
         payee_id=payee_id,
@@ -175,7 +210,7 @@ def test_get_transaction(test_client):
         date="2022-04-26",
         cleared=True,
         memo="testing deleting transaction",
-        amount=99
+        amount=99,
     )
     create_response = test_client.post("/transaction/create", json=transaction)
     transaction_id = create_response.json.get("id")
@@ -190,4 +225,3 @@ def test_get_transactions(test_client):
 
     transaction_response = test_client.get(f"/transaction")
     assert transaction_response.status_code == 200
-
