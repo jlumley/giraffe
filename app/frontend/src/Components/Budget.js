@@ -10,6 +10,7 @@ import accountRequests from '../requests/account';
 
 import '../style/Budget.css'
 import { BudgetInfo } from './BudgetInfo';
+import { centsToMoney } from '../utils/money_utils'
 
 export function Budget({ smallScreen }) {
 
@@ -17,30 +18,23 @@ export function Budget({ smallScreen }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [newCategoryGroups, setNewCategoryGroups] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [toBeAssignedAmount, setToBeAssignedAmount] = useState(0);
+  const [readyToAssign, setReadyToAssign] = useState(0);
 
 
   useEffect(() => {
     fetchCategoryGroups()
-    fetchToBeAssigned()
+    fetchReadyToAssign()
   }, [])
-  useEffect(() => { fetchToBeAssigned() }, [currentDate])
+  useEffect(() => { fetchReadyToAssign() }, [currentDate])
 
 
-  const fetchToBeAssigned = () => {
-    async function _fetchToBeAssigned() {
-      const accounts = await instance.get(`${accountRequests.fetchAllAccounts}`)
-      const amountInBudget = accounts.data.reduce((prevValue, currValue) => (
-        prevValue + currValue.cleared_balance + currValue.uncleared_balance
-      ), 0)
-      const categories = await instance.get(`${categoryRequests.fetchAllCategories}/${currentDate.toISOString().slice(0, 10)}`)
-      const amountAssigned = categories.data.reduce((prevValue, currValue) => (
-        prevValue + currValue.balance
-      ), 0)
-
-      setToBeAssignedAmount(amountInBudget - amountAssigned)
+  const fetchReadyToAssign = () => {
+    async function _fetchReadyToAssign() {
+      const category = await instance.get(`${categoryRequests.fetchCategory}/1/${currentDate.toISOString().slice(0, 10)}`)
+      console.log(category.data.balance)
+      setReadyToAssign(category.data.balance)
     }
-    _fetchToBeAssigned()
+    _fetchReadyToAssign()
   }
 
   const fetchCategoryGroups = () => {
@@ -52,7 +46,7 @@ export function Budget({ smallScreen }) {
   }
 
   const categoryGroup = (name) => {
-    return <CategoryGroup name={name} currentDate={currentDate} smallScreen={smallScreen} />
+    return <CategoryGroup name={name} currentDate={currentDate} smallScreen={smallScreen} updateAssignedTotalAssigned={fetchReadyToAssign} />
   }
   const createNewCategoryGroup = () => {
     const newCategoryGroupName = `New Category Group ${newCategoryGroups.length}`
@@ -103,7 +97,7 @@ export function Budget({ smallScreen }) {
     <div className="budgetWorkspace">
       <div className="budgetContent">
         <div className="budgetHeader">
-          <div onClick={createNewCategoryGroup}>
+          <div className="newCategoryGroup" onClick={createNewCategoryGroup}>
             <TabPlusIcon size={16} />&nbsp;Category Group
           </div>
           <div className="monthSelector">
@@ -111,8 +105,8 @@ export function Budget({ smallScreen }) {
             <div className="currentMonth"> {getMonthString()} </div>
             < ArrowRightCircleOutlineIcon onClick={nextMonth} className="arrowDiv" />
           </div>
-          <div className={`ToBeAssignedDiv ${toBeAssignedAmount < 0 ? 'negativeToBeAssigned' : ''} ${toBeAssignedAmount === 0 ? 'neutralToBeAssigned' : ''} ${toBeAssignedAmount > 0 ? 'positiveToBeAssigned' : ''}`}>
-            {toBeAssignedAmount}
+          <div className={`toBeAssignedDiv ${readyToAssign < 0 ? 'negativeToBeAssigned' : ''} ${readyToAssign === 0 ? 'neutralToBeAssigned' : ''} ${readyToAssign > 0 ? 'positiveToBeAssigned' : ''}`}>
+            Ready To Assign: {centsToMoney(readyToAssign)}
           </div>
         </div>
         <table className="budgetColumnTitles">

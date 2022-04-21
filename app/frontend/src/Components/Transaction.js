@@ -288,8 +288,8 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     }
     const payeeInputField = () => {
         if (!selected) return <div>{transactionPayee}</div>
-        if (transaction.new_transaction) return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayee }} options={transferOptions().concat(payeeOptions())} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value); setTransfer(newValue.transfer) }} />
-        if (transfer) return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayee }} options={transferOptions()} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value) }} />
+        if (transaction.new_transaction) return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayee }} options={transferOptions().concat(payeeOptions())} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value); setTransfer(newValue.transfer) }} allowNewValues={true} />
+        if (transfer) return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayee }} options={transferOptions()} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value) }} allowNewValues={true} />
         return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayee }} options={payeeOptions()} createOptionUrl={payeeRequests.createPayee} allowNewValues={true} allowEmpty={true} updateMethod={(payee_id) => { setTransactionPayeeId(payee_id) }} />
     }
     const accountInputField = () => {

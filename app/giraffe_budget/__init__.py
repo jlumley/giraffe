@@ -40,6 +40,8 @@ def load_config(app):
 
     if os.environ["APP_MODE"] == "DEV":
         app.config.from_object(DevelopmentConfig)
+    if os.environ["APP_MODE"] == "TEST":
+        app.config.from_object(DevelopmentConfig)
     else:
         app.config.from_object(ProductionConfig)
 

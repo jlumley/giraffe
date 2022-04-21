@@ -308,6 +308,17 @@ def assign_money_to_category(category_id, amount, date, transaction_id=None):
     Returns:
         int : category balance after money is assigned
     """
+    # remove money from ready to assign
+    db_utils.execute(
+        ASSIGN_CATEGORY,
+        {
+            "category_id": 1,
+            "amount": amount*-1,
+            "date": date,
+            "transaction_id": transaction_id,
+        },
+        commit=True,
+    )
     db_utils.execute(
         ASSIGN_CATEGORY,
         {
