@@ -74,12 +74,6 @@ def main():
                 ),
             )
 
-        #  print(r.content)
-        r = requests.put(
-            f"http://localhost/api/category/assign/{i+1}",
-            json=dict(amount=1000000, date="2022-01-02"),
-        )
-
     #   print(r.content)
     r = requests.get("http://localhost/api/category/1/2022-01-01").content
     before_resp = json.loads(r)

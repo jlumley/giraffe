@@ -11,7 +11,7 @@ import '../style/Category.css'
 import { MoneyInput } from './Inputs/MoneyInput';
 
 
-export function Category({ category, currentDate, smallScreen }) {
+export function Category({ category, currentDate, smallScreen, updateAssignedTotalAssigned }) {
     const [categoryName, setCategoryName] = useState(category.name);
     const [categoryAssigned, setCategoryAssigned] = useState(category.assigned_this_month / 100);
     const [categorySpent, setCategorySpent] = useState(0);
@@ -65,6 +65,7 @@ export function Category({ category, currentDate, smallScreen }) {
     useEffect(() => {
         fetchTransactions()
         fetchCategory()
+        updateAssignedTotalAssigned()
     }, [categoryAssigned, currentDate])
 
 

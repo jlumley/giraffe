@@ -143,9 +143,11 @@ def create_account(name, date, notes=None, starting_balance=0, credit_card=False
             name=name, group="Credit Cards", category_type="credit_card"
         )
 
-    # Creating starting balance transaction
+    # if it is not a credit card add balance to "ready to assign"
+    categories = [] if credit_card else [dict(category_id=1, amount=starting_balance)]
+    # Creating starting balance transaction 
     transaction.create_transaction(
-        account[0]["id"], starting_balance, date, True, memo="Starting Balance"
+        account[0]["id"], starting_balance, date, True, memo="Starting Balance", categories=categories
     )
 
     return get_account(account[0]["id"])
