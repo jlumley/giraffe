@@ -19,7 +19,7 @@ def test_create_account_success(test_client):
     for account in accounts:
         create_response = test_client.post("/account/create", json=account)
         assert create_response.status_code == 201
-        assert 'id' in create_response.json.keys()
+        assert "id" in create_response.json.keys()
         if account.get("starting_balance"):
             assert create_response.json.get("cleared_balance") == account.get(
                 "starting_balance"
@@ -88,8 +88,7 @@ def test_get_accounts(test_client):
 
 
 def test_reconcile_account(test_client):
-    """Testing account reconciliation
-    """
+    """Testing account reconciliation"""
     create_response = test_client.post(
         "/account/create", json=dict(name=uuid.uuid4().hex)
     )
@@ -97,7 +96,10 @@ def test_reconcile_account(test_client):
     reconcile_amount = random.randint(100, 10000)
     reconcile_date = datetime.now().strftime("%Y-%m-%d")
 
-    reconcile_response = test_client.put(f"/account/reconcile/{account_id}", json=dict(balance=reconcile_amount, date=reconcile_date))
+    reconcile_response = test_client.put(
+        f"/account/reconcile/{account_id}",
+        json=dict(balance=reconcile_amount, date=reconcile_date),
+    )
     assert reconcile_response.status_code == 200
     assert reconcile_response.json.get("reconciled_date") == reconcile_date
     assert reconcile_response.json.get("cleared_balance") == reconcile_amount

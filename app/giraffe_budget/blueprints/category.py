@@ -43,7 +43,6 @@ def _get_category(category_id, date):
     category = get_category(category_id, date)
     if not category:
         return make_response(jsonify("Category Not Found"), 404)
-        
 
     return make_response(jsonify(category[0]), 200)
 
@@ -313,7 +312,7 @@ def assign_money_to_category(category_id, amount, date, transaction_id=None):
         ASSIGN_CATEGORY,
         {
             "category_id": 1,
-            "amount": amount*-1,
+            "amount": amount * -1,
             "date": date,
             "transaction_id": transaction_id,
         },
@@ -415,7 +414,7 @@ def get_category(category_id, sql_date):
     target_data = get_category_target_data(category_id, sql_date)
 
     for c in categories:
-        c["credit_card"] = True if c["category_type"] == "credit_card" else False    
+        c["credit_card"] = True if c["category_type"] == "credit_card" else False
         c["balance"] = get_category_balance(category_id, sql_date)
         c["target_date"] = time_utils.sqlite_date_to_datestr(c["target_date"])
         c["monthly_target"] = target_data["monthly_target"]
