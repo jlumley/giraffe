@@ -283,15 +283,14 @@ def get_category_balance(category_id, sql_date):
     Returns:
         int: category balance at given date
     """
-    allowHiddenAssignments = category_id in [
+    is_credit_card_category = category_id in [
         c["id"] for c in get_credit_card_category_names()
     ]
 
     total_assigned = get_category_assignments_sum(
-        category_id, before=sql_date, allowHiddenAssignments=allowHiddenAssignments
+        category_id, before=sql_date, transaction_assignments=is_credit_card_category
     )
     total_transacted = get_category_transactions_sum(category_id, before=sql_date)
-
     return total_assigned + total_transacted
 
 
@@ -333,7 +332,7 @@ def assign_money_to_category(category_id, amount, date, transaction_id=None):
 
 
 def get_category_assignments_sum(
-    category_id, before=MAX_INT, after=0, allowHiddenAssignments=False
+    category_id, before=MAX_INT, after=0, transaction_assignments=False
 ):
     """Get the sum of all category assignmtnts between two dates
 
@@ -341,22 +340,19 @@ def get_category_assignments_sum(
         category_id (int): category id
         before (int, optional): fetch assignments before date. Defaults to MAX_INT.
         after (int, optional): fetch assignments before date. Defaults to 0.
-        allowhiddenAssignments (bool, optional): used to get true credit card balance. Defaults to False.
+        transaction_assignments: (bool, optional): used to get true credit card balance. Defaults to False.
 
     Returns:
         int: sum of assignments
     """
     statement = GET_CATEGORY_ASSIGNMENTS
-    if not allowHiddenAssignments:
+    if not transaction_assignments:
         statement += "AND transaction_id IS NULL;"
     assigned_cents = db_utils.execute(
         statement, {"category_id": category_id, "before": before, "after": after}
     )
-    assigned = 0
-    if assigned_cents[0]["amount"]:
-        assigned = assigned_cents[0]["amount"]
-
-    return assigned
+    amount = assigned_cents[0]["amount"]
+    return amount if amount else 0 
 
 
 def get_category_transactions_sum(category_id, before=MAX_INT, after=0):
@@ -375,11 +371,8 @@ def get_category_transactions_sum(category_id, before=MAX_INT, after=0):
         GET_CATEGORY_TRANSACTIONS,
         {"category_id": category_id, "before": before, "after": after},
     )
-    transacted = 0
-    if transacted_cents[0]["amount"]:
-        transacted = transacted_cents[0]["amount"]
-
-    return transacted
+    amount = transacted_cents[0]["amount"]
+    return amount if amount else 0 
 
 
 def get_categories(sql_date):

@@ -2,7 +2,7 @@ import pytest
 import random
 import uuid
 
-from . import test_client
+from .. import test_client
 
 
 def test_create_category(test_client):
