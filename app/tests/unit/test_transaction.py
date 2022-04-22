@@ -1,6 +1,6 @@
 import pytest
 
-from . import test_client
+from .. import test_client
 
 
 def test_create_transaction_success(test_client):

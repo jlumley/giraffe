@@ -4,7 +4,7 @@ import uuid
 
 from datetime import datetime
 
-from . import test_client
+from .. import test_client
 
 
 def test_create_account_success(test_client):

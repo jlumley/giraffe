@@ -117,8 +117,8 @@ def update_transaction(transaction_id):
 @transaction.route("/delete/<int:transaction_id>", methods=("DELETE",))
 def _delete_transaction(transaction_id):
     """Delete transaction"""
-    deleted_id = delete_transaction(transaction_id)
-    return make_response(jsonify(deleted_id), 200)
+    id = delete_transaction(transaction_id)
+    return make_response(jsonify({"id": id}), 200)
 
 
 def delete_transaction(transaction_id):
@@ -130,12 +130,11 @@ def delete_transaction(transaction_id):
     Returns:
         int: id of deleted transaction
     """
-    db_utils.execute(DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id})
-    db_utils.execute(
-        DELETE_TRANSACTION, {"transaction_id": transaction_id}, commit=True
-    )
+    db_utils.execute(DELETE_TRANSACTION_ASSIGNMENTS, {"transaction_id": transaction_id}, commit=True)
+    db_utils.execute(DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}, commit=True)
+    db_utils.execute(DELETE_TRANSACTION, {"transaction_id": transaction_id}, commit=True)
 
-    return [transaction_id]
+    return transaction_id
 
 
 def update_transaction(**kwargs):
@@ -179,7 +178,8 @@ def update_transaction(**kwargs):
         # fund credit cards (if neccessary)
         payee_id = kwargs.get("payee_id", old_transaction.get("payee_id"))
         account_id = kwargs.get("account_id", old_transaction.get("account_id"))
-        date = kwargs.get("account_id", old_transaction.get("account_id"))
+        date = kwargs.get("date") if kwargs.get("date") else old_transaction.get("date")
+
         if is_credit_card_transaction(account_id) and payee_id:
             move_funds_to_credit_card_category(
                 account_id,
@@ -194,7 +194,7 @@ def update_transaction(**kwargs):
     if "account_id" in kwargs:
         update_statement += ", account_id = :account_id"
 
-    if "date" in kwargs:
+    if "date" in kwargs and kwargs.get("date"):
         update_statement += ", date = :date"
 
     if "amount" in kwargs:
@@ -416,7 +416,7 @@ def create_transaction_categories(transaction_id, categories):
         categories (list): list of categories and amounts
     """
     # remove old transaction categories
-    db_utils.execute(DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id})
+    db_utils.execute(DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}, commit=True)
     # create new tranasaction categories
     for c in categories:
         db_utils.execute(
@@ -426,6 +426,7 @@ def create_transaction_categories(transaction_id, categories):
                 "category_id": c["category_id"],
                 "amount": c["amount"],
             },
+            commit=True
         )
 
 
