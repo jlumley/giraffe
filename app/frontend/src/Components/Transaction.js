@@ -145,111 +145,100 @@ export const Transaction = ({
         setTransactionCategories(tempArray);
     }
 
-    function createTransaction() {
-        async function _createTransaction() {
-            var _categories = consolidateCategories()
-            var transactionData = {
-                date: transactionDate.toISOString().slice(0, 10),
-                cleared: cleared,
-                memo: transactionMemo ? transactionMemo : '',
-                account_id: parseInt(transactionAccountId),
-                categories: _categories,
-                amount: transactionAmount ? transactionAmount : _categories.reduce((prev, curr) => prev + curr.amount, 0)
-            }
-            if (transactionPayeeId) transactionData.payee_id = parseInt(transactionPayeeId)
-            const resp = await instance.post(
-                `${transactionRequests.createNewTransaction}`,
-                transactionData
-            )
-            setTransactionId(resp.data.id)
+
+    async function _createTransaction() {
+        var _categories = consolidateCategories()
+        var transactionData = {
+            date: transactionDate.toISOString().slice(0, 10),
+            cleared: cleared,
+            memo: transactionMemo ? transactionMemo : '',
+            account_id: parseInt(transactionAccountId),
+            categories: _categories,
+            amount: transactionAmount ? transactionAmount : _categories.reduce((prev, curr) => prev + curr.amount, 0)
         }
-        _createTransaction()
+        if (transactionPayeeId) transactionData.payee_id = parseInt(transactionPayeeId)
+        const resp = await instance.post(
+            `${transactionRequests.createNewTransaction}`,
+            transactionData
+        )
+        setTransactionId(resp.data.id)
+    }
+    async function _createTransfer() {
+        var transferData = {
+            date: transactionDate.toISOString().slice(0, 10),
+            cleared: cleared,
+            memo: transactionMemo ? transactionMemo : '',
+            amount: transactionAmount,
+        }
+        if (transferData.amount > 0) {
+            transferData.from_account_id = parseInt(transactionPayeeId)
+            transferData.to_account_id = parseInt(transactionAccountId)
+        } else {
+            transferData.from_account_id = parseInt(transactionAccountId)
+            transferData.to_account_id = parseInt(transactionPayeeId)
+        }
+        const resp = await instance.post(
+            `${transferRequests.createNewTransfer}`,
+            transferData
+        )
+        var _transactionId;
+        for (const t in resp.data) { if (t.account_id === transactionAccountId) _transactionId = t.id }
+        setTransactionId(_transactionId)
+        setTransferId(resp.data[0].transfer_id)
     }
 
-    function createTransfer() {
-        async function _createTransfer() {
-            var transferData = {
-                date: transactionDate.toISOString().slice(0, 10),
-                cleared: cleared,
-                memo: transactionMemo ? transactionMemo : '',
-                amount: transactionAmount,
-            }
-            if (transferData.amount > 0) {
-                transferData.from_account_id = parseInt(transactionPayeeId)
-                transferData.to_account_id = parseInt(transactionAccountId)
-            } else {
-                transferData.from_account_id = parseInt(transactionAccountId)
-                transferData.to_account_id = parseInt(transactionPayeeId)
-            }
-            const resp = await instance.post(
-                `${transferRequests.createNewTransfer}`,
-                transferData
-            )
-            var _transactionId;
-            for (const t in resp.data) { if (t.account_id === transactionAccountId) _transactionId = t.id }
-            setTransactionId(_transactionId)
-            setTransferId(resp.data[0].transfer_id)
+    async function _updateTransfer() {
+        var transferData = {
+            date: transactionDate.toISOString().slice(0, 10),
+            cleared: cleared,
+            memo: transactionMemo ? transactionMemo : '',
+            amount: transactionAmount,
         }
-        _createTransfer()
+        if (transferData.amount > 0) {
+            transferData.from_account_id = parseInt(transactionPayeeId)
+            transferData.to_account_id = parseInt(transactionAccountId)
+        } else {
+            transferData.from_account_id = parseInt(transactionAccountId)
+            transferData.to_account_id = parseInt(transactionPayeeId)
+        }
+        const resp = await instance.put(
+            `${transferRequests.updateTransfer}${transferId}`,
+            transferData
+        )
     }
 
-    function updateTransfer() {
-        async function _updateTransfer() {
-            var transferData = {
-                date: transactionDate.toISOString().slice(0, 10),
-                cleared: cleared,
-                memo: transactionMemo ? transactionMemo : '',
-                amount: transactionAmount,
-            }
-            if (transferData.amount > 0) {
-                transferData.from_account_id = parseInt(transactionPayeeId)
-                transferData.to_account_id = parseInt(transactionAccountId)
-            } else {
-                transferData.from_account_id = parseInt(transactionAccountId)
-                transferData.to_account_id = parseInt(transactionPayeeId)
-            }
-            const resp = await instance.put(
-                `${transferRequests.updateTransfer}${transferId}`,
-                transferData
-            )
+    async function _updateTransaction() {
+        const _categories = consolidateCategories()
+        const transactionData = {
+            date: transactionDate.toISOString().slice(0, 10),
+            cleared: cleared,
+            memo: transactionMemo ? transactionMemo : '',
+            account_id: parseInt(transactionAccountId),
+            categories: _categories,
+            amount: transactionAmount ? transactionAmount : _categories.reduce((prev, curr) => prev + curr.amount, 0)
         }
-        _updateTransfer()
+        if (transactionPayeeId) transactionData.payee_id = parseInt(transactionPayeeId)
+        await instance.put(
+            `${transactionRequests.updateTransaction}${transactionId}`,
+            transactionData
+        )
+        reloadTransaction()
     }
 
-    function updateTransaction() {
-        async function _updateTransaction() {
-            const _categories = consolidateCategories()
-            const transactionData = {
-                date: transactionDate.toISOString().slice(0, 10),
-                cleared: cleared,
-                memo: transactionMemo ? transactionMemo : '',
-                account_id: parseInt(transactionAccountId),
-                categories: _categories,
-                amount: transactionAmount ? transactionAmount : _categories.reduce((prev, curr) => prev + curr.amount, 0)
-            }
-            if (transactionPayeeId) transactionData.payee_id = parseInt(transactionPayeeId)
-            await instance.put(
-                `${transactionRequests.updateTransaction}${transactionId}`,
-                transactionData
-            )
-            reloadTransaction()
-        }
-        _updateTransaction()
-    }
 
-    function update() {
+    async function update() {
         if (transfer) {
             if (transaction.new_transaction) {
-                createTransfer()
+                await _createTransfer()
 
             } else {
-                updateTransfer()
+                await _updateTransfer()
             }
         } else {
             if (transaction.new_transaction) {
-                createTransaction()
+                await _createTransaction()
             } else {
-                updateTransaction()
+                await _updateTransaction()
             }
         }
         selectTransaction(null)

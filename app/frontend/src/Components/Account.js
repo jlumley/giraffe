@@ -110,12 +110,8 @@ export const Account = () => {
 
     function deleteTransaction(transaction_id) {
         async function _deleteTransaction() {
-            const resp = await instance.delete(
-                `${transactionRequests.deleteTransaction}${transaction_id}`,
-            )
-            const tempTransactions = transactions.filter(t => !resp.data.includes(t.id));
-
-            setTransactions(tempTransactions);
+            instance.delete(`${transactionRequests.deleteTransaction}${transaction_id}`)
+            setTransactions(transactions.filter(t => t.id !== transaction_id));
             setSelectedTransaction(null)
         }
         _deleteTransaction()
@@ -123,10 +119,10 @@ export const Account = () => {
 
     function deleteTransfer(transfer_id) {
         async function _deleteTransfer() {
-            const resp = await instance.delete(
+            instance.delete(
                 `${transactionRequests.deleteTransfer}${transfer_id}`,
             )
-            const tempTransactions = transactions.filter(t => !resp.data.includes(t.id));
+            const tempTransactions = transactions.filter(t => t.transfer_id !== transfer_id);
 
             setTransactions(tempTransactions);
             setSelectedTransaction(null)
@@ -138,6 +134,7 @@ export const Account = () => {
         // allow one and only one row to be modified at once
         if (transaction_id === null) {
             fetchPayees()
+            fetchTransactions()
         }
         if (transaction_id && selectedTransaction) return
         if (transaction_id === selectedTransaction) return
