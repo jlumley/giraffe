@@ -31,7 +31,6 @@ export function Budget({ smallScreen }) {
   const fetchReadyToAssign = () => {
     async function _fetchReadyToAssign() {
       const category = await instance.get(`${categoryRequests.fetchCategory}/1/${currentDate.toISOString().slice(0, 10)}`)
-      console.log(category.data.balance)
       setReadyToAssign(category.data.balance)
     }
     _fetchReadyToAssign()

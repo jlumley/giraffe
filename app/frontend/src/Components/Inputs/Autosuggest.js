@@ -14,7 +14,7 @@ export function Autosuggest({ startingValue, options, createOptionUrl, updateMet
         const newOptions = [...optionsArray]
         newOptions.push({ label: newValue, value: resp.data.id })
         setOptionsArray(newOptions)
-        updateMethod(resp.data.id)
+        updateMethod({ label: newValue, value: resp.data.id })
     }
 
     function handleChange(newValue) {
