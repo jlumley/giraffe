@@ -31,6 +31,51 @@ export const Account = () => {
         new_transaction: true
     };
 
+    function fetchTransactions() {
+        async function _fetchTransactions() {
+            const params = (id !== 'all') ? { accounts: id } : {}
+            const t = await instance.get(transactionRequests.fetchTransactions, { params })
+            setTransactions(t.data.sort((e1, e2) => {
+                if (e1.date < e2.date) return 1;
+                if (e1.date > e2.date) return -1;
+
+                return e1.id < e2.id;
+            }))
+        }
+        _fetchTransactions()
+    }
+    function fetchCategories() {
+        async function _fetchCategories() {
+            const c = await instance.get(categoryRequests.fetchAllCategoryNames)
+            setCategories(c.data.reduce((map, obj) => {
+                map[obj.id] = obj.name
+                return map;
+            }, {}))
+        }
+        _fetchCategories()
+    }
+    function fetchPayees() {
+        async function _fetchPayees() {
+            const p = await instance.get(payeeRequests.fetchAllPayees)
+            setPayees(p.data.reduce((map, obj) => {
+                map[obj.id] = obj.name
+                return map;
+            }, {}))
+        }
+        _fetchPayees()
+    }
+
+    function fetchAccounts() {
+        async function _fetchAccounts() {
+            const params = (id !== 'all') ? { accounts: id } : {}
+            const a = await instance.get(accountRequests.fetchAllAccounts, { params })
+            setAccounts(a.data.reduce((map, obj) => {
+                map[obj.id] = obj.name
+                return map;
+            }, {}))
+        }
+        _fetchAccounts()
+    }
 
     useEffect(() => {
         fetchTransactions();
@@ -50,62 +95,12 @@ export const Account = () => {
         }))
     }, [transactions])
 
-    const fetchTransactions = () => {
-        async function _fetchTransactions() {
-            const params = (id !== 'all') ? { accounts: id } : {}
-            const t = await instance.get(transactionRequests.fetchTransactions, { params })
-            setTransactions(t.data.sort((e1, e2) => {
-                if (e1.date < e2.date) return 1;
-                if (e1.date > e2.date) return -1;
-
-                return e1.id < e2.id;
-            }))
-        }
-        _fetchTransactions()
-    }
-    const fetchCategories = () => {
-        async function _fetchCategories() {
-
-            const c = await instance.get(categoryRequests.fetchAllCategoryNames)
-            setCategories(c.data.reduce((map, obj) => {
-                map[obj.id] = obj.name
-                return map;
-            }, {}))
-        }
-        _fetchCategories()
-    }
-    const fetchPayees = () => {
-        async function _fetchPayees() {
-
-            const p = await instance.get(payeeRequests.fetchAllPayees)
-            setPayees(p.data.reduce((map, obj) => {
-                map[obj.id] = obj.name
-                return map;
-            }, {}))
-        }
-        _fetchPayees()
-    }
-
-    const fetchAccounts = () => {
-        async function _fetchAccounts() {
-            const params = (id !== 'all') ? { accounts: id } : {}
-            const a = await instance.get(accountRequests.fetchAllAccounts, { params })
-            setAccounts(a.data.reduce((map, obj) => {
-                map[obj.id] = obj.name
-                return map;
-            }, {}))
-        }
-        _fetchAccounts()
-    }
-
-
     function addNewTransaction() {
         async function _addNewTransaction() {
             var tempTransactions = [...transactions]
             tempTransactions.unshift({
                 ...newEmptyTransaction
             })
-            console.log(newEmptyTransaction)
             setTransactions(tempTransactions);
             setSelectedTransaction(0)
         }
@@ -118,7 +113,6 @@ export const Account = () => {
             const resp = await instance.delete(
                 `${transactionRequests.deleteTransaction}${transaction_id}`,
             )
-            console.log(resp.data)
             const tempTransactions = transactions.filter(t => !resp.data.includes(t.id));
 
             setTransactions(tempTransactions);
@@ -132,7 +126,6 @@ export const Account = () => {
             const resp = await instance.delete(
                 `${transactionRequests.deleteTransfer}${transfer_id}`,
             )
-            console.log(resp.data)
             const tempTransactions = transactions.filter(t => !resp.data.includes(t.id));
 
             setTransactions(tempTransactions);
@@ -163,7 +156,8 @@ export const Account = () => {
             selected={(selectedTransaction === transaction.id)}
             selectTransaction={selectTransaction}
             deleteTransaction={() => { deleteTransaction(transaction.id) }}
-            deleteTransfer={() => { deleteTransfer(transaction.transfer_id) }} />
+            deleteTransfer={() => { deleteTransfer(transaction.transfer_id) }}
+            fetchPayees={() => { fetchPayees() }} />
     }
 
     return (

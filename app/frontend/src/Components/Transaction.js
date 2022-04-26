@@ -23,7 +23,17 @@ import "react-datepicker/dist/react-datepicker.css";
 import "../style/Transaction.css"
 
 
-export const Transaction = ({ transaction, categories, payees, accounts, selected, selectTransaction, deleteTransaction, deleteTransfer }) => {
+export const Transaction = ({
+    transaction,
+    categories,
+    payees,
+    accounts,
+    selected,
+    selectTransaction,
+    deleteTransaction,
+    deleteTransfer,
+    fetchPayees
+}) => {
     const [transactionId, setTransactionId] = useState(transaction.id);
     const [transfer, setTransfer] = useState(transaction.transfer_id ? true : false)
     const [cleared, setCleared] = useState(transaction.cleared);
@@ -72,6 +82,7 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
                 setTransactionMemo(resp.data.memo);
                 setTransactionCategories(resp.data.categories.map(obj => ({ ...obj, uuid: uuidv4() })));
             })
+            fetchPayees()
         }
         _reloadTransaction()
     }
@@ -229,19 +240,15 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     function update() {
         if (transfer) {
             if (transaction.new_transaction) {
-                console.log('create new transfer')
                 createTransfer()
 
             } else {
-                console.log('update existing transfer')
                 updateTransfer()
             }
         } else {
             if (transaction.new_transaction) {
-                console.log('create new transaction')
                 createTransaction()
             } else {
-                console.log('update exiting transaction')
                 updateTransaction()
             }
         }
@@ -288,9 +295,9 @@ export const Transaction = ({ transaction, categories, payees, accounts, selecte
     }
     const payeeInputField = () => {
         if (!selected) return <div>{transactionPayee}</div>
-        if (transaction.new_transaction) return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayee }} options={transferOptions().concat(payeeOptions())} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value); setTransfer(newValue.transfer) }} allowNewValues={true} />
+        if (transaction.new_transaction) return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayee }} options={transferOptions().concat(payeeOptions())} createOptionUrl={payeeRequests.createPayee} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value); setTransfer(newValue.transfer) }} allowNewValues={true} />
         if (transfer) return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayee }} options={transferOptions()} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value) }} allowNewValues={true} />
-        return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayee }} options={payeeOptions()} createOptionUrl={payeeRequests.createPayee} allowNewValues={true} allowEmpty={true} updateMethod={(payee_id) => { setTransactionPayeeId(payee_id) }} />
+        return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayee }} options={payeeOptions()} createOptionUrl={payeeRequests.createPayee} allowNewValues={true} allowEmpty={true} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value) }} />
     }
     const accountInputField = () => {
         if (!selected) return <div>{transactionAccount}</div>
