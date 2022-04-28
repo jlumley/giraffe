@@ -44,9 +44,25 @@ export function Budget({ smallScreen }) {
     _fetchCategoryGroups()
   }
 
-  const categoryGroup = (name) => {
-    return <CategoryGroup name={name} currentDate={currentDate} smallScreen={smallScreen} updateAssignedTotalAssigned={fetchReadyToAssign} />
+  const selectCategory = (category_id) => {
+    let newSelections = [...selectedCategories]
+    if (selectedCategories.includes(category_id)) {
+      newSelections = (selectedCategories.filter(e => { return e !== category_id }))
+    } else {
+      newSelections.push(category_id)
+    }
+    setSelectedCategories(newSelections)
   }
+
+  const categoryGroup = (name) => {
+    return (<CategoryGroup
+      name={name}
+      currentDate={currentDate}
+      smallScreen={smallScreen}
+      updateAssignedTotalAssigned={fetchReadyToAssign}
+      selectCategory={selectCategory} />)
+  }
+
   const createNewCategoryGroup = () => {
     const newCategoryGroupName = `New Category Group ${newCategoryGroups.length}`
     setNewCategoryGroups(newCategoryGroups.concat(categoryGroup(newCategoryGroupName)))
@@ -54,7 +70,7 @@ export function Budget({ smallScreen }) {
 
   const budgetExtraInfo = () => {
     if (smallScreen) return
-    return <BudgetInfo selectedCategories={selectedCategories} />
+    return <BudgetInfo category_ids={selectedCategories} currentDate={currentDate} />
   }
 
   function updateDate(monthAdjustment) {

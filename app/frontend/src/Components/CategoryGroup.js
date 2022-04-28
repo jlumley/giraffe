@@ -8,7 +8,7 @@ import instance from '../axois';
 import categoryRequests from '../requests/category';
 
 
-export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTotalAssigned }) => {
+export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTotalAssigned, selectCategory }) => {
   const [categoryGroupName, setCategoryGroupName] = useState(name);
   const [categories, setCategories] = useState([]);
   const [newCategories, setNewCategories] = useState([]);
@@ -20,7 +20,14 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTo
   }, [])
 
   const category = (category) => {
-    return <Category key={category.id} smallScreen={smallScreen} currentDate={currentDate} category={category} updateAssignedTotalAssigned={updateAssignedTotalAssigned} />
+    return <Category
+      key={category.id}
+      smallScreen={smallScreen}
+      currentDate={currentDate}
+      category={category}
+      updateAssignedTotalAssigned={updateAssignedTotalAssigned}
+      selectCategory={selectCategory}
+    />
   }
 
   const createNewCategory = () => {
