@@ -3,5 +3,7 @@
 .budgetInfo {
     width: 350px;
     height: 100%;
-    background: var(--dark-gradient);
+    margin: 5px;
+    border-radius: 10px;
+    background: var(--light-grey);
 }

@@ -11,7 +11,13 @@ import '../style/Category.css'
 import { MoneyInput } from './Inputs/MoneyInput';
 
 
-export function Category({ category, currentDate, smallScreen, updateAssignedTotalAssigned }) {
+export function Category({
+    category,
+    currentDate,
+    smallScreen,
+    updateAssignedTotalAssigned,
+    selectCategory
+}) {
     const [categoryName, setCategoryName] = useState(category.name);
     const [categoryAssigned, setCategoryAssigned] = useState(category.assigned_this_month / 100);
     const [categorySpent, setCategorySpent] = useState(0);
@@ -80,15 +86,16 @@ export function Category({ category, currentDate, smallScreen, updateAssignedTot
         )
     }
 
-    function selectCategory() {
+    function selectCurrentCategory() {
         setSelected(!selected)
+        selectCategory(category.id)
     }
 
     const ifSelected = () => {
         if (selected) {
-            return <CheckboxMarkedCircleIcon size={15} className="selectedIcon" onClick={selectCategory} />
+            return <CheckboxMarkedCircleIcon size={15} className="selectedIcon" onClick={selectCurrentCategory} />
         } else {
-            return <CheckboxBlankCircleOutlineIcon size={15} className="selectedIcon" onClick={selectCategory} />
+            return <CheckboxBlankCircleOutlineIcon size={15} className="selectedIcon" onClick={selectCurrentCategory} />
         }
     }
 
