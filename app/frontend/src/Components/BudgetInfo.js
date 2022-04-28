@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Text } from 'react';
 
 import '../style/BudgetInfo.css'
 import { centsToMoney } from '../utils/money_utils';
@@ -31,8 +32,14 @@ export function BudgetInfo({ category_ids, currentDate }) {
 
 
     return (<div className="budgetInfo">
-
-        Total Assigned: {centsToMoney(totalAssigned)}
-        Total Available: {centsToMoney(totalAvailable)}
+        <div className="categoryStats">
+        Total Assigned
+        <br/>
+        {centsToMoney(totalAssigned)}
+        <br/>
+        Total Available
+        <br/>
+        {centsToMoney(totalAvailable)}
+        </div>
     </div>);
 }

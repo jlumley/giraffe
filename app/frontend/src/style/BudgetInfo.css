@@ -4,6 +4,14 @@
     width: 350px;
     height: 100%;
     margin: 5px;
+    padding: 10px;
     border-radius: 10px;
     background: var(--light-grey);
+}
+
+.categoryStats {
+    font-weight: bold;
+    font-size: 25px !important;
+    color: var(--dark-color);
+    text-align: center;
 }
