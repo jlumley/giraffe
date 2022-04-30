@@ -70,7 +70,7 @@ def main():
                 json=dict(
                     target_type="savings_target",
                     target_amount=53567,
-                    target_date="2022-04-02",
+                    target_date="2022-11-02",
                 ),
             )
 

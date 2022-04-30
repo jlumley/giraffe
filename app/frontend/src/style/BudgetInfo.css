@@ -10,8 +10,17 @@
 }
 
 .categoryStats {
+    padding: 15%;
     font-weight: bold;
     font-size: 25px !important;
     color: var(--dark-color);
     text-align: center;
+}
+
+.autoAssign {
+    padding: 12px;
+}
+
+.categoryTarget {
+    padding: 12px;
 }

@@ -245,7 +245,7 @@ def get_category_target_data(category_id, sql_date):
     Returns:
         dict: target_data
     """
-    target_data = {"monthly_target": 0, "assigned_this_month": 0}
+    target_data = {"monthly_target": 0, "assigned_this_month": 0, "underfunded": 0}
     target = db_utils.execute(GET_CATEGORY_TARGET, {"category_id": category_id})
     target = target[0]
     month_start = time_utils.get_month_start(sql_date)
@@ -269,6 +269,10 @@ def get_category_target_data(category_id, sql_date):
     # Spending Target
     elif target["target_type"] == "spending_target":
         pass
+
+    # set underfunded
+    if target_data["monthly_target"]:
+        target_data["underfunded"] = target_data["monthly_target"] - target_data["assigned_this_month"]
 
     return target_data
 
@@ -412,6 +416,7 @@ def get_category(category_id, sql_date):
         c["target_date"] = time_utils.sqlite_date_to_datestr(c["target_date"])
         c["monthly_target"] = target_data["monthly_target"]
         c["assigned_this_month"] = target_data["assigned_this_month"]
+        c["underfunded"] = target_data["underfunded"]
         c["group"] = c["category_group"]
         del c["category_type"]
         del c["category_group"]
