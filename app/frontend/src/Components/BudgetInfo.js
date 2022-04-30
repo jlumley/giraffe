@@ -17,6 +17,22 @@ export function BudgetInfo({ category_ids, currentDate }) {
         setCategories(resp.data.filter(c => category_ids.includes(c.id)))
     }
 
+    const autoAssignUnderfundedButton = (_categories) => {
+        console.log(_categories)
+        const underFunded = _categories.reduce((currentValue, nextValue) => {
+            return currentValue + nextValue.underfunded
+        }, 0)
+        return (<div> {`Underfunded: ${centsToMoney(underFunded)}`}</div>)
+    }
+
+    const categoryTarget = (_categories) => {
+        if (_categories.length !== 1) return
+        return (
+            `Target Amount: ${centsToMoney(_categories[0].target_amount)}`
+        )
+
+    }
+
     useEffect(() => {
         fetchCategories()
     }, [category_ids, currentDate])
@@ -33,13 +49,19 @@ export function BudgetInfo({ category_ids, currentDate }) {
 
     return (<div className="budgetInfo">
         <div className="categoryStats">
-        Total Assigned
-        <br/>
-        {centsToMoney(totalAssigned)}
-        <br/>
-        Total Available
-        <br/>
-        {centsToMoney(totalAvailable)}
+            Total Assigned
+            <br />
+            {centsToMoney(totalAssigned)}
+            <br />
+            Total Available
+            <br />
+            {centsToMoney(totalAvailable)}
+        </div>
+        <div className="autoAssign">
+            {autoAssignUnderfundedButton(categories)}
+        </div>
+        <div className="categoryTarget">
+            {categoryTarget(categories)}
         </div>
     </div>);
 }

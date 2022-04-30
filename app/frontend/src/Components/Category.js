@@ -92,6 +92,7 @@ export function Category({
     }
 
     const ifSelected = () => {
+        if (category.credit_card) return
         if (selected) {
             return <CheckboxMarkedCircleIcon size={15} className="selectedIcon" onClick={selectCurrentCategory} />
         } else {
