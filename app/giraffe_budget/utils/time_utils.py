@@ -18,7 +18,7 @@ def sqlite_date_to_datestr(sql_date):
     return f"{sql_date[:4]}-{sql_date[4:6]}-{sql_date[6:8]}"
 
 
-def get_month_start(sql_date):
+def get_first_of_the_month(sql_date):
     m = re.search(r"(\d{4})(\d{2})(\d{2})", str(sql_date))
     year = m.group(1)
     month = m.group(2)

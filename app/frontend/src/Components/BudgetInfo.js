@@ -18,7 +18,6 @@ export function BudgetInfo({ category_ids, currentDate }) {
     }
 
     const autoAssignUnderfundedButton = (_categories) => {
-        console.log(_categories)
         const underFunded = _categories.reduce((currentValue, nextValue) => {
             return currentValue + nextValue.underfunded
         }, 0)
@@ -30,7 +29,6 @@ export function BudgetInfo({ category_ids, currentDate }) {
         return (
             `Target Amount: ${centsToMoney(_categories[0].target_amount)}`
         )
-
     }
 
     useEffect(() => {
