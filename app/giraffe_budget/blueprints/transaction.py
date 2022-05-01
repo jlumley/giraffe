@@ -130,9 +130,15 @@ def delete_transaction(transaction_id):
     Returns:
         int: id of deleted transaction
     """
-    db_utils.execute(DELETE_TRANSACTION_ASSIGNMENTS, {"transaction_id": transaction_id}, commit=True)
-    db_utils.execute(DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}, commit=True)
-    db_utils.execute(DELETE_TRANSACTION, {"transaction_id": transaction_id}, commit=True)
+    db_utils.execute(
+        DELETE_TRANSACTION_ASSIGNMENTS, {"transaction_id": transaction_id}, commit=True
+    )
+    db_utils.execute(
+        DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}, commit=True
+    )
+    db_utils.execute(
+        DELETE_TRANSACTION, {"transaction_id": transaction_id}, commit=True
+    )
 
     return transaction_id
 
@@ -416,7 +422,9 @@ def create_transaction_categories(transaction_id, categories):
         categories (list): list of categories and amounts
     """
     # remove old transaction categories
-    db_utils.execute(DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}, commit=True)
+    db_utils.execute(
+        DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}, commit=True
+    )
     # create new tranasaction categories
     for c in categories:
         db_utils.execute(
@@ -426,7 +434,7 @@ def create_transaction_categories(transaction_id, categories):
                 "category_id": c["category_id"],
                 "amount": c["amount"],
             },
-            commit=True
+            commit=True,
         )
 
 
