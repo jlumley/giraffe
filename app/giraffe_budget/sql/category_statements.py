@@ -32,7 +32,7 @@ target_amount = :target_amount
 DELETE_CATEGORY_TARGET = """ UPDATE categories
 SET target_type=null,
 target_date=null,
-target_amount=null,
+target_amount=null
 WHERE id = :category_id;
 """
 

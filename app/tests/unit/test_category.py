@@ -60,3 +60,46 @@ def test_get_category(test_client):
     assert category_response.status_code == 200
     assert category_response.json.get("name") == category_data.get("name")
     assert category_response.json.get("group") == category_data.get("group")
+
+
+def test_update_category_target(test_client):
+    """Test update category target"""
+    category = dict(name="new category 81", group="group1")
+    create_response = test_client.post("/category/create", json=category)
+    category_id = create_response.json.get("id")
+    targets = [
+        dict(
+            target_type="savings_target", target_amount=53567, target_date="2022-11-02"
+        ),
+        dict(target_type="monthly_savings", target_amount=8900),
+    ]
+    for t in targets:
+        update_response = test_client.put(f"/category/target/{category_id}", json=t)
+        update_response.status_code == 200
+
+        category_response = test_client.get(f"/category/{category_id}/2022-04-07")
+        assert category_response.status_code == 200
+        assert category_response.json.get("target_type") == t.get("target_type")
+        assert category_response.json.get("target_amount") == t.get("target_amount")
+
+
+def test_delete_category_target(test_client):
+    """Test delete category target"""
+    category = dict(name="new category 155", group="group1")
+    create_response = test_client.post("/category/create", json=category)
+    category_id = create_response.json.get("id")
+    targets = [
+        dict(
+            target_type="savings_target", target_amount=53567, target_date="2022-11-02"
+        ),
+        dict(target_type="monthly_savings", target_amount=8900),
+    ]
+    for t in targets:
+        test_client.put(f"/category/target/{category_id}", json=t)
+        delete_response = test_client.delete(f"/category/target/{category_id}")
+        delete_response.status_code == 200
+
+        category_response = test_client.get(f"/category/{category_id}/2022-04-07")
+        assert category_response.status_code == 200
+        assert category_response.json.get("target_type") == None
+        assert category_response.json.get("target_amount") == None
