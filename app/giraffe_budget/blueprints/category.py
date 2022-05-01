@@ -9,7 +9,10 @@ from ..sql.category_statements import *
 
 category = Blueprint("category", __name__, url_prefix="/category")
 
-ALLOWED_TARGET_TYPES = ["monthly_savings", "savings_target", "spending_target"]
+MONTHLY_SAVINGS = "monthly_savings"
+SAVINGS_TARGET = "savings_target"
+SPENDING_TARGET = "spending_target"
+ALLOWED_TARGET_TYPES = [MONTHLY_SAVINGS, SAVINGS_TARGET, SPENDING_TARGET]
 MAX_INT = 2 ** 31 - 1
 
 
@@ -44,7 +47,7 @@ def _get_category(category_id, date):
     if not category:
         return make_response(jsonify("Category Not Found"), 404)
 
-    return make_response(jsonify(category[0]), 200)
+    return make_response(jsonify(category), 200)
 
 
 @category.route("/create", methods=("POST",))
@@ -245,37 +248,98 @@ def get_category_target_data(category_id, sql_date):
     Returns:
         dict: target_data
     """
-    target_data = {"monthly_target": 0, "assigned_this_month": 0, "underfunded": 0}
-    target = db_utils.execute(GET_CATEGORY_TARGET, {"category_id": category_id})
-    target = target[0]
-    month_start = time_utils.get_month_start(sql_date)
+    # get target type
+    target_data = db_utils.execute(GET_CATEGORY_TARGET, {"category_id": category_id})[0]
+    target_type = target_data.get("target_type")
+    
+    if target_type == MONTHLY_SAVINGS:
+        return get_monthly_savings_target(category_id, sql_date, **target_data)
+    
+    elif target_type == SAVINGS_TARGET:
+        return get_monthly_savings_target(category_id, sql_date, **target_data)
 
-    target_data["assigned_this_month"] = get_category_assignments_sum(
-        category_id, after=month_start, before=sql_date
-    )
-
-    # Monthly Savings
-    if target["target_type"] == "monthly_savings":
-        target_data["monthly_target"] = target["target_amount"]
-
-    # Savings Target
-    elif target["target_type"] == "savings_target":
-        months_left = time_utils.diff_month(target["target_date"], month_start)
-        target_data["monthly_target"] = int(
-            (target["target_amount"] - get_category_balance(category_id, month_start))
-            / months_left
+    elif target_type == SPENDING_TARGET:
+        return get_monthly_savings_target(category_id, sql_date, **target_data)
+    
+    # if no target is set
+    else:
+        assigned_this_month = get_category_assignments_sum(
+            category_id, after=time_utils.get_first_of_the_month(sql_date), before=sql_date
+        )
+        return dict(
+            **target_data,
+            assigned_this_month=assigned_this_month
         )
 
-    # Spending Target
-    elif target["target_type"] == "spending_target":
-        pass
+def get_monthly_savings_target(category_id, sql_date, **target):
+    """Get target data for monthly savings target
 
-    # set underfunded
-    if target_data["monthly_target"]:
-        target_data["underfunded"] = target_data["monthly_target"] - target_data["assigned_this_month"]
+    Args:
+        category_id (int): category id
+        sql_date (int): in representing date (YYYMMDD)
 
-    return target_data
+    Returns:
+        dict: target_data
+    """
+    first_of_the_month = time_utils.get_first_of_the_month(sql_date)
+    assigned_this_month = get_category_assignments_sum(
+        category_id, after=first_of_the_month, before=sql_date
+    )
+    monthly_target = target.get("target_amount")
+    underfuned = monthly_target - assigned_this_month
+    return dict(
+        **target,
+        assigned_this_month=assigned_this_month,
+        monthly_target=monthly_target,
+        underfunded=underfunded
+    )
 
+def get_savings_target(category_id, sql_date, **target):
+    """Get target data for a savings target
+
+    Args:
+        category_id (int): category id
+        sql_date (int): in representing date (YYYMMDD)
+
+    Returns:
+        dict: target_data
+    """
+    first_of_the_month = time_utils.get_first_of_the_month(sql_date)
+    assigned_this_month = get_category_assignments_sum(
+        category_id, after=first_of_the_month, before=sql_date
+    )
+    target_amount = target.get("target_amount")
+    balance_on_first_of_the_month = get_category_balance(category_id, first_of_the_month)
+    monthly_target = int((target_amount - balance_on_first_of_the_month)/ months_left)
+    underfunded = monthly_target - assigned_this_month
+
+    dict(
+        **target,
+        assigned_this_month=assigned_this_month,
+        monthly_target=monthly_target,
+        underfunded=underfunded
+    )
+
+def get_spending_target(category_id, sql_date, **target):
+    """Get target data for a spending target
+
+    Args:
+        category_id (int): category id
+        sql_date (int): in representing date (YYYMMDD)
+
+    Returns:
+        dict: target_data
+    """
+    first_of_the_month = time_utils.get_first_of_the_month(sql_date)
+    assigned_this_month = get_category_assignments_sum(
+        category_id, after=first_of_the_month, before=sql_date
+    )
+    return dict(
+        **target,
+        assigned_this_month=assigned_this_month,
+        monthly_target=0,
+        underfunded=0
+    )
 
 def get_category_balance(category_id, sql_date):
     """Get category balance at a give date
@@ -392,7 +456,7 @@ def get_categories(sql_date):
     category_ids = db_utils.execute(GET_ALL_CATEGORIES)
     categories = []
     for c in category_ids:
-        categories += get_category(c["id"], sql_date)
+        categories.append(get_category(c["id"], sql_date))
 
     return categories
 
@@ -408,20 +472,19 @@ def get_category(category_id, sql_date):
         dict: category dict
     """
     categories = db_utils.execute(GET_CATEGORY, {"category_id": category_id})
+    if not categories: return []
     target_data = get_category_target_data(category_id, sql_date)
+    category = categories[0] | target_data
 
-    for c in categories:
-        c["credit_card"] = True if c["category_type"] == "credit_card" else False
-        c["balance"] = get_category_balance(category_id, sql_date)
-        c["target_date"] = time_utils.sqlite_date_to_datestr(c["target_date"])
-        c["monthly_target"] = target_data["monthly_target"]
-        c["assigned_this_month"] = target_data["assigned_this_month"]
-        c["underfunded"] = target_data["underfunded"]
-        c["group"] = c["category_group"]
-        del c["category_type"]
-        del c["category_group"]
+    
+    category["credit_card"] = True if category["category_type"] == "credit_card" else False
+    category["balance"] = get_category_balance(category_id, sql_date)
+    category["target_date"] = time_utils.sqlite_date_to_datestr(category["target_date"])
+    category["group"] = category["category_group"]
+    del category["category_type"]
+    del category["category_group"]
 
-    return categories
+    return category
 
 
 def get_category_names():
