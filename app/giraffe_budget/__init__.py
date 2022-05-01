@@ -6,17 +6,21 @@ from .config import *
 from .blueprints import account, category, transaction, payee, transfer
 from .utils.db_utils import *
 from flask import Flask, g, current_app
+from flask_sqlalchemy import SQLAlchemy
+from .dbms.rdb import db
 
 
 # Application Factory Function
 def create_app():
     app = Flask(__name__)
-
     load_config(app)
     register_blueprints(app)
     setup_logger(app)
     app.logger.info(f"App Mode: {os.environ['APP_MODE']}")
     with app.app_context():
+        from .dbms.models import Account
+        db.init_app(app)
+        db.create_all()
         init_db(app)
 
     @app.before_request

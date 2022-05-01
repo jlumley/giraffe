@@ -24,9 +24,7 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS payees (
   id integer PRIMARY KEY,
   name text NOT NULL,
-  category_prediction integer,
   system_payee integer,
-  FOREIGN KEY (category_prediction) REFERENCES categories (id)
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
@@ -58,17 +56,5 @@ CREATE TABLE IF NOT EXISTS assignments (
   FOREIGN KEY (transaction_id) REFERENCES transactions (id),
   FOREIGN KEY (category_id) REFERENCES categories (id)
 );
-
-CREATE INDEX IF NOT EXISTS transactions_categories_category_index
-ON transaction_categories(category_id);
-
-CREATE INDEX IF NOT EXISTS transactions_account_index
-ON transactions(account_id);
-
-CREATE INDEX IF NOT EXISTS transactions_payee_index
-ON transactions(payee_id);
-
-CREATE INDEX IF NOT EXISTS assignments_category_index
-ON assignments(category_id);
 
 INSERT INTO categories (name, category_group) VALUES ("To be Assigned", NULL);

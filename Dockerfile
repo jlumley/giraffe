@@ -21,7 +21,8 @@ Flask==2.0.1 \
 Flask-expects-json==1.7.0 \
 Uwsgi==2.0.19.1 \
 werkzeug==2.0.3 \
-pytest
+pytest \
+flask-sqlalchemy
 
 COPY app/frontend/package.json /src/app/frontend/package.json
 COPY app/frontend/package-lock.json /src/app/frontend/package-lock.json
@@ -44,4 +45,3 @@ COPY app /src/app
 COPY bin/start.sh /src/bin/start.sh
 
 WORKDIR /src/app
-

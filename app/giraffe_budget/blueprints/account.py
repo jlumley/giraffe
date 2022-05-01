@@ -4,15 +4,16 @@ import time
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
 
-from . import transaction
-from . import category
-
 from ..utils import db_utils, money_utils, time_utils
 from ..schemas.account_schema import *
 from ..sql.account_statements import *
 
-account = Blueprint("account", __name__, url_prefix="/account")
+from ..dbms.rdb import db
+from ..dbms.models import *
 
+READY_TO_ASSIGN_CATEGORY = 1
+
+account = Blueprint("account", __name__, url_prefix="/account")
 
 @account.route("", methods=("GET",))
 def _get_accounts():
@@ -35,10 +36,10 @@ def _create_account():
     data = request.get_json()
     starting_balance = data.get("starting_balance", 0)
     date = datetime.datetime.now().strftime("%Y-%m-%d")
-    date_str = time_utils.datestr_to_sqlite_date(date)
+    date_int = time_utils.datestr_to_sqlite_date(date)
     account = create_account(
         data.get("name"),
-        date_str,
+        date_int,
         notes=data.get("notes"),
         starting_balance=starting_balance,
         credit_card=data.get("credit_card"),
@@ -49,15 +50,15 @@ def _create_account():
 @account.route("/hide/<int:account_id>", methods=("PUT",))
 def _hide_account(account_id):
     """Hide an account"""
-    account = hide_account(account_id, True)
-    return make_response(jsonify(account), 200)
+    hide_account(account_id, True)
+    return make_response(jsonify(dict(id=account_id)), 200)
 
 
 @account.route("/unhide/<int:account_id>", methods=("PUT",))
 def _unhide_account(account_id):
     """Unhide an account"""
-    account = hide_account(account_id, False)
-    return make_response(jsonify(account), 200)
+    hide_account(account_id, False)
+    return make_response(jsonify(dict(id=account_id)), 200)
 
 
 @account.route("/reconcile/<int:account_id>", methods=("PUT",))
@@ -88,10 +89,10 @@ def get_accounts():
     Returns:
         list: list of all accounts
     """
-    account_ids = db_utils.execute(GET_ALL_ACCOUNTS)
+    account_ids = Account.query.all()
     accounts = []
     for a in account_ids:
-        accounts += get_account(a["id"])
+        accounts += get_account(a.id)
 
     return accounts
 
@@ -105,8 +106,7 @@ def get_account(account_id):
     Returns:
         dict: accounts dict
     """
-    accounts = db_utils.execute(GET_ACCOUNT, {"account_id": account_id})
-    accounts = db_utils.int_to_bool(accounts, ["hidden"])
+    account = Account.query.filter(Account.id == account_id).one()
     for a in accounts:
         a["credit_card"] = True if a["account_type"] == "credit_card" else False
         a["cleared_balance"] = get_account_balance(a["id"])
@@ -131,31 +131,40 @@ def create_account(name, date, notes=None, starting_balance=0, credit_card=False
     Returns:
         dict: account dict
     """
-    account_type = "credit_card" if credit_card else "budget"
-    account = db_utils.execute(
-        CREATE_ACCOUNT,
-        {"name": name, "notes": notes, "date": date, "account_type": account_type},
-        commit=True,
+    account = Account(
+        name=name,
+        created_date=date,
+        reconciled_date=date,
+        notes=notes,
+        credit_card=credit_card
     )
+    db.add(account)
     # If credit card account create credit card category
     if credit_card:
-        category.create_category(
-            name=name, group="Credit Cards", category_type="credit_card"
+        credit_card_category = Category(
+            name=name,
+            group="Credit Cards",
+            credit_card=True
+        )
+        db.add(credit_card_category)
+
+    # Creating starting balance transaction
+    transaction = Transaction(
+        account_id = account.id,
+        amount=starting_balance,
+        date=date,
+        cleared=True,
+        memo="Starting Balance"
+    )
+    if not credit_card:
+        transaction_category = TransactionCategory(
+            transaction_id=transaction.id,
+            category_id = READY_TO_ASSIGN_CATEGORY,
+            amount=starting_balance
         )
 
-    # if it is not a credit card add balance to "ready to assign"
-    categories = [] if credit_card else [dict(category_id=1, amount=starting_balance)]
-    # Creating starting balance transaction
-    transaction.create_transaction(
-        account[0]["id"],
-        starting_balance,
-        date,
-        True,
-        memo="Starting Balance",
-        categories=categories,
-    )
-
-    return get_account(account[0]["id"])
+    db.commit()
+    return get_account(account.id)
 
 
 def hide_account(account_id, hide=True):
@@ -168,13 +177,8 @@ def hide_account(account_id, hide=True):
     Returns:
         dict: account dict
     """
-
-    accounts = db_utils.execute(
-        HIDE_ACCOUNT, {"id": account_id, "hide": int(hide)}, commit=True
-    )
-    accounts = db_utils.int_to_bool(accounts, ["hidden"])
-
-    return get_account(account_id)[0]
+    db.merge(Account(id=account_id, hidden=hide))
+    db.commit()
 
 
 def reconcile_account(account_id, date, balance):
@@ -215,11 +219,9 @@ def get_account_balance(account_id, cleared=True):
     Returns:
         int: sum of all cleared transactions
     """
-
-    account = db_utils.execute(
-        GET_ACCOUNT_BALANCE, {"id": account_id, "cleared": int(cleared)}
-    )
-    balance = account[0].get("balance")
-    if balance == None:
-        balance = 0
+    transactions = (Transaction.query
+        .filter(Transaction.account_id == account_id)
+        .filter(Transaction.cleared == cleared)
+        )
+    balance = sum([t.amount for t in transactions])
     return balance
