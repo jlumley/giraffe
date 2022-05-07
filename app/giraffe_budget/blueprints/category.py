@@ -267,7 +267,7 @@ def get_category_target_data(category_id, sql_date):
             after=time_utils.get_first_of_the_month(sql_date),
             before=sql_date,
         )
-        return dict(**target_data, assigned_this_month=assigned_this_month)
+        return dict(**target_data, assigned_this_month=assigned_this_month, underfunded=0)
 
 
 def get_monthly_savings_target(category_id, sql_date, **target):

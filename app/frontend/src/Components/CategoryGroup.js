@@ -8,7 +8,7 @@ import instance from '../axois';
 import categoryRequests from '../requests/category';
 
 
-export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTotalAssigned, selectCategory }) => {
+export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTotalAssigned, updateUnderfunded, selectCategory }) => {
   const [categoryGroupName, setCategoryGroupName] = useState(name);
   const [categories, setCategories] = useState([]);
   const [newCategories, setNewCategories] = useState([]);
@@ -26,6 +26,7 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTo
       currentDate={currentDate}
       category={category}
       updateAssignedTotalAssigned={updateAssignedTotalAssigned}
+      updateUnderfunded={updateUnderfunded}
       selectCategory={selectCategory}
     />
   }

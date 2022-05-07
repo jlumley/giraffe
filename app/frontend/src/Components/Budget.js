@@ -19,6 +19,7 @@ export function Budget({ smallScreen }) {
   const [newCategoryGroups, setNewCategoryGroups] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [readyToAssign, setReadyToAssign] = useState(0);
+  const [underfunded, setUnderfunded] = useState(0);
 
 
   useEffect(() => {
@@ -34,6 +35,18 @@ export function Budget({ smallScreen }) {
       setReadyToAssign(category.data.balance)
     }
     _fetchReadyToAssign()
+  }
+
+  const fetchUnderfunded = () => {
+    async function _fetchUnderfunded() {
+      const categories = await instance.get(`${categoryRequests.fetchCategory}/${currentDate.toISOString().slice(0, 10)}`)
+      console.log(categories)
+      const underfunded = categories.data.reduce((currentValue, nextValue) => {
+        return currentValue + nextValue.underfunded
+      }, 0)
+      setUnderfunded(underfunded)
+    }
+    _fetchUnderfunded()
   }
 
   const fetchCategoryGroups = () => {
@@ -60,6 +73,7 @@ export function Budget({ smallScreen }) {
       currentDate={currentDate}
       smallScreen={smallScreen}
       updateAssignedTotalAssigned={fetchReadyToAssign}
+      updateUnderfunded={fetchUnderfunded}
       selectCategory={selectCategory} />)
   }
 
@@ -112,16 +126,21 @@ export function Budget({ smallScreen }) {
     <div className="budgetWorkspace">
       <div className="budgetContent">
         <div className="budgetHeader">
-          <div className="newCategoryGroup" onClick={createNewCategoryGroup}>
-            <TabPlusIcon size={16} />&nbsp;Category Group
-          </div>
           <div className="monthSelector">
             < ArrowLeftCircleOutlineIcon onClick={prevMonth} className="arrowDiv" />
             <div className="currentMonth"> {getMonthString()} </div>
             < ArrowRightCircleOutlineIcon onClick={nextMonth} className="arrowDiv" />
           </div>
-          <div className={`toBeAssignedDiv ${readyToAssign < 0 ? 'negativeToBeAssigned' : ''} ${readyToAssign === 0 ? 'neutralToBeAssigned' : ''} ${readyToAssign > 0 ? 'positiveToBeAssigned' : ''}`}>
-            Ready To Assign: {centsToMoney(readyToAssign)}
+          <div className="newCategoryGroup" onClick={createNewCategoryGroup}>
+            <TabPlusIcon size={16} />&nbsp;Category Group
+          </div>
+          <div className="budgetStatDiv">
+            <div className={`budgetStatBox ${readyToAssign < 0 ? 'negativeToBeAssigned' : ''} ${readyToAssign === 0 ? 'neutralToBeAssigned' : ''} ${readyToAssign > 0 ? 'positiveToBeAssigned' : ''}`}>
+              Ready To Assign: <br /> {centsToMoney(readyToAssign)}
+            </div>
+            <div className={`budgetStatBox`}>
+              Underfunded: <br /> {centsToMoney(underfunded)}
+            </div>
           </div>
         </div>
         <table className="budgetColumnTitles">
