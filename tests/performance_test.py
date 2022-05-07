@@ -58,21 +58,23 @@ def main():
     )
 
     # fund categories
-    for i in range(len(categories)):
+    for i in range(3, len(categories)+2):
         if i % 2 == 0:
             r = requests.put(
-                f"http://localhost/api/category/update/{i+1}/target",
+                f"http://localhost/api/category/target/{i+1}",
                 json=dict(target_type="monthly_savings", target_amount=50000),
             )
+            print(r)
         else:
             r = requests.put(
-                f"http://localhost/api/category/update/{i+1}/target",
+                f"http://localhost/api/category/target/{i+1}",
                 json=dict(
                     target_type="savings_target",
                     target_amount=53567,
                     target_date="2022-11-02",
                 ),
             )
+            print(r)
 
     #   print(r.content)
     r = requests.get("http://localhost/api/category/1/2022-01-01").content

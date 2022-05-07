@@ -16,6 +16,7 @@ export function Category({
     currentDate,
     smallScreen,
     updateAssignedTotalAssigned,
+    updateUnderfunded,
     selectCategory
 }) {
     const [categoryName, setCategoryName] = useState(category.name);
@@ -72,6 +73,7 @@ export function Category({
         fetchTransactions()
         fetchCategory()
         updateAssignedTotalAssigned()
+        updateUnderfunded()
     }, [categoryAssigned, currentDate])
 
 
