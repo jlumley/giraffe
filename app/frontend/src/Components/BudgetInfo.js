@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Text } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
+
+import { AccountsContext } from './Layout';
 
 import '../style/BudgetInfo.css'
 import { centsToMoney } from '../utils/money_utils';
@@ -13,6 +14,7 @@ export function BudgetInfo({ category_ids, currentDate }) {
     const [categories, setCategories] = useState([]);
     const [totalAssigned, setTotalAssigned] = useState(0);
     const [totalAvailable, setTotalAvailable] = useState(0);
+    const accountsContext = useContext(AccountsContext);
 
     async function fetchCategories() {
         const today = currentDate.toISOString().slice(0, 10);
@@ -27,7 +29,8 @@ export function BudgetInfo({ category_ids, currentDate }) {
             if (!categories[i].underfunded) continue
             await instance.put(`${categoryRequests.assignCategory}/${categories[i].id}`, { date: today, amount: categories[i].underfunded })
         }
-        fetchCategories()
+        await fetchCategories()
+        accountsContext.updaateContext()
     }
 
     const autoAssignUnderfundedButton = (_categories) => {
