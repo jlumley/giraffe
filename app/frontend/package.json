@@ -9,6 +9,7 @@
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.24.0",
+    "eslint": "^8.15.0",
     "mdi": "^2.2.43",
     "mdi-react": "^8.2.0",
     "npx": "^10.2.2",

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Aside from './Aside'
 import {
     Routes,
@@ -10,58 +10,60 @@ import { Account } from './Account';
 import Reports from './Reports';
 import { Header } from './Header';
 
+import instance from '../axois';
+import accountRequests from '../requests/account';
+
 import '../style/Layout.css'
 
-export const smallScreen = 1000;
+const SMALL_SCREEN = 1000;
+export const AccountsContext = React.createContext({
+    accounts: [],
+    setAccounts: () => { }
+});
 
-export class Layout extends React.Component {
-    constructor(props) {
-        super(props);
-        this.toggleSidebar = this.toggleSidebar.bind(this)
-        this.state = {
-            smallScreen: setScreenSize(),
-            sidebar: false,
+function setScreenSize() {
+    if (window.innerWidth > SMALL_SCREEN) {
+        return false;
+    } else {
+        return true;
+    }
+}
+export function Layout() {
+    const [smallScreen, setSmallScreen] = useState(setScreenSize());
+    const [sidebar, setSidebar] = useState(false);
+    const [accounts, setAccounts] = useState([]);
+
+    function fetchAllAccounts() {
+        async function _fetchAllAccounts() {
+            setAccounts(await (await instance.get(accountRequests.fetchAllAccounts)).data)
         }
+        _fetchAllAccounts()
     }
 
-    toggleSidebar() {
-        this.setState({ sidebar: !this.state.sidebar });
-    }
-
-    componentDidMount() {
+    useEffect(() => {
         window.addEventListener('resize', () => {
-            this.setState({
-                smallScreen: setScreenSize(),
-            });
-        });
-    }
+            setSmallScreen(setScreenSize());
+        })
+        fetchAllAccounts()
+    }, [])
 
-
-    render() {
-        return (
-            <div className="layout">
-                <Header smallScreen={this.state.smallScreen} toggleSidebar={this.toggleSidebar} />
+    return (
+        <div className="layout">
+            <Header smallScreen={smallScreen} toggleSidebar={() => { setSidebar(!sidebar) }} />
+            <AccountsContext.Provider value={{ accounts, setAccounts }}>
                 <div className="mainContent">
-                    {(this.state.sidebar || !this.state.smallScreen) && (
-                        <Aside sidebar={this.state.sidebar} />
+                    {(sidebar || !smallScreen) && (
+                        <Aside sidebar={sidebar} />
                     )}
                     <div className="workspaceContent">
                         <Routes>
                             <Route path="/account/:id" element={<Account />} />
                             <Route path="/reports" element={<Reports />} />
-                            <Route path="/" element={<Budget smallScreen={this.state.smallScreen} />} />
+                            <Route path="/" element={<Budget smallScreen={smallScreen} />} />
                         </Routes>
                     </div>
                 </div>
-            </div>
-        );
-    }
-}
-
-function setScreenSize() {
-    if (window.innerWidth > smallScreen) {
-        return false;
-    } else {
-        return true;
-    }
+            </AccountsContext.Provider>
+        </div>
+    );
 }
