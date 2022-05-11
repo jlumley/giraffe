@@ -12,7 +12,6 @@ category = Blueprint("category", __name__, url_prefix="/category")
 MONTHLY_SAVINGS = "monthly_savings"
 SAVINGS_TARGET = "savings_target"
 SPENDING_TARGET = "spending_target"
-ALLOWED_TARGET_TYPES = [MONTHLY_SAVINGS, SAVINGS_TARGET, SPENDING_TARGET]
 MAX_INT = 2 ** 31 - 1
 
 
@@ -28,6 +27,12 @@ def _get_category_groups():
 def _get_category_names():
     """Get a mapping of category names to ids"""
     return make_response(jsonify(get_category_names()), 200)
+
+
+@category.route("/target/types", methods=("GET",))
+def _get_category_target_types():
+    """Get a mapping of category names to ids"""
+    return make_response(jsonify(get_target_types()), 200)
 
 
 @category.route("/<string:date>", methods=("GET",))
@@ -79,11 +84,11 @@ def _update_category(category_id):
 def _update_category_target(category_id):
     """Update Category target"""
     data = request.get_json()
-    if data["target_type"] not in ALLOWED_TARGET_TYPES:
+    if data["target_type"] not in get_target_types().keys():
         return make_response(
             jsonify(
                 f"Target type not allow, must be one of"
-                f"{','.join(ALLOWED_TARGET_TYPES)}"
+                f"{','.join(get_target_types().keys())}"
             ),
             400,
         )
@@ -504,3 +509,12 @@ def get_credit_card_category_names():
 def get_category_groups():
     """Fetch all the category groups"""
     return db_utils.execute(GET_CATEGORY_GROUPS)
+
+
+def get_target_types():
+    """return dict of all category target types """
+    return dict(
+        monthly_savings="Monthly Savings",
+        savings_target="Savings Target",
+        spending_target="Spending Target"
+    )

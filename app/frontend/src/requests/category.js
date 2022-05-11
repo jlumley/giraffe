@@ -7,10 +7,11 @@ const categoryRequests = {
     fetchCategory: `${PREFIX}`,
     createNewCategory: `${PREFIX}/create`,
     updateCategory: `${PREFIX}/update/`,
-    updateCategoryTarget: `${PREFIX}/update/`,
-    DeleteCategoryTarget: `${PREFIX}/delete/`,
+    updateCategoryTarget: `${PREFIX}/target/`,
+    DeleteCategoryTarget: `${PREFIX}/target/`,
     assignCategory: `${PREFIX}/assign/`,
     unassignCategory: `${PREFIX}/unassign/`,
+    fetchTargetTypes: `${PREFIX}/target/types`,
 };
 
 export default categoryRequests;

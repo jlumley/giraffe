@@ -49,6 +49,12 @@ def test_get_categories(test_client):
     assert category_response.status_code == 200
 
 
+def test_get_category_target_types(test_client):
+    """Test get all category_target_types"""
+    category_response = test_client.get("/category/target/types")
+    assert category_response.status_code == 200
+
+
 def test_get_category(test_client):
     """Test single category by id"""
     category_data = dict(name="category foo2", group="group foo2")
