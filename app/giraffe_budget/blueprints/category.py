@@ -262,12 +262,7 @@ def get_category_target_data(category_id, sql_date):
 
     # if no target is set
     else:
-        assigned_this_month = get_category_assignments_sum(
-            category_id,
-            after=time_utils.get_first_of_the_month(sql_date),
-            before=sql_date,
-        )
-        return dict(**target_data, assigned_this_month=assigned_this_month, underfunded=0)
+        return dict(**target_data, underfunded=0)
 
 
 def get_monthly_savings_target(category_id, sql_date, **target):
@@ -288,7 +283,6 @@ def get_monthly_savings_target(category_id, sql_date, **target):
     underfunded = max(monthly_target - assigned_this_month, 0)
     return dict(
         **target,
-        assigned_this_month=assigned_this_month,
         monthly_target=monthly_target,
         underfunded=underfunded,
     )
@@ -315,7 +309,6 @@ def get_savings_target(category_id, sql_date, **target):
     underfunded = max(monthly_target - assigned_this_month, 0)
     return dict(
         **target,
-        assigned_this_month=assigned_this_month,
         monthly_target=monthly_target,
         underfunded=underfunded,
     )
@@ -337,7 +330,6 @@ def get_spending_target(category_id, sql_date, **target):
     )
     return dict(
         **target,
-        assigned_this_month=assigned_this_month,
         monthly_target=0,
         underfunded=0,
     )
@@ -479,12 +471,20 @@ def get_category(category_id, sql_date):
     target_data = get_category_target_data(category_id, sql_date)
     category = categories[0] | target_data
 
-    category["credit_card"] = (
-        True if category["category_type"] == "credit_card" else False
-    )
+    category["credit_card"] = bool(category["category_type"] == "credit_card")
     category["balance"] = get_category_balance(category_id, sql_date)
     category["target_date"] = time_utils.sqlite_date_to_datestr(category["target_date"])
     category["group"] = category["category_group"]
+    category["assigned_this_month"] = get_category_assignments_sum(
+            category_id,
+            after=time_utils.get_first_of_the_month(sql_date),
+            before=sql_date,
+        )
+    category["spent_this_month"] = get_category_transactions_sum(
+            category_id,
+            after=time_utils.get_first_of_the_month(sql_date),
+            before=sql_date,
+        )
     del category["category_type"]
     del category["category_group"]
 

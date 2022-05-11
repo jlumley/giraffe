@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Category } from './Category'
 
 import PlusCircleOutlineIcon from 'mdi-react/PlusCircleOutlineIcon'
@@ -6,18 +6,14 @@ import PlusCircleOutlineIcon from 'mdi-react/PlusCircleOutlineIcon'
 import '../style/CategoryGroup.css'
 import instance from '../axois';
 import categoryRequests from '../requests/category';
+import { BudgetContext } from './Budget';
 
-
-export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTotalAssigned, updateUnderfunded, selectCategory }) => {
+export const CategoryGroup = ({ name, currentDate, smallScreen, selectCategory }) => {
+  const budgetContext = useContext(BudgetContext);
   const [categoryGroupName, setCategoryGroupName] = useState(name);
-  const [categories, setCategories] = useState([]);
   const [newCategories, setNewCategories] = useState([]);
   const [isCreditCardGroup, setIsCreditCardGroup] = useState(categoryGroupName === "Credit Cards")
 
-
-  useEffect(() => {
-    fetchCategories()
-  }, [])
 
   const category = (category) => {
     return <Category
@@ -25,8 +21,6 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTo
       smallScreen={smallScreen}
       currentDate={currentDate}
       category={category}
-      updateAssignedTotalAssigned={updateAssignedTotalAssigned}
-      updateUnderfunded={updateUnderfunded}
       selectCategory={selectCategory}
     />
   }
@@ -48,22 +42,13 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTo
     setCategoryGroupName(event.target.value);
   }
   const updateCategoryGroupName = (event) => {
-    categories.forEach(cat => {
+    budgetContext.categories.forEach(cat => {
+      if (cat.group !== categoryGroupName) return
       instance.put(`${categoryRequests.updateCategory}${cat.id}`,
         { "group": event.target.value }
       )
     });
   }
-
-  const fetchCategories = () => {
-    async function _fetchCategories() {
-      const today = currentDate.toISOString().slice(0, 10);
-      const resp = await instance.get(`${categoryRequests.fetchAllCategories}/${today}`)
-      setCategories(resp.data.filter(cat => cat.group === categoryGroupName))
-    }
-    _fetchCategories()
-  };
-
 
   return <div>
     <div className="categoryGroupTitle">
@@ -71,7 +56,8 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTo
       {(!isCreditCardGroup) && (<PlusCircleOutlineIcon onClick={createNewCategory} className="newCategoryButton" />)}
     </div>
     <table>
-      {categories.map(c => {
+      {budgetContext.categories.map(c => {
+        if (c.group !== categoryGroupName) return
         return category(c)
       })}
       {newCategories}
