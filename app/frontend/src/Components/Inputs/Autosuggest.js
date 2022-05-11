@@ -8,6 +8,10 @@ export function Autosuggest({ startingValue, options, createOptionUrl, updateMet
     const [optionsArray, setOptionsArray] = useState(options);
     const [value, setValue] = useState(startingValue);
 
+    useEffect(() => {
+    }, [options, startingValue])
+
+
     async function createNewOption(newValue) {
         const resp = await instance.post(createOptionUrl, { name: newValue })
         setValue({ label: newValue, value: resp.data.id })
@@ -22,8 +26,6 @@ export function Autosuggest({ startingValue, options, createOptionUrl, updateMet
         setValue(newValue)
     }
 
-    //useEffect(() => { }, [options])
-
     return (
         <div className="autoSuggestDiv">
             {(allowNewValues) && (
@@ -31,17 +33,16 @@ export function Autosuggest({ startingValue, options, createOptionUrl, updateMet
                     options={optionsArray}
                     value={value}
                     isClearable={allowEmpty}
-                    onChange={(newValue) => { handleChange(newValue) }}
-                    onCreateOption={(newValue) => { createNewOption(newValue) }}
+                    onChange={handleChange}
+                    onCreateOption={createNewOption}
                     maxMenuHeight={175}>
                 </Creatable>)}
             {(!allowNewValues) && (
                 <Select
                     options={optionsArray}
-                    defaultValue={(startingValue)}
+                    defaultValue={value}
                     isClearable={allowEmpty}
-                    onChange={handleChange}
-                    onCreateOption={createNewOption}>
+                    onChange={handleChange}>
                 </Select>)}
         </div>
     );

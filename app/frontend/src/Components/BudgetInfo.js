@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-
-
 import '../style/BudgetInfo.css'
 import { centsToMoney } from '../utils/money_utils';
 import categoryRequests from '../requests/category';
@@ -10,22 +8,34 @@ import DatePicker from 'react-datepicker';
 import { Autosuggest } from './Inputs/Autosuggest';
 
 export function BudgetInfo({ category_ids, currentDate }) {
-    const [categories, setCategories] = useState([]);
+    const [selectedCategories, setSelectedCategories] = useState([]);
     const [totalAssigned, setTotalAssigned] = useState(0);
     const [totalAvailable, setTotalAvailable] = useState(0);
+    const [targetTypesArray, setTargetTypesArray] = useState([]);
+    const [targetTypesObj, setTargetTypesObj] = useState({});
+    const [targetDate, setTargetDate] = useState('');
+    const [targetAmount, setTargetAmount] = useState(null);
+    const [targetType, setTargetType] = useState(null);
+
+    async function fetchTargetTypes() {
+        const _types = (await instance.get(categoryRequests.fetchTargetTypes)).data
+        const _typesArray = Object.keys(_types).map((t) => { return { value: t, label: _types[t] } })
+        setTargetTypesArray(_typesArray)
+        setTargetTypesObj(_types)
+    }
+
 
     async function fetchCategories() {
         const today = currentDate.toISOString().slice(0, 10);
         const resp = await instance.get(`${categoryRequests.fetchAllCategories}/${today}`)
-        setCategories(resp.data.filter(c => category_ids.includes(c.id)))
+        setSelectedCategories(resp.data.filter(c => category_ids.includes(c.id)))
     }
 
     async function autoAssignUnderfunded() {
         const today = currentDate.toISOString().slice(0, 10);
-        for (const i in categories) {
-            console.log(`assigning money to category: ${categories[i].name}`)
-            if (!categories[i].underfunded) continue
-            await instance.put(`${categoryRequests.assignCategory}/${categories[i].id}`, { date: today, amount: categories[i].underfunded })
+        for (const i in selectedCategories) {
+            if (!selectedCategories[i].underfunded) continue
+            await instance.put(`${categoryRequests.assignCategory}/${selectedCategories[i].id}`, { date: today, amount: selectedCategories[i].underfunded })
         }
         await fetchCategories()
     }
@@ -37,30 +47,72 @@ export function BudgetInfo({ category_ids, currentDate }) {
         return (<div className="underfundedButton" onClick={autoAssignUnderfunded}> {`Underfunded: ${centsToMoney(underfunded)}`}</div>)
     }
 
+    function updateTargetType(type) {
+        if (type) {
+            setTargetType(type.value)
+        } else {
+            setTargetType(null)
+        }
+    }
+
+    function updateCategoryTarget() {
+        if (!category_ids) return
+        if (targetType) {
+            instance.put(`${categoryRequests.updateCategoryTarget}/${category_ids[0]}`, {
+                target_amount: parseInt(targetAmount * 100),
+                target_type: targetType,
+                target_date: targetDate ? targetDate.toISOString().slice(0, 10) : ''
+            })
+        }
+    }
+
+    function deleteCategoryTarget() {
+        instance.delete(`${categoryRequests.DeleteCategoryTarget}/${category_ids[0]}`)
+        setTargetType(null)
+        setTargetAmount(null)
+        setTargetDate(null)
+    }
+
     const categoryTarget = (_categories) => {
         if (_categories.length !== 1) return
+        console.log(targetTypesObj[targetType])
+        console.log(targetTypesObj)
         return (
             <div className="categoryTarget">
-                <MoneyInput startingValue={_categories[0].target_amount} />
-                <DatePicker selected={new Date(_categories[0].target_date)} />
-                <Autosuggest startingValue={_categories[0].target_type} />
+                <Autosuggest startingValue={{ value: targetType, label: targetTypesObj[targetType] }} options={targetTypesArray} allowEmpty={true} updateMethod={updateTargetType} />
+                {(targetType) && (<MoneyInput startingValue={targetAmount} updateMethod={(value) => { setTargetAmount(value) }} />)}
+                {(targetType === "savings_target") && (<DatePicker selected={targetDate} onChange={(date) => { setTargetDate(date) }} />)}
             </div>
-
         )
     }
 
     useEffect(() => {
         fetchCategories()
     }, [category_ids, currentDate])
+    useEffect(() => {
+        updateCategoryTarget()
+    }, [targetType, targetAmount, targetDate])
+    useEffect(() => {
+        fetchTargetTypes()
+    }, [])
 
     useEffect(() => {
-        setTotalAvailable(categories.reduce((currentValue, { balance }) => {
+        setTotalAvailable(selectedCategories.reduce((currentValue, { balance }) => {
             return currentValue + balance
         }, 0))
-        setTotalAssigned(categories.reduce((currentValue, { assigned_this_month }) => {
+        setTotalAssigned(selectedCategories.reduce((currentValue, { assigned_this_month }) => {
             return currentValue + assigned_this_month
         }, 0))
-    }, [categories])
+        if (!selectedCategories.length) {
+            setTargetType(null)
+            setTargetAmount(null)
+            setTargetDate(null)
+        } else {
+            setTargetType(selectedCategories[0].target_type)
+            setTargetAmount(selectedCategories[0].target_amount / 100)
+            setTargetDate(new Date(selectedCategories[0].target_date))
+        }
+    }, [selectedCategories])
 
 
     return (<div className="budgetInfo">
@@ -74,8 +126,8 @@ export function BudgetInfo({ category_ids, currentDate }) {
             {centsToMoney(totalAvailable)}
         </div>
         <div className="autoAssign">
-            {autoAssignUnderfundedButton(categories)}
+            {autoAssignUnderfundedButton(selectedCategories)}
         </div>
-        {categoryTarget(categories)}
+        {categoryTarget(selectedCategories)}
     </div>);
 }
