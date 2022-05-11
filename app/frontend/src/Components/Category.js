@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import instance from '../axois';
-import transactionRequests from '../requests/transaction';
 import categoryRequests from '../requests/category';
 
 import { centsToMoney } from '../utils/money_utils'
@@ -15,48 +14,14 @@ export function Category({
     category,
     currentDate,
     smallScreen,
-    updateAssignedTotalAssigned,
-    updateUnderfunded,
     selectCategory
 }) {
     const [categoryName, setCategoryName] = useState(category.name);
     const [categoryAssigned, setCategoryAssigned] = useState(category.assigned_this_month / 100);
-    const [categorySpent, setCategorySpent] = useState(0);
-    const [categoryBalance, setCategoryBalance] = useState(0);
+    const [categoryBalance, setCategoryBalance] = useState(category.balance);
+    const [categorySpent, setCategorySpent] = useState(category.spent_this_month);
     const [selected, setSelected] = useState(false);
 
-    const fetchTransactions = () => {
-        async function _fetchTransactions() {
-            // get today's date YYYY-MM-DD
-            const today = currentDate.toISOString().slice(0, 10);
-            const month_start = `${currentDate.toISOString().slice(0, 8)}01`
-            // get all transactions for this category
-            const params = {
-                categories: category.id,
-                after: month_start,
-                before: today
-            };
-            const resp = await instance.get(transactionRequests.fetchTransactions, { params });
-            var parsed_transactions = [];
-            resp.data.forEach(t => {
-                var amount = 0;
-                t.categories.forEach(c => {
-                    if (c.category_id === category.id) {
-                        amount += c.amount;
-                    }
-                });
-                parsed_transactions.push(
-                    {
-                        date: t.date,
-                        payee: t.payee_id,
-                        amount: amount
-                    }
-                )
-            });
-            setCategorySpent(parsed_transactions.reduce((a, b) => a + b.amount, 0));
-        }
-        _fetchTransactions()
-    }
 
     const fetchCategory = () => {
         async function _fetchCategory() {
@@ -64,16 +29,14 @@ export function Category({
             const resp = await instance.get(`${categoryRequests.fetchCategory}/${category.id}/${today}`)
 
             setCategoryBalance(resp.data.balance)
+            setCategorySpent(resp.data.spent_this_month)
             setCategoryAssigned(resp.data.assigned_this_month / 100)
         }
         _fetchCategory()
     };
 
     useEffect(() => {
-        fetchTransactions()
         fetchCategory()
-        updateAssignedTotalAssigned()
-        updateUnderfunded()
     }, [categoryAssigned, currentDate])
 
 
@@ -117,12 +80,6 @@ export function Category({
         setCategoryAssigned(newValue)
     }
 
-
-    const category_amount = (amount) => {
-        return centsToMoney(amount)
-    }
-
-
     return (
         <tr className="categoryRow">
             {(!smallScreen) && (<td className="selectedColumn">{ifSelected()}</td>)}
@@ -131,8 +88,8 @@ export function Category({
                 {(category.credit_card) && (<input className="categoryName" type="text" value={categoryName} />)}
             </td>
             <td className="assignedColumn"><MoneyInput startingValue={categoryAssigned} updateMethod={updateCategoryAssignment} /></td>
-            {(!smallScreen) && (<td className="spentColumn">{category_amount(categorySpent)}</td>)}
-            <td className="balanceColumn">{category_amount(categoryBalance)}</td>
+            {(!smallScreen) && (<td className="spentColumn">{centsToMoney(categorySpent)}</td>)}
+            <td className="balanceColumn">{centsToMoney(categoryBalance)}</td>
         </tr >
     );
 }

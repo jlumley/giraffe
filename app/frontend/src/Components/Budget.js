@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import instance from '../axois';
 import { CategoryGroup } from './CategoryGroup'
 import ArrowLeftCircleOutlineIcon from 'mdi-react/ArrowLeftCircleOutlineIcon';
@@ -6,14 +6,19 @@ import ArrowRightCircleOutlineIcon from 'mdi-react/ArrowRightCircleOutlineIcon';
 import TabPlusIcon from 'mdi-react/TabPlusIcon'
 
 import categoryRequests from '../requests/category';
-import accountRequests from '../requests/account';
 
 import '../style/Budget.css'
 import { BudgetInfo } from './BudgetInfo';
 import { centsToMoney } from '../utils/money_utils'
 
+export const BudgetContext = React.createContext({
+  categories: [],
+  setCategories: () => { }
+})
+
 export function Budget({ smallScreen }) {
 
+  const [categories, setCategories] = useState([]);
   const [categoryGroups, setCategoryGroups] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [newCategoryGroups, setNewCategoryGroups] = useState([]);
@@ -21,33 +26,27 @@ export function Budget({ smallScreen }) {
   const [readyToAssign, setReadyToAssign] = useState(0);
   const [underfunded, setUnderfunded] = useState(0);
 
-
+  function fetchAllCategories() {
+    async function _fetchAllCategories() {
+      setCategories((await instance.get(`${categoryRequests.fetchAllCategories}/${currentDate.toISOString().slice(0, 10)}`)).data)
+    }
+    _fetchAllCategories()
+  }
+  useEffect(() => { fetchCategoryGroups(); fetchAllCategories() }, [])
+  useEffect(() => { fetchAllCategories() }, [currentDate])
   useEffect(() => {
-    fetchCategoryGroups()
-    fetchReadyToAssign()
-  }, [])
-  useEffect(() => { fetchReadyToAssign() }, [currentDate])
 
+    const _underfunded = categories.reduce((currentValue, nextValue) => {
+      return currentValue + nextValue.underfunded
+    }, 0)
+    setUnderfunded(_underfunded)
 
-  const fetchReadyToAssign = () => {
-    async function _fetchReadyToAssign() {
-      const category = await instance.get(`${categoryRequests.fetchCategory}/1/${currentDate.toISOString().slice(0, 10)}`)
-      setReadyToAssign(category.data.balance)
-    }
-    _fetchReadyToAssign()
-  }
-
-  const fetchUnderfunded = () => {
-    async function _fetchUnderfunded() {
-      const categories = await instance.get(`${categoryRequests.fetchCategory}/${currentDate.toISOString().slice(0, 10)}`)
-      console.log(categories)
-      const underfunded = categories.data.reduce((currentValue, nextValue) => {
-        return currentValue + nextValue.underfunded
-      }, 0)
-      setUnderfunded(underfunded)
-    }
-    _fetchUnderfunded()
-  }
+    const _readyToAssign = categories.reduce((currentValue, nextValue) => {
+      if (nextValue.id === 1) return currentValue + nextValue.balance
+      return currentValue
+    }, 0)
+    setReadyToAssign(_readyToAssign)
+  }, [categories])
 
   const fetchCategoryGroups = () => {
     async function _fetchCategoryGroups() {
@@ -72,8 +71,6 @@ export function Budget({ smallScreen }) {
       name={name}
       currentDate={currentDate}
       smallScreen={smallScreen}
-      updateAssignedTotalAssigned={fetchReadyToAssign}
-      updateUnderfunded={fetchUnderfunded}
       selectCategory={selectCategory} />)
   }
 
@@ -123,42 +120,44 @@ export function Budget({ smallScreen }) {
   }
 
   return (
-    <div className="budgetWorkspace">
-      <div className="budgetContent">
-        <div className="budgetHeader">
-          <div className="monthSelector">
-            < ArrowLeftCircleOutlineIcon onClick={prevMonth} className="arrowDiv" />
-            <div className="currentMonth"> {getMonthString()} </div>
-            < ArrowRightCircleOutlineIcon onClick={nextMonth} className="arrowDiv" />
-          </div>
-          <div className="newCategoryGroup" onClick={createNewCategoryGroup}>
-            <TabPlusIcon size={16} />&nbsp;Category Group
-          </div>
-          <div className="budgetStatDiv">
-            <div className={`budgetStatBox ${readyToAssign < 0 ? 'negativeToBeAssigned' : ''} ${readyToAssign === 0 ? 'neutralToBeAssigned' : ''} ${readyToAssign > 0 ? 'positiveToBeAssigned' : ''}`}>
-              Ready To Assign: <br /> {centsToMoney(readyToAssign)}
+    <BudgetContext.Provider value={{ categories, setCategories }}>
+      <div className="budgetWorkspace">
+        <div className="budgetContent">
+          <div className="budgetHeader">
+            <div className="monthSelector">
+              < ArrowLeftCircleOutlineIcon onClick={prevMonth} className="arrowDiv" />
+              <div className="currentMonth"> {getMonthString()} </div>
+              < ArrowRightCircleOutlineIcon onClick={nextMonth} className="arrowDiv" />
             </div>
-            <div className={`budgetStatBox`}>
-              Underfunded: <br /> {centsToMoney(underfunded)}
+            <div className="newCategoryGroup" onClick={createNewCategoryGroup}>
+              <TabPlusIcon size={16} />&nbsp;Category Group
             </div>
+            <div className="budgetStatDiv">
+              <div className={`budgetStatBox ${readyToAssign < 0 ? 'negativeToBeAssigned' : ''} ${readyToAssign === 0 ? 'neutralToBeAssigned' : ''} ${readyToAssign > 0 ? 'positiveToBeAssigned' : ''}`}>
+                Ready To Assign: <br /> {centsToMoney(readyToAssign)}
+              </div>
+              <div className={`budgetStatBox`}>
+                Underfunded: <br /> {centsToMoney(underfunded)}
+              </div>
+            </div>
+          </div>
+          <table className="budgetColumnTitles">
+            <td className="categeorySelectedColumn"></td>
+            <td className="categeoryNameColumn">Category</td>
+            <td className="categeoryAssignedColumn">Assigned</td>
+            {(!smallScreen) && (<td className="categeorySpentColumn">Spent</td>)}
+            <td className="categeoryAvailableColumn">Available</td>
+          </table>
+          <div className="budgetCategories">
+            {(categoryGroups.map((name) => {
+              return categoryGroup(name)
+            }))}
+            {newCategoryGroups}
           </div>
         </div>
-        <table className="budgetColumnTitles">
-          <td className="categeorySelectedColumn"></td>
-          <td className="categeoryNameColumn">Category</td>
-          <td className="categeoryAssignedColumn">Assigned</td>
-          {(!smallScreen) && (<td className="categeorySpentColumn">Spent</td>)}
-          <td className="categeoryAvailableColumn">Available</td>
-        </table>
-        <div className="budgetCategories">
-          {(categoryGroups.map((name) => {
-            return categoryGroup(name)
-          }))}
-          {newCategoryGroups}
-        </div>
-      </div>
-      {budgetExtraInfo()}
-    </div >
+        {budgetExtraInfo()}
+      </div >
+    </ BudgetContext.Provider >
   );
 
 
