@@ -31,6 +31,7 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, selectCategory }
       name: "New Category",
       group: categoryGroupName
     }).then((resp) => {
+      console.log("hahahah")
       instance.get(`${categoryRequests.fetchCategory}/${resp.data.id}/${today}`).then((resp) => {
         setNewCategories(newCategories.concat(category(resp.data)))
       })

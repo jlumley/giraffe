@@ -15,13 +15,13 @@ export function BudgetInfo({ category_ids, currentDate }) {
     const [targetTypesObj, setTargetTypesObj] = useState({});
     const [targetDate, setTargetDate] = useState('');
     const [targetAmount, setTargetAmount] = useState(null);
-    const [targetType, setTargetType] = useState(null);
+    const [targetType, setTargetType] = useState('');
 
     async function fetchTargetTypes() {
         const _types = (await instance.get(categoryRequests.fetchTargetTypes)).data
         const _typesArray = Object.keys(_types).map((t) => { return { value: t, label: _types[t] } })
-        setTargetTypesArray(_typesArray)
         setTargetTypesObj(_types)
+        setTargetTypesArray(_typesArray)
     }
 
 
@@ -44,7 +44,7 @@ export function BudgetInfo({ category_ids, currentDate }) {
         const underfunded = _categories.reduce((currentValue, nextValue) => {
             return currentValue + nextValue.underfunded
         }, 0)
-        return (<div className="underfundedButton" onClick={autoAssignUnderfunded}> {`Underfunded: ${centsToMoney(underfunded)}`}</div>)
+        return (<div className="budgetInfoButton" onClick={autoAssignUnderfunded}> {`Underfunded: ${centsToMoney(underfunded)}`}</div>)
     }
 
     function updateTargetType(type) {
@@ -73,15 +73,15 @@ export function BudgetInfo({ category_ids, currentDate }) {
         setTargetDate(null)
     }
 
-    const categoryTarget = (_categories) => {
-        if (_categories.length !== 1) return
-        console.log(targetTypesObj[targetType])
-        console.log(targetTypesObj)
+    function categoryTarget() {
+        if (selectedCategories.length !== 1) return
+        const startingValue = selectedCategories[0].target_type;
+        const startingLabel = targetTypesObj[selectedCategories[0].target_type];
         return (
             <div className="categoryTarget">
-                <Autosuggest startingValue={{ value: targetType, label: targetTypesObj[targetType] }} options={targetTypesArray} allowEmpty={true} updateMethod={updateTargetType} />
-                {(targetType) && (<MoneyInput startingValue={targetAmount} updateMethod={(value) => { setTargetAmount(value) }} />)}
+                <Autosuggest startingValue={{ value: startingValue, label: startingLabel }} options={targetTypesArray} allowEmpty={true} updateMethod={updateTargetType} />                {(targetType) && (<MoneyInput startingValue={targetAmount} updateMethod={(value) => { setTargetAmount(value) }} />)}
                 {(targetType === "savings_target") && (<DatePicker selected={targetDate} onChange={(date) => { setTargetDate(date) }} />)}
+                {(targetType) && (<div className="budgetInfoButton" onClick={deleteCategoryTarget}> Remove Target</div>)}
             </div>
         )
     }
@@ -103,14 +103,14 @@ export function BudgetInfo({ category_ids, currentDate }) {
         setTotalAssigned(selectedCategories.reduce((currentValue, { assigned_this_month }) => {
             return currentValue + assigned_this_month
         }, 0))
-        if (!selectedCategories.length) {
-            setTargetType(null)
-            setTargetAmount(null)
-            setTargetDate(null)
-        } else {
+        if (selectedCategories.length === 1) {
             setTargetType(selectedCategories[0].target_type)
             setTargetAmount(selectedCategories[0].target_amount / 100)
             setTargetDate(new Date(selectedCategories[0].target_date))
+        } else {
+            setTargetType(null)
+            setTargetAmount(null)
+            setTargetDate(null)
         }
     }, [selectedCategories])
 
@@ -128,6 +128,6 @@ export function BudgetInfo({ category_ids, currentDate }) {
         <div className="autoAssign">
             {autoAssignUnderfundedButton(selectedCategories)}
         </div>
-        {categoryTarget(selectedCategories)}
+        {categoryTarget(targetType, targetAmount, targetDate)}
     </div>);
 }

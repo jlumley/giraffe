@@ -26,6 +26,7 @@ export function Category({
     const fetchCategory = () => {
         async function _fetchCategory() {
             const today = currentDate.toISOString().slice(0, 10);
+            console.log('hehehehehhehehe')
             const resp = await instance.get(`${categoryRequests.fetchCategory}/${category.id}/${today}`)
 
             setCategoryBalance(resp.data.balance)

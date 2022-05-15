@@ -9,8 +9,9 @@ export function Autosuggest({ startingValue, options, createOptionUrl, updateMet
     const [value, setValue] = useState(startingValue);
 
     useEffect(() => {
-    }, [options, startingValue])
-
+        setOptionsArray(options)
+        setValue(startingValue)
+    }, [options, startingValue]);
 
     async function createNewOption(newValue) {
         const resp = await instance.post(createOptionUrl, { name: newValue })
