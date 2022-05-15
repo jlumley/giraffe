@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import '../style/BudgetInfo.css'
+
 import { centsToMoney } from '../utils/money_utils';
 import categoryRequests from '../requests/category';
 import instance from '../axois';
-import { MoneyInput } from './Inputs/MoneyInput';
-import DatePicker from 'react-datepicker';
-import { Autosuggest } from './Inputs/Autosuggest';
+
+import MoneyInput from './Inputs/MoneyInput';
+import Autosuggest from './Inputs/Autosuggest';
+import DateInput from './Inputs/DateInput';
+
+import '../style/BudgetInfo.css'
 
 export function BudgetInfo({ category_ids, currentDate }) {
     const [selectedCategories, setSelectedCategories] = useState([]);
@@ -77,10 +80,13 @@ export function BudgetInfo({ category_ids, currentDate }) {
         if (selectedCategories.length !== 1) return
         const startingValue = selectedCategories[0].target_type;
         const startingLabel = targetTypesObj[selectedCategories[0].target_type];
+        const categoryName = selectedCategories[0].name;
         return (
             <div className="categoryTarget">
-                <Autosuggest startingValue={{ value: startingValue, label: startingLabel }} options={targetTypesArray} allowEmpty={true} updateMethod={updateTargetType} />                {(targetType) && (<MoneyInput startingValue={targetAmount} updateMethod={(value) => { setTargetAmount(value) }} />)}
-                {(targetType === "savings_target") && (<DatePicker selected={targetDate} onChange={(date) => { setTargetDate(date) }} />)}
+                <div className="categoryTargetTitle">{categoryName} Target</div>
+                <div className="categoryTargetType"> <Autosuggest startingValue={{ value: startingValue, label: startingLabel }} options={targetTypesArray} allowEmpty={true} updateMethod={updateTargetType} /> </div>
+                {(targetType) && (<div className="categoryTargetAmount"> <MoneyInput startingValue={targetAmount} updateMethod={(value) => { setTargetAmount(value) }} /></div>)}
+                {(targetType === "savings_target") && (<div className="categoryTargetDate"> <DateInput selected={targetDate} onChange={(date) => { setTargetDate(date) }} /></div>)}
                 {(targetType) && (<div className="budgetInfoButton" onClick={deleteCategoryTarget}> Remove Target</div>)}
             </div>
         )

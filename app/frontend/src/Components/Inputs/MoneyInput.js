@@ -6,7 +6,7 @@ import CurrencyInput from 'react-currency-input-field';
 import '../../style/MoneyInput.css'
 
 
-export function MoneyInput({ startingValue, updateMethod }) {
+export default function MoneyInput({ startingValue, onBlur }) {
     const [value, setValue] = useState(startingValue);
 
 
@@ -14,12 +14,12 @@ export function MoneyInput({ startingValue, updateMethod }) {
         setValue(startingValue)
     }, [startingValue])
 
-    const handleChange = (event) => {
+    const handleChangeValue = (event) => {
         setValue(event);
     }
 
-    const handleUpdate = (event) => {
-        updateMethod(value)
+    const handleBlur = (event) => {
+        onBlur(value);
     }
 
     return (
@@ -28,7 +28,7 @@ export function MoneyInput({ startingValue, updateMethod }) {
             maxLength="8"
             prefix="$"
             value={value}
-            onValueChange={handleChange}
-            onBlur={handleUpdate} />
+            onValueChange={handleChangeValue}
+            onBlur={handleBlur} />
     );
 }
