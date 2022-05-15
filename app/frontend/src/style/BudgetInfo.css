@@ -27,9 +27,31 @@
     border-radius: 8px;
     border-width: thin;
     border-style: solid;
+    padding: 5%;
+}
+
+.categoryTargetTitle {
+    padding: 5%;
+    font-weight: bold;
+    font-size: 20px !important;
+    color: var(--dark-color);
+    text-align: center;
+}
+
+.categoryTargetDate {
+    margin: 5px;
+}
+
+.categoryTargetType {
+    margin: 5px;
+}
+
+.categoryTargetAmount {
+    margin: 5px;
 }
 
 .budgetInfoButton {
+    margin: 5px;
     width: 50%;
     margin: auto;
     padding: 8px;

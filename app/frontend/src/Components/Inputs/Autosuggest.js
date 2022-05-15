@@ -4,7 +4,7 @@ import Creatable from 'react-select/creatable'
 import instance from '../../axois';
 
 
-export function Autosuggest({ startingValue, options, createOptionUrl, updateMethod, allowNewValues, allowEmpty }) {
+export default function Autosuggest({ startingValue, options, createOptionUrl, updateMethod, allowNewValues, allowEmpty }) {
     const [optionsArray, setOptionsArray] = useState(options);
     const [value, setValue] = useState(startingValue);
 

@@ -14,9 +14,9 @@ import transactionRequests from '../requests/transaction';
 import transferRequests from '../requests/transfer';
 import payeeRequests from '../requests/payee';
 
-import { Autosuggest } from './Inputs/Autosuggest';
+import Autosuggest from './Inputs/Autosuggest';
 import { centsToMoney } from '../utils/money_utils';
-import { MoneyInput } from './Inputs/MoneyInput';
+import MoneyInput from './Inputs/MoneyInput';
 
 
 import "react-datepicker/dist/react-datepicker.css";

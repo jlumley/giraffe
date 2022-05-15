@@ -7,6 +7,7 @@
     border-collapse: separate;
     border-spacing: 0 18em;
 }
+
 .selected {
     box-shadow: 0px 3px 10px var(--dark-color);
 }
@@ -20,14 +21,25 @@
     min-width: 25px;
     width: 25px;
 }
+
 .transactionDate {
     border: none;
     text-align: center;
     width: 90px;
+    border-color: hsl(0, 0%, 80%);
+    border-style: solid;
+    min-height: 34px;
+    border-width: 1px;
+    color: var(--dark-color);
+    border-radius: 4px;
+    padding-left: 5px;
+    min-width: 100px;
+    outline: none;
 }
+
 .transactionMemo {
     width: 80%;
-    border-color: hsl(0,0%, 80%);
+    border-color: hsl(0, 0%, 80%);
     border-style: solid;
     min-height: 34px;
     border-width: 1px;
@@ -44,7 +56,7 @@
     border-bottom: var(--light-grey) solid 1px;
 }
 
-.transactionAmount{
+.transactionAmount {
     width: 20%;
     text-align: right;
 }
@@ -58,7 +70,7 @@
     min-width: 90px;
 }
 
-.transactionAccountColumn{
+.transactionAccountColumn {
     min-width: 100px;
     width: 10%;
     text-align: left;

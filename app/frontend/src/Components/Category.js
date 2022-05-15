@@ -7,7 +7,7 @@ import CheckboxBlankCircleOutlineIcon from 'mdi-react/CheckboxBlankCircleOutline
 import CheckboxMarkedCircleIcon from 'mdi-react/CheckboxMarkedCircleIcon'
 
 import '../style/Category.css'
-import { MoneyInput } from './Inputs/MoneyInput';
+import MoneyInput from './Inputs/MoneyInput';
 
 
 export function Category({
@@ -26,7 +26,6 @@ export function Category({
     const fetchCategory = () => {
         async function _fetchCategory() {
             const today = currentDate.toISOString().slice(0, 10);
-            console.log('hehehehehhehehe')
             const resp = await instance.get(`${categoryRequests.fetchCategory}/${category.id}/${today}`)
 
             setCategoryBalance(resp.data.balance)
@@ -67,7 +66,6 @@ export function Category({
     }
 
     const updateCategoryAssignment = (newValue) => {
-
         const req_data = {
             amount: (newValue - categoryAssigned) * 100,
             date: currentDate.toISOString().slice(0, 10)
@@ -88,7 +86,7 @@ export function Category({
                 {(!category.credit_card) && (<input className="categoryName" type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} />)}
                 {(category.credit_card) && (<input className="categoryName" type="text" value={categoryName} />)}
             </td>
-            <td className="assignedColumn"><MoneyInput startingValue={categoryAssigned} updateMethod={updateCategoryAssignment} /></td>
+            <td className="assignedColumn"><MoneyInput startingValue={categoryAssigned} onBlur={updateCategoryAssignment} /></td>
             {(!smallScreen) && (<td className="spentColumn">{centsToMoney(categorySpent)}</td>)}
             <td className="balanceColumn">{centsToMoney(categoryBalance)}</td>
         </tr >
