@@ -25,8 +25,15 @@
     cursor: pointer;
 }
 
+.accountBalance {
+    padding: 15px;
+    font-weight: bold;
+    font-size: 20px !important;
+    color: var(--dark-color);
+}
+
 .accountTransactionsContent {
-    min-height:200px;
+    min-height: 200px;
     flex-grow: 1;
     overflow: auto;
 }
@@ -40,36 +47,44 @@ table {
     position: sticky;
     top: -2px;
     z-index: 1;
-    background-color:  var(--light-solid-background);
+    background-color: var(--light-solid-background);
 }
+
 .accountTransactionsTableBody {
-    overflow-y:scroll;
+    overflow-y: scroll;
 }
+
 .accountTransactionsClearedColumn {
     width: fit-content;
     padding: 2px;
 }
+
 .accountTransactionsDateColumn {
     padding-right: 5px;
     padding-left: 5px;
     width: 80px;
 }
+
 .accountTransactionsAccountColumn {
     width: 15%;
     min-width: 35px;
 }
+
 .accountTransactionsPayeeColumn {
     width: 15%;
     min-width: 35px;
 }
+
 .accountTransactionsMemoColumn {
     width: 20%;
     min-width: 35px;
 }
+
 .accountTransactionsCategoryColumn {
     width: 40%;
     min-width: 300px;
 }
+
 .accountTransactionsAmountColumn {
     width: 10%;
     min-width: 30px;

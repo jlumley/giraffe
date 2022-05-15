@@ -10,6 +10,7 @@ import transactionRequests from '../requests/transaction';
 import accountRequests from '../requests/account';
 
 import '../style/Account.css'
+import { centsToMoney } from '../utils/money_utils';
 
 
 export const Account = () => {
@@ -18,7 +19,9 @@ export const Account = () => {
     const [payees, setPayees] = useState({});
     const [categories, setCategories] = useState({});
     const [accounts, setAccounts] = useState([]);
+    const [currentAccount, setCurrentAccount] = useState(null);
     const { id } = useParams();
+
 
     const newEmptyTransaction = {
         date: new Date().toLocaleString().slice(0, 10),
@@ -77,11 +80,20 @@ export const Account = () => {
         _fetchAccounts()
     }
 
+    function fetchCurrentAccount() {
+        async function _fetchCurrentAccount() {
+            const a = await instance.get(`${accountRequests.fetchAccount}${id}`)
+            setCurrentAccount(a.data)
+        }
+        _fetchCurrentAccount()
+    }
+
     useEffect(() => {
         fetchTransactions();
         fetchCategories();
         fetchPayees();
         fetchAccounts();
+        fetchCurrentAccount();
     }, [id]);
 
     useEffect(() => {
@@ -143,6 +155,29 @@ export const Account = () => {
 
     }
 
+    function accountClearedBalance() {
+        if (!currentAccount) return
+        return (
+            `Cleared: ${centsToMoney(currentAccount.cleared_balance)}`
+        )
+    }
+
+    function accountUnclearedBalance() {
+        if (!currentAccount) return
+        return (
+            `Uncleared: ${centsToMoney(currentAccount.uncleared_balance)}`
+        )
+    }
+
+    function accountTotalBalance() {
+        if (!currentAccount) return
+        const totalBalance = (currentAccount.cleared_balance + currentAccount.uncleared_balance)
+        return (
+            `Balance: ${centsToMoney(totalBalance)} `
+        )
+    }
+
+
     const createTransactions = (transaction) => {
         return <Transaction
             key={transaction.id}
@@ -161,6 +196,7 @@ export const Account = () => {
         <div className="accountContent">
             <div className="accountHeader">
                 <div className="addTransactionButton" onClick={() => { addNewTransaction() }}>New Transaction </div>
+                <div className="accountBalance"> {accountClearedBalance()} + {accountUnclearedBalance()} = {accountTotalBalance()}</div>
                 <div className="filterTransactionsButton" />
                 <div className="searchTransactions" />
             </div>
