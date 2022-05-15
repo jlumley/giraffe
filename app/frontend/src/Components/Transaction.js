@@ -305,7 +305,7 @@ export const Transaction = ({
                     <tbody><tr>
                         <td className="deleteTransactionCategory"><CloseCircleOutlineIcon size={15} onClick={() => { removeCategory(index) }} /></td>
                         <td className="transactionCategoryName"><Autosuggest startingValue={{ value: _category.category_id, label: categories[_category.category_id] }} options={categoryOptions()} updateMethod={(newValue) => { updateTransactionCategoryNames(index, newValue.value) }} /> </td>
-                        <td className="transactionCategoryAmount"><MoneyInput startingValue={_category.amount / 100} updateMethod={(e) => { updateTransactionAmounts(index, e) }} updateOnChange={true} /></td>
+                        <td className="transactionCategoryAmount"><MoneyInput startingValue={_category.amount / 100} onBlur={(e) => { updateTransactionAmounts(index, e) }} updateOnChange={true} /></td>
                     </tr></tbody>
                 </table>
                 );
@@ -325,7 +325,7 @@ export const Transaction = ({
 
     const transactionAmountDiv = () => {
         if (selected) {
-            return (<div ><MoneyInput startingValue={transactionAmount / 100} updateMethod={(e) => { setTransactionAmount(e * 100) }} updateOnChange={true} /></div>);
+            return (<div ><MoneyInput startingValue={transactionAmount / 100} onBlur={(e) => { setTransactionAmount(e * 100) }} updateOnChange={true} /></div>);
         } else {
             return (<div>{centsToMoney(transactionAmount)}</div>)
         }
