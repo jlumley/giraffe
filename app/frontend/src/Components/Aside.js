@@ -22,7 +22,7 @@ export function Aside({ }) {
                 <div className="accountNameDiv">
                   {a.name}
                 </div>
-                <div className="accountBalanceDiv">
+                <div className="sidebarAccountBalanceDiv">
                   {centsToMoney(a.cleared_balance + a.uncleared_balance)}
                 </div>
               </div>

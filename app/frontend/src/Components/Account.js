@@ -13,7 +13,7 @@ import '../style/Account.css'
 import { centsToMoney } from '../utils/money_utils';
 
 
-export const Account = () => {
+export const Account = ({ smallScreen }) => {
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [payees, setPayees] = useState({});
@@ -158,14 +158,20 @@ export const Account = () => {
     function accountClearedBalance() {
         if (!currentAccount) return
         return (
-            `Cleared: ${centsToMoney(currentAccount.cleared_balance)}`
+            <div className="accountBalanceDiv">
+                <div className="accountBalanceTitle"> Cleared</div>
+                <div className="accountBalanceAmount">{centsToMoney(currentAccount.cleared_balance)}</div>
+            </div>
         )
     }
 
     function accountUnclearedBalance() {
         if (!currentAccount) return
         return (
-            `Uncleared: ${centsToMoney(currentAccount.uncleared_balance)}`
+            <div className="accountBalanceDiv">
+                <div className="accountBalanceTitle"> Uncleared</div>
+                <div className="accountBalanceAmount">{centsToMoney(currentAccount.uncleared_balance)}</div>
+            </div>
         )
     }
 
@@ -173,7 +179,10 @@ export const Account = () => {
         if (!currentAccount) return
         const totalBalance = (currentAccount.cleared_balance + currentAccount.uncleared_balance)
         return (
-            `Balance: ${centsToMoney(totalBalance)} `
+            <div className="accountBalanceDiv">
+                <div className="accountBalanceTitle"> Balance</div>
+                <div className="accountBalanceAmount">{centsToMoney(totalBalance)}</div>
+            </div>
         )
     }
 
@@ -192,11 +201,22 @@ export const Account = () => {
             fetchPayees={() => { fetchPayees() }} />
     }
 
+    const showReconciliationModal = () => {
+        console.log('clicked')
+    }
+
     return (
         <div className="accountContent">
             <div className="accountHeader">
+                <div className="flexbox">
+                    <div className="accountBalance">
+                        {(!smallScreen) && (accountClearedBalance())}
+                        {(!smallScreen) && (accountUnclearedBalance())}
+                        {accountTotalBalance()}
+                    </div>
+                    <div className="reconcileAccountButton" onClick={showReconciliationModal}> Reconcile Account</div>
+                </div>
                 <div className="addTransactionButton" onClick={() => { addNewTransaction() }}>New Transaction </div>
-                <div className="accountBalance"> {accountClearedBalance()} + {accountUnclearedBalance()} = {accountTotalBalance()}</div>
                 <div className="filterTransactionsButton" />
                 <div className="searchTransactions" />
             </div>

@@ -24,7 +24,7 @@
   width: fit-content;
 }
 
-.accountBalanceDiv {
+.sidebarAccountBalanceDiv {
   flex-grow: 1;
   text-align: right;
   padding-right: 25px;

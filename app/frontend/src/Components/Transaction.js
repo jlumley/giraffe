@@ -8,6 +8,7 @@ import CheckboxBlankOutlineIcon from "mdi-react/CheckboxBlankOutlineIcon"
 import PlusCircleOutlineIcon from 'mdi-react/PlusCircleOutlineIcon'
 import CloseCircleOutlineIcon from 'mdi-react/CloseCircleOutlineIcon'
 import TrashCanOutlineIcon from 'mdi-react/TrashCanOutlineIcon'
+import LockOutlineIcon from 'mdi-react/LockOutlineIcon'
 import CheckIcon from 'mdi-react/CheckIcon'
 
 import transactionRequests from '../requests/transaction';
@@ -271,6 +272,10 @@ export const Transaction = ({
     }
 
     const clearedIcon = () => {
+        console.log(transaction)
+        if (transaction.reconciled) {
+            return <LockOutlineIcon size="18px" />
+        }
         if (cleared) {
             return <CheckboxMarkedIcon className="clearedIcon" size="18px" onClick={updateTransactionCleared} />
         } else {
