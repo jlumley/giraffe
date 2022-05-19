@@ -57,7 +57,7 @@ export function Layout() {
                     )}
                     <div className="workspaceContent">
                         <Routes>
-                            <Route path="/account/:id" element={<Account />} />
+                            <Route path="/account/:id" element={<Account smallScreen={smallScreen} />} />
                             <Route path="/reports" element={<Reports />} />
                             <Route path="/" element={<Budget smallScreen={smallScreen} />} />
                         </Routes>

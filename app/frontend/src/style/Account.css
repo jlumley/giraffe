@@ -15,6 +15,10 @@
     background-color: var(--light-grey);
 }
 
+.flexbox {
+    display: flex;
+}
+
 .addTransactionButton {
     background-color: var(--table-background-even);
     width: fit-content;
@@ -22,14 +26,35 @@
     padding: 8px;
     border-radius: 3px;
     text-align: left;
+    user-select: none;
     cursor: pointer;
 }
 
+.reconcileAccountButton {
+    float: right;
+    width: 100px;
+    height: max-content;
+    padding: 5px;
+    margin: 10px;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+    background-color: var(--light-grey);
+}
+
 .accountBalance {
+    display: flex;
     padding: 15px;
+    flex-grow: 1;
     font-weight: bold;
     font-size: 20px !important;
     color: var(--dark-color);
+}
+
+.accountBalanceDiv {
+    margin: 10px;
+    text-align: center;
 }
 
 .accountTransactionsContent {
