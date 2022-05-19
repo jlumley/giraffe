@@ -16,9 +16,9 @@ export function BudgetInfo({ category_ids, currentDate }) {
     const [totalAvailable, setTotalAvailable] = useState(0);
     const [targetTypesArray, setTargetTypesArray] = useState([]);
     const [targetTypesObj, setTargetTypesObj] = useState({});
-    const [targetDate, setTargetDate] = useState('');
+    const [targetDate, setTargetDate] = useState(null);
     const [targetAmount, setTargetAmount] = useState(null);
-    const [targetType, setTargetType] = useState('');
+    const [targetType, setTargetType] = useState(null);
 
     async function fetchTargetTypes() {
         const _types = (await instance.get(categoryRequests.fetchTargetTypes)).data
@@ -58,14 +58,15 @@ export function BudgetInfo({ category_ids, currentDate }) {
         }
     }
 
-    function updateCategoryTarget() {
+    async function updateCategoryTarget() {
         if (!category_ids) return
         if (targetType) {
-            instance.put(`${categoryRequests.updateCategoryTarget}/${category_ids[0]}`, {
+            await instance.put(`${categoryRequests.updateCategoryTarget}/${category_ids[0]}`, {
                 target_amount: parseInt(targetAmount * 100),
                 target_type: targetType,
                 target_date: targetDate ? targetDate.toISOString().slice(0, 10) : ''
             })
+            fetchCategories()
         }
     }
 
@@ -85,7 +86,7 @@ export function BudgetInfo({ category_ids, currentDate }) {
             <div className="categoryTarget">
                 <div className="categoryTargetTitle">{categoryName} Target</div>
                 <div className="categoryTargetType"> <Autosuggest startingValue={{ value: startingValue, label: startingLabel }} options={targetTypesArray} allowEmpty={true} updateMethod={updateTargetType} /> </div>
-                {(targetType) && (<div className="categoryTargetAmount"> <MoneyInput startingValue={targetAmount} updateMethod={(value) => { setTargetAmount(value) }} /></div>)}
+                {(targetType) && (<div className="categoryTargetAmount"> <MoneyInput startingValue={targetAmount} onBlur={(value) => { setTargetAmount(value) }} /></div>)}
                 {(targetType === "savings_target") && (<div className="categoryTargetDate"> <DateInput selected={targetDate} onChange={(date) => { setTargetDate(date) }} /></div>)}
                 {(targetType) && (<div className="budgetInfoButton" onClick={deleteCategoryTarget}> Remove Target</div>)}
             </div>
@@ -112,7 +113,7 @@ export function BudgetInfo({ category_ids, currentDate }) {
         if (selectedCategories.length === 1) {
             setTargetType(selectedCategories[0].target_type)
             setTargetAmount(selectedCategories[0].target_amount / 100)
-            setTargetDate(new Date(selectedCategories[0].target_date))
+            setTargetDate(selectedCategories[0].target_date ? new Date(selectedCategories[0].target_date) : new Date())
         } else {
             setTargetType(null)
             setTargetAmount(null)
