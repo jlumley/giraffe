@@ -20,6 +20,7 @@
     "react-datepicker": "^4.6.0",
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",
+    "react-modal": "^3.15.1",
     "react-pro-sidebar": "^0.7.1",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",

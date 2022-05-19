@@ -10,6 +10,7 @@ import transactionRequests from '../requests/transaction';
 import accountRequests from '../requests/account';
 import '../style/Account.css'
 import { centsToMoney } from '../utils/money_utils';
+import { AccountReconciliationModal } from './AccountReconciliationModal';
 
 
 export const Account = ({ smallScreen }) => {
@@ -200,10 +201,6 @@ export const Account = ({ smallScreen }) => {
             fetchPayees={() => { fetchPayees() }} />
     }
 
-    const showReconciliationModal = () => {
-        console.log('clicked')
-    }
-
     return (
         <div className="accountContent">
             <div className="accountHeader">
@@ -213,7 +210,8 @@ export const Account = ({ smallScreen }) => {
                         {(!smallScreen) && (accountUnclearedBalance())}
                         {accountTotalBalance()}
                     </div>
-                    <div className="reconcileAccountButton" onClick={showReconciliationModal}> Reconcile Account</div>
+                    {(currentAccount) && (<AccountReconciliationModal account={currentAccount}/>)}
+
                 </div>
                 <div className="addTransactionButton" onClick={() => { addNewTransaction() }}>New Transaction </div>
                 <div className="filterTransactionsButton" />
