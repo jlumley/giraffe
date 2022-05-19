@@ -272,7 +272,6 @@ export const Transaction = ({
     }
 
     const clearedIcon = () => {
-        console.log(transaction)
         if (transaction.reconciled) {
             return <LockOutlineIcon size="18px" />
         }

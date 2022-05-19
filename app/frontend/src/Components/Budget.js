@@ -40,7 +40,6 @@ export function Budget({ smallScreen }) {
   const fetchUnderfunded = () => {
     async function _fetchUnderfunded() {
       const categories = await instance.get(`${categoryRequests.fetchCategory}/${currentDate.toISOString().slice(0, 10)}`)
-      console.log(categories)
       const underfunded = categories.data.reduce((currentValue, nextValue) => {
         return currentValue + nextValue.underfunded
       }, 0)
