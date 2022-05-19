@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Category } from './Category'
 
 import PlusCircleOutlineIcon from 'mdi-react/PlusCircleOutlineIcon'
@@ -6,14 +6,16 @@ import PlusCircleOutlineIcon from 'mdi-react/PlusCircleOutlineIcon'
 import '../style/CategoryGroup.css'
 import instance from '../axois';
 import categoryRequests from '../requests/category';
-import { BudgetContext } from './Budget';
 
-export const CategoryGroup = ({ name, currentDate, smallScreen, selectCategory }) => {
-  const budgetContext = useContext(BudgetContext);
+export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTotalAssigned, updateUnderfunded, selectCategory }) => {
   const [categoryGroupName, setCategoryGroupName] = useState(name);
+  const [categories, setCategories] = useState([]);
   const [newCategories, setNewCategories] = useState([]);
   const [isCreditCardGroup, setIsCreditCardGroup] = useState(categoryGroupName === "Credit Cards")
 
+  useEffect(() => {
+    fetchCategories()
+  }, [])
 
   const category = (category) => {
     return <Category
@@ -21,9 +23,20 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, selectCategory }
       smallScreen={smallScreen}
       currentDate={currentDate}
       category={category}
+      updateAssignedTotalAssigned={updateAssignedTotalAssigned}
+      updateUnderfunded={updateUnderfunded}
       selectCategory={selectCategory}
     />
   }
+
+  const fetchCategories = () => {
+    async function _fetchCategories() {
+      const today = currentDate.toISOString().slice(0, 10);
+      const resp = await instance.get(`${categoryRequests.fetchAllCategories}/${today}`)
+      setCategories(resp.data.filter(cat => cat.group === categoryGroupName))
+    }
+    _fetchCategories()
+  };
 
   const createNewCategory = () => {
     const today = currentDate.toISOString().slice(0, 10);
@@ -31,7 +44,6 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, selectCategory }
       name: "New Category",
       group: categoryGroupName
     }).then((resp) => {
-      console.log("hahahah")
       instance.get(`${categoryRequests.fetchCategory}/${resp.data.id}/${today}`).then((resp) => {
         setNewCategories(newCategories.concat(category(resp.data)))
       })
@@ -43,8 +55,7 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, selectCategory }
     setCategoryGroupName(event.target.value);
   }
   const updateCategoryGroupName = (event) => {
-    budgetContext.categories.forEach(cat => {
-      if (cat.group !== categoryGroupName) return
+    categories.forEach(cat => {
       instance.put(`${categoryRequests.updateCategory}${cat.id}`,
         { "group": event.target.value }
       )
@@ -57,8 +68,7 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, selectCategory }
       {(!isCreditCardGroup) && (<PlusCircleOutlineIcon onClick={createNewCategory} className="newCategoryButton" />)}
     </div>
     <table>
-      {budgetContext.categories.map(c => {
-        if (c.group !== categoryGroupName) return
+      {categories.map(c => {
         return category(c)
       })}
       {newCategories}
