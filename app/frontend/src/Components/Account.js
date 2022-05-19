@@ -8,7 +8,6 @@ import categoryRequests from '../requests/category';
 import payeeRequests from '../requests/payee';
 import transactionRequests from '../requests/transaction';
 import accountRequests from '../requests/account';
-
 import '../style/Account.css'
 import { centsToMoney } from '../utils/money_utils';
 

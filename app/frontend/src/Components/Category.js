@@ -14,7 +14,9 @@ export function Category({
     category,
     currentDate,
     smallScreen,
-    selectCategory
+    selectCategory,
+    updateAssignedTotalAssigned,
+    updateUnderfunded,
 }) {
     const [categoryName, setCategoryName] = useState(category.name);
     const [categoryAssigned, setCategoryAssigned] = useState(category.assigned_this_month / 100);
@@ -37,6 +39,8 @@ export function Category({
 
     useEffect(() => {
         fetchCategory()
+        updateAssignedTotalAssigned()
+        updateUnderfunded()
     }, [categoryAssigned, currentDate])
 
 
