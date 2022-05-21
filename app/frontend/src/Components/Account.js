@@ -198,7 +198,8 @@ export const Account = ({ smallScreen }) => {
             selectTransaction={selectTransaction}
             deleteTransaction={() => { deleteTransaction(transaction.id) }}
             deleteTransfer={() => { deleteTransfer(transaction.transfer_id) }}
-            fetchPayees={() => { fetchPayees() }} />
+            fetchPayees={() => { fetchPayees() }} 
+            reloadAccount={() => {fetchCurrentAccount()}}/>
     }
 
     return (
@@ -210,7 +211,7 @@ export const Account = ({ smallScreen }) => {
                         {(!smallScreen) && (accountUnclearedBalance())}
                         {accountTotalBalance()}
                     </div>
-                    {(currentAccount) && (<AccountReconciliationModal account={currentAccount}/>)}
+                    {(currentAccount) && (<AccountReconciliationModal account={currentAccount} reloadAccount={() => {fetchCurrentAccount(); fetchTransactions()}}/>)}
 
                 </div>
                 <div className="addTransactionButton" onClick={() => { addNewTransaction() }}>New Transaction </div>
