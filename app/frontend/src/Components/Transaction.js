@@ -95,11 +95,15 @@ export const Transaction = ({
     }
 
     function updateTransactionCleared() {
-        instance.put(
-            `${transactionRequests.updateTransaction}${transactionId}`,
-            { cleared: !cleared }
-        )
-        setCleared(!cleared)
+        async function _updateTransactionCleared (){
+            await instance.put(
+                `${transactionRequests.updateTransaction}${transactionId}`,
+                { cleared: !cleared }
+            )
+            setCleared(!cleared)
+            reloadAccount()
+            }
+        _updateTransactionCleared()
     }
 
     function consolidateCategories() {
