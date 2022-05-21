@@ -33,7 +33,8 @@ export const Transaction = ({
     selectTransaction,
     deleteTransaction,
     deleteTransfer,
-    fetchPayees
+    fetchPayees,
+    reloadAccount,
 }) => {
     const [transactionId, setTransactionId] = useState(transaction.id);
     const [transfer, setTransfer] = useState(transaction.transfer_id ? true : false)
@@ -242,7 +243,9 @@ export const Transaction = ({
                 await _updateTransaction()
             }
         }
+        reloadAccount()
         selectTransaction(null)
+
     }
 
     useEffect(() => {
