@@ -2,6 +2,7 @@ import React from 'react'
 import DatePicker from 'react-datepicker';
 
 import '../../style/DateInput.css'
+import "react-datepicker/dist/react-datepicker.css";
 
 
 export default function DateInput({ selected, onChange }) {
