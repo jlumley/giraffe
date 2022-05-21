@@ -19,8 +19,6 @@ import Autosuggest from './Inputs/Autosuggest';
 import { centsToMoney } from '../utils/money_utils';
 import MoneyInput from './Inputs/MoneyInput';
 
-
-import "react-datepicker/dist/react-datepicker.css";
 import "../style/Transaction.css"
 
 
@@ -339,14 +337,14 @@ export const Transaction = ({
     }
 
     return (
-        <tr className={`transactionRow ${selected ? 'selected' : ''}`} onClick={selectCurrentTransaction}>
+        <tr className={`transactionRow ${selected ? 'selected' : ''}`}>
             <td className="transactionClearedColumn"> {clearedIcon()} </td>
-            <td className="transactionDateColumn"> {transactionDateSelector()} </td>
-            <td className="transactionAccountColumn"> {accountInputField()} </td>
-            <td className="transactionPayeeColumn"> {payeeInputField()} </td>
-            <td className="transactionMemoColumn"> {memoInputField()} </td>
-            <td className="transactionCategoriesColumn"> {transactionCategory()} </td>
-            <td className="transactionAmountColumn"> {transactionAmountDiv()} </td>
+            <td className="transactionDateColumn" onClick={selectCurrentTransaction} > {transactionDateSelector()} </td>
+            <td className="transactionAccountColumn" onClick={selectCurrentTransaction} > {accountInputField()} </td>
+            <td className="transactionPayeeColumn" onClick={selectCurrentTransaction} > {payeeInputField()} </td>
+            <td className="transactionMemoColumn" onClick={selectCurrentTransaction} > {memoInputField()} </td>
+            <td className="transactionCategoriesColumn" onClick={selectCurrentTransaction} > {transactionCategory()} </td>
+            <td className="transactionAmountColumn" onClick={selectCurrentTransaction} > {transactionAmountDiv()} </td>
             {(selected) && (<td className="transactionSaveColumn">
                 <div ref={updateTransactionButton} onClick={() => { update() }}><CheckIcon /></div>
                 <div ref={deleteTransactionButton} onClick={() => {
