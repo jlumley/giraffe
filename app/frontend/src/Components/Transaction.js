@@ -39,13 +39,13 @@ export const Transaction = ({
     const [transfer, setTransfer] = useState(transaction.transfer_id ? true : false)
     const [cleared, setCleared] = useState(transaction.cleared);
     const [transferId, setTransferId] = useState(transaction.transfer_id);
-    const [transactionDate, setTransactionDate] = useState(new Date(transaction.date));
-    const [transactionAccountId, setTransactionAccountId] = useState(transaction.account_id);
-    const [transactionAccountLabel, setTransactionAccountLabel] = useState(transaction.account_label);
-    const [transactionPayeeId, setTransactionPayeeId] = useState(transaction.payee_id);
-    const [transactionPayeeLabel, setTransactionPayeeLabel] = useState(transaction.payee_label)
-    const [transactionMemo, setTransactionMemo] = useState(transaction.memo);
-    const [transactionAmount, setTransactionAmount] = useState(transaction.amount);
+    const [date, setDate] = useState(new Date(transaction.date));
+    const [accountId, setAccountId] = useState(transaction.account_id);
+    const [accountLabel, setAccountLabel] = useState(transaction.account_label);
+    const [payeeId, setPayeeId] = useState(transaction.payee_id);
+    const [payeeLabel, setPayeeLabel] = useState(transaction.payee_label)
+    const [memo, setMemo] = useState(transaction.memo);
+    const [amount, setAmount] = useState(transaction.amount);
     const [transactionCategories, setTransactionCategories] = useState(transaction.categories.map(obj => ({ ...obj, uuid: uuidv4() })));
     const updateTransactionButton = useRef(null);
     const deleteTransactionButton = useRef(null);
@@ -69,12 +69,12 @@ export const Transaction = ({
     function reloadTransaction() {
         async function _reloadTransaction() {
             instance.get(`${transactionRequests.fetchTransaction}${transactionId}`).then((resp) => {
-                setTransactionDate(convertDateToUTC(new Date(resp.data.date)));
-                setTransactionAccountId(resp.data.account_id);
-                setTransactionPayeeId(resp.data.payee_id);
-                setTransactionAccountLabel(resp.data.account_label);
-                setTransactionPayeeLabel(resp.data.payee_label);
-                setTransactionMemo(resp.data.memo);
+                setDate(convertDateToUTC(new Date(resp.data.date)));
+                setAccountId(resp.data.account_id);
+                setPayeeId(resp.data.payee_id);
+                setAccountLabel(resp.data.account_label);
+                setPayeeLabel(resp.data.payee_label);
+                setMemo(resp.data.memo);
                 setTransactionCategories(resp.data.categories.map(obj => ({ ...obj, uuid: uuidv4() })));
             })
             fetchPayees()
@@ -148,14 +148,14 @@ export const Transaction = ({
     async function _createTransaction() {
         var _categories = consolidateCategories()
         var transactionData = {
-            date: transactionDate.toISOString().slice(0, 10),
+            date: date.toISOString().slice(0, 10),
             cleared: cleared,
-            memo: transactionMemo ? transactionMemo : '',
-            account_id: parseInt(transactionAccountId),
+            memo: memo ? memo : '',
+            account_id: parseInt(accountId),
             categories: _categories,
-            amount: transactionAmount ? transactionAmount : _categories.reduce((prev, curr) => prev + curr.amount, 0)
+            amount: amount ? amount : _categories.reduce((prev, curr) => prev + curr.amount, 0)
         }
-        if (transactionPayeeId) transactionData.payee_id = parseInt(transactionPayeeId)
+        if (payeeId) transactionData.payee_id = parseInt(payeeId)
         const resp = await instance.post(
             `${transactionRequests.createNewTransaction}`,
             transactionData
@@ -164,41 +164,41 @@ export const Transaction = ({
     }
     async function _createTransfer() {
         var transferData = {
-            date: transactionDate.toISOString().slice(0, 10),
+            date: date.toISOString().slice(0, 10),
             cleared: cleared,
-            memo: transactionMemo ? transactionMemo : '',
-            amount: transactionAmount,
+            memo: memo ? memo : '',
+            amount: amount,
         }
         if (transferData.amount > 0) {
-            transferData.from_account_id = parseInt(transactionPayeeId)
-            transferData.to_account_id = parseInt(transactionAccountId)
+            transferData.from_account_id = parseInt(payeeId)
+            transferData.to_account_id = parseInt(accountId)
         } else {
-            transferData.from_account_id = parseInt(transactionAccountId)
-            transferData.to_account_id = parseInt(transactionPayeeId)
+            transferData.from_account_id = parseInt(accountId)
+            transferData.to_account_id = parseInt(payeeId)
         }
         const resp = await instance.post(
             `${transferRequests.createNewTransfer}`,
             transferData
         )
         var _transactionId;
-        for (const t in resp.data) { if (t.account_id === transactionAccountId) _transactionId = t.id }
+        for (const t in resp.data) { if (t.account_id === accountId) _transactionId = t.id }
         setTransactionId(_transactionId)
         setTransferId(resp.data[0].transfer_id)
     }
 
     async function _updateTransfer() {
         var transferData = {
-            date: transactionDate.toISOString().slice(0, 10),
+            date: date.toISOString().slice(0, 10),
             cleared: cleared,
-            memo: transactionMemo ? transactionMemo : '',
-            amount: transactionAmount,
+            memo: memo ? memo : '',
+            amount: amount,
         }
         if (transferData.amount > 0) {
-            transferData.from_account_id = parseInt(transactionPayeeId)
-            transferData.to_account_id = parseInt(transactionAccountId)
+            transferData.from_account_id = parseInt(payeeId)
+            transferData.to_account_id = parseInt(accountId)
         } else {
-            transferData.from_account_id = parseInt(transactionAccountId)
-            transferData.to_account_id = parseInt(transactionPayeeId)
+            transferData.from_account_id = parseInt(accountId)
+            transferData.to_account_id = parseInt(payeeId)
         }
         await instance.put(
             `${transferRequests.updateTransfer}${transferId}`,
@@ -209,14 +209,14 @@ export const Transaction = ({
     async function _updateTransaction() {
         const _categories = consolidateCategories()
         const transactionData = {
-            date: transactionDate.toISOString().slice(0, 10),
+            date: date.toISOString().slice(0, 10),
             cleared: cleared,
-            memo: transactionMemo ? transactionMemo : '',
-            account_id: parseInt(transactionAccountId),
+            memo: memo ? memo : '',
+            account_id: parseInt(accountId),
             categories: _categories,
-            amount: transactionAmount ? transactionAmount : _categories.reduce((prev, curr) => prev + curr.amount, 0)
+            amount: amount ? amount : _categories.reduce((prev, curr) => prev + curr.amount, 0)
         }
-        if (transactionPayeeId) transactionData.payee_id = parseInt(transactionPayeeId)
+        if (payeeId) transactionData.payee_id = parseInt(payeeId)
         await instance.put(
             `${transactionRequests.updateTransaction}${transactionId}`,
             transactionData
@@ -275,23 +275,23 @@ export const Transaction = ({
         }
     }
 
-    const transactionDateSelector = () => {
-        if (!selected && transactionDate) return <div>{transactionDate.toISOString().slice(0, 10)}</div>
-        return <DatePicker className="transactionDate" selected={transactionDate} onChange={(date) => { setTransactionDate(date) }} />
+    const dateSelector = () => {
+        if (!selected && date) return <div>{date.toISOString().slice(0, 10)}</div>
+        return <DatePicker className="transactionDate" selected={date} onChange={(date) => { setDate(date) }} />
     }
     const payeeInputField = () => {
-        if (!selected) return <div>{transactionPayeeLabel}</div>
-        if (transaction.new_transaction) return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayeeLabel }} options={transferOptions().concat(payeeOptions())} createOptionUrl={payeeRequests.createPayee} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value); setTransfer(newValue.transfer) }} allowNewValues={true} />
-        if (transfer) return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayeeLabel }} options={transferOptions()} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value) }} allowNewValues={true} />
-        return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayeeLabel }} options={payeeOptions()} createOptionUrl={payeeRequests.createPayee} allowNewValues={true} allowEmpty={true} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value) }} />
+        if (!selected) return <div>{payeeLabel}</div>
+        if (transaction.new_transaction) return <Autosuggest startingValue={{ value: payeeId, label: payeeLabel }} options={transferOptions().concat(payeeOptions())} createOptionUrl={payeeRequests.createPayee} updateMethod={(newValue) => { setPayeeId(newValue.value); setTransfer(newValue.transfer) }} allowNewValues={true} />
+        if (transfer) return <Autosuggest startingValue={{ value: payeeId, label: payeeLabel }} options={transferOptions()} updateMethod={(newValue) => { setPayeeId(newValue.value) }} allowNewValues={true} />
+        return <Autosuggest startingValue={{ value: payeeId, label: payeeLabel }} options={payeeOptions()} createOptionUrl={payeeRequests.createPayee} allowNewValues={true} allowEmpty={true} updateMethod={(newValue) => { setPayeeId(newValue.value) }} />
     }
     const accountInputField = () => {
-        if (!selected) return <div>{transactionAccountLabel}</div>
-        return <Autosuggest startingValue={{ value: transactionAccountId, label: transactionAccountLabel }} options={accountOptions()} updateMethod={(newValue) => { setTransactionAccountId(newValue.value) }} />
+        if (!selected) return <div>{accountLabel}</div>
+        return <Autosuggest startingValue={{ value: accountId, label: accountLabel }} options={accountOptions()} updateMethod={(newValue) => { setAccountId(newValue.value) }} />
     }
     const memoInputField = () => {
-        if (!selected) return <div>{transactionMemo}</div>
-        return <input className="transactionMemo" value={transactionMemo} onChange={(e) => { setTransactionMemo(e.target.value) }} />
+        if (!selected) return <div>{memo}</div>
+        return <input className="transactionMemo" value={memo} onChange={(e) => { setMemo(e.target.value) }} />
     }
 
     const transactionCategory = () => {
@@ -320,23 +320,23 @@ export const Transaction = ({
         }
     }
 
-    const transactionAmountDiv = () => {
+    const amountDiv = () => {
         if (selected) {
-            return (<div ><MoneyInput startingValue={transactionAmount / 100} onBlur={(e) => { setTransactionAmount(e * 100) }} updateOnChange={true} /></div>);
+            return (<div ><MoneyInput startingValue={amount / 100} onBlur={(e) => { setAmount(e * 100) }} updateOnChange={true} /></div>);
         } else {
-            return (<div>{centsToMoney(transactionAmount)}</div>)
+            return (<div>{centsToMoney(amount)}</div>)
         }
     }
 
     return (
         <tr className={`transactionRow ${selected ? 'selected' : ''}`}>
             <td className="transactionClearedColumn"> {clearedIcon()} </td>
-            <td className="transactionDateColumn" onClick={selectCurrentTransaction} > {transactionDateSelector()} </td>
+            <td className="transactionDateColumn" onClick={selectCurrentTransaction} > {dateSelector()} </td>
             <td className="transactionAccountColumn" onClick={selectCurrentTransaction} > {accountInputField()} </td>
             <td className="transactionPayeeColumn" onClick={selectCurrentTransaction} > {payeeInputField()} </td>
             <td className="transactionMemoColumn" onClick={selectCurrentTransaction} > {memoInputField()} </td>
             <td className="transactionCategoriesColumn" onClick={selectCurrentTransaction} > {transactionCategory()} </td>
-            <td className="transactionAmountColumn" onClick={selectCurrentTransaction} > {transactionAmountDiv()} </td>
+            <td className="transactionAmountColumn" onClick={selectCurrentTransaction} > {amountDiv()} </td>
             {(selected) && (<td className="transactionSaveColumn">
                 <div ref={updateTransactionButton} onClick={() => { update() }}><CheckIcon /></div>
                 <div ref={deleteTransactionButton} onClick={() => {
