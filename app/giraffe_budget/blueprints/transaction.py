@@ -378,6 +378,7 @@ def get_transaction(transaction_id, accounts_map=None, payees_map=None, categori
         t["account_label"] = accounts_map[str(t["account_id"])]
         t["categories"] = categories
         t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
+        t["search_str"] = generate_search_str(t)
     return transactions
 
 
@@ -501,3 +502,24 @@ def generate_payee_label(transaction, accounts, payees):
         return f"Transfer to/from {accounts[str(transaction['payee_id'])]}"
     else:
         return f"{payees[str(transaction['payee_id'])]}"
+
+
+def generate_search_str(transaction):
+    """generate a search string for a transaction
+
+    Args:
+        transaction (dict): transaction data
+
+    Returns:
+        str: search string
+    """
+
+    search_str = ""
+    search_str += transaction["account_label"]
+    search_str += transaction["payee_label"]
+    search_str += transaction["memo"] if transaction["memo"] else ""
+    for c in transaction["categories"]:
+        search_str += c["category_label"]
+
+
+    return search_str.lower()

@@ -15,6 +15,10 @@
     background-color: var(--light-grey);
 }
 
+.accountHeaderButtonRow {
+    display: flex;
+}
+
 .flexbox {
     display: flex;
 }
@@ -28,6 +32,10 @@
     text-align: left;
     user-select: none;
     cursor: pointer;
+}
+
+.fillerDiv {
+    flex-grow: 1;
 }
 
 .reconcileAccountButton {
@@ -44,9 +52,22 @@
 }
 
 .transactionFilters {
+    display: flex;
     float: right;
     padding-right: 3%;
     padding-bottom: 1%;
+}
+
+.transactionSearchBar {
+    border-color: hsl(0, 0%, 80%);
+    border-style: solid;
+    border-width: 1px;
+    color: var(--dark-color);
+    border-radius: 4px;
+    margin: 10px;
+    width: 120px;
+    height: 25px;
+    outline: none;
 }
 
 .accountBalance {
