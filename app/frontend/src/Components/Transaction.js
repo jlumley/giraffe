@@ -34,23 +34,21 @@ export const Transaction = ({
     fetchPayees,
     reloadAccount,
 }) => {
+
     const [transactionId, setTransactionId] = useState(transaction.id);
     const [transfer, setTransfer] = useState(transaction.transfer_id ? true : false)
     const [cleared, setCleared] = useState(transaction.cleared);
     const [transferId, setTransferId] = useState(transaction.transfer_id);
     const [transactionDate, setTransactionDate] = useState(new Date(transaction.date));
     const [transactionAccountId, setTransactionAccountId] = useState(transaction.account_id);
+    const [transactionAccountLabel, setTransactionAccountLabel] = useState(transaction.account_label);
     const [transactionPayeeId, setTransactionPayeeId] = useState(transaction.payee_id);
+    const [transactionPayeeLabel, setTransactionPayeeLabel] = useState(transaction.payee_label)
     const [transactionMemo, setTransactionMemo] = useState(transaction.memo);
     const [transactionAmount, setTransactionAmount] = useState(transaction.amount);
     const [transactionCategories, setTransactionCategories] = useState(transaction.categories.map(obj => ({ ...obj, uuid: uuidv4() })));
     const updateTransactionButton = useRef(null);
     const deleteTransactionButton = useRef(null);
-
-    function payeeFromPayeeId() {
-        if (!transferId) return payees[transactionPayeeId]
-        return `Transfer to/from ${accounts[transactionPayeeId]}`
-    }
 
     const payeeOptions = () => {
         return Object.keys(payees).map((id) => { return { value: id, label: payees[id] } })
@@ -68,17 +66,14 @@ export const Transaction = ({
         return Object.keys(categories).map((id) => { return { value: id, label: categories[id] } })
     }
 
-    const [transactionAccount, setTransactionAccount] = useState(accounts[transaction.account_id]);
-    const [transactionPayee, setTransactionPayee] = useState(payeeFromPayeeId());
-
     function reloadTransaction() {
         async function _reloadTransaction() {
             instance.get(`${transactionRequests.fetchTransaction}${transactionId}`).then((resp) => {
                 setTransactionDate(convertDateToUTC(new Date(resp.data.date)));
                 setTransactionAccountId(resp.data.account_id);
                 setTransactionPayeeId(resp.data.payee_id);
-                setTransactionAccount(accounts[resp.data.account_id]);
-                setTransactionPayee(payeeFromPayeeId());
+                setTransactionAccountLabel(resp.data.account_label);
+                setTransactionPayeeLabel(resp.data.payee_label);
                 setTransactionMemo(resp.data.memo);
                 setTransactionCategories(resp.data.categories.map(obj => ({ ...obj, uuid: uuidv4() })));
             })
@@ -205,7 +200,7 @@ export const Transaction = ({
             transferData.from_account_id = parseInt(transactionAccountId)
             transferData.to_account_id = parseInt(transactionPayeeId)
         }
-        const resp = await instance.put(
+        await instance.put(
             `${transferRequests.updateTransfer}${transferId}`,
             transferData
         )
@@ -251,13 +246,6 @@ export const Transaction = ({
     }
 
     useEffect(() => {
-        setTransactionPayee(payeeFromPayeeId())
-    }, [transactionPayeeId, payees])
-    useEffect(() => {
-        setTransactionAccount(accounts[transactionAccountId])
-        setTransactionPayee(payeeFromPayeeId())
-    }, [transactionAccountId, accounts])
-    useEffect(() => {
         setTransactionCategories(transaction.categories.map(obj => ({ ...obj, uuid: uuidv4() })))
     }, [transaction, categories])
     useEffect(() => {
@@ -292,14 +280,14 @@ export const Transaction = ({
         return <DatePicker className="transactionDate" selected={transactionDate} onChange={(date) => { setTransactionDate(date) }} />
     }
     const payeeInputField = () => {
-        if (!selected) return <div>{transactionPayee}</div>
-        if (transaction.new_transaction) return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayee }} options={transferOptions().concat(payeeOptions())} createOptionUrl={payeeRequests.createPayee} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value); setTransfer(newValue.transfer) }} allowNewValues={true} />
-        if (transfer) return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayee }} options={transferOptions()} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value) }} allowNewValues={true} />
-        return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayee }} options={payeeOptions()} createOptionUrl={payeeRequests.createPayee} allowNewValues={true} allowEmpty={true} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value) }} />
+        if (!selected) return <div>{transactionPayeeLabel}</div>
+        if (transaction.new_transaction) return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayeeLabel }} options={transferOptions().concat(payeeOptions())} createOptionUrl={payeeRequests.createPayee} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value); setTransfer(newValue.transfer) }} allowNewValues={true} />
+        if (transfer) return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayeeLabel }} options={transferOptions()} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value) }} allowNewValues={true} />
+        return <Autosuggest startingValue={{ value: transactionPayeeId, label: transactionPayeeLabel }} options={payeeOptions()} createOptionUrl={payeeRequests.createPayee} allowNewValues={true} allowEmpty={true} updateMethod={(newValue) => { setTransactionPayeeId(newValue.value) }} />
     }
     const accountInputField = () => {
-        if (!selected) return <div>{transactionAccount}</div>
-        return <Autosuggest startingValue={{ value: transactionAccountId, label: transactionAccount }} options={accountOptions()} updateMethod={(newValue) => { setTransactionAccountId(newValue.value) }} />
+        if (!selected) return <div>{transactionAccountLabel}</div>
+        return <Autosuggest startingValue={{ value: transactionAccountId, label: transactionAccountLabel }} options={accountOptions()} updateMethod={(newValue) => { setTransactionAccountId(newValue.value) }} />
     }
     const memoInputField = () => {
         if (!selected) return <div>{transactionMemo}</div>

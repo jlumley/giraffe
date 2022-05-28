@@ -81,6 +81,7 @@ export const Account = ({ smallScreen }) => {
     }
 
     function fetchCurrentAccount() {
+        if (id === 'all') return
         async function _fetchCurrentAccount() {
             const a = await instance.get(`${accountRequests.fetchAccount}${id}`)
             setCurrentAccount(a.data)
