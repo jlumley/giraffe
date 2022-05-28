@@ -3,7 +3,6 @@ import { useParams } from 'react-router';
 
 import instance from '../axois'
 import { Transaction } from './Transaction';
-
 import categoryRequests from '../requests/category';
 import payeeRequests from '../requests/payee';
 import transactionRequests from '../requests/transaction';
@@ -20,6 +19,7 @@ export const Account = ({ smallScreen }) => {
     const [categories, setCategories] = useState({});
     const [accounts, setAccounts] = useState([]);
     const [currentAccount, setCurrentAccount] = useState(null);
+    const [showReconciled, setShowReconciled] = useState(true);
     const { id } = useParams();
 
 
@@ -36,7 +36,10 @@ export const Account = ({ smallScreen }) => {
 
     function fetchTransactions() {
         async function _fetchTransactions() {
+            console.log(showReconciled)
             const params = (id !== 'all') ? { accounts: id } : {}
+            if (showReconciled === false) params.reconciled = showReconciled;
+
             const t = await instance.get(transactionRequests.fetchTransactions, { params })
             setTransactions(t.data.sort((e1, e2) => {
                 if (e1.date < e2.date) return 1;
@@ -187,6 +190,14 @@ export const Account = ({ smallScreen }) => {
         )
     }
 
+    const transactionFilters = () =>{
+        return (
+            <div className="transactionFilters" >
+                <label><input type={'checkbox'} defaultChecked={showReconciled} onClick={() => {setShowReconciled(!showReconciled)}}/>Show Reconciled</label>
+           </div>
+        )
+    }
+
     const createTransactions = (transaction) => {
         return <Transaction
             key={transaction.id}
@@ -202,6 +213,11 @@ export const Account = ({ smallScreen }) => {
             reloadAccount={() => {fetchCurrentAccount()}}/>
     }
 
+    useEffect(() => {
+      fetchTransactions()
+    }, [showReconciled])
+
+
     return (
         <div className="accountContent">
             <div className="accountHeader">
@@ -215,7 +231,7 @@ export const Account = ({ smallScreen }) => {
 
                 </div>
                 <div className="addTransactionButton" onClick={() => { addNewTransaction() }}>New Transaction </div>
-                <div className="filterTransactionsButton" ></div>
+                {transactionFilters()}
                 <div className="searchTransactions"> </div>
             </div>
             <div className="accountTransactionsContent">

@@ -43,6 +43,12 @@
     background-color: var(--light-grey);
 }
 
+.transactionFilters {
+    float: right;
+    padding-right: 3%;
+    padding-bottom: 1%;
+}
+
 .accountBalance {
     display: flex;
     padding: 15px;
