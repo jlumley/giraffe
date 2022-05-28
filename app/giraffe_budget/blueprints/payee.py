@@ -74,6 +74,20 @@ def get_payee(payee_id):
     payee = db_utils.execute(GET_PAYEE, {"payee_id": payee_id})
     return payee
 
+def get_payees_dict():
+    """Create a mapping of all payees to
+       their ids
+
+    Returns:
+        dict: dict of all payees
+    """
+    raw_payees = db_utils.execute(
+        "SELECT * FROM payees;"
+    )
+    payees = {}
+    for p in raw_payees:
+        payees[str(p["id"])] = p["name"]
+    return payees
 
 def create_payee(name):
     """Create new payee

@@ -95,6 +95,21 @@ def get_accounts():
 
     return accounts
 
+def get_accounts_dict():
+    """Create a mapping of all accounts to
+       their ids
+
+    Returns:
+        dict: dict of all accounts
+    """
+    raw_accounts = db_utils.execute(
+        "SELECT * FROM accounts;"
+    )
+    accounts = {}
+    for a in raw_accounts:
+        accounts[str(a["id"])] = a["name"]
+    return accounts
+
 
 def get_account(account_id):
     """fetch an account

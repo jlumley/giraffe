@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import CurrencyInput from 'react-currency-input-field';
-
-
 import '../../style/MoneyInput.css'
-
 
 export default function MoneyInput({ startingValue, onBlur }) {
     const [value, setValue] = useState(startingValue);

@@ -8,7 +8,7 @@ from hashlib import md5
 
 from . import category
 from . import account
-
+from . import payee
 from ..utils import db_utils, time_utils, money_utils
 from ..schemas.transaction_schema import *
 from ..sql.transaction_statements import *
@@ -336,21 +336,33 @@ def get_transactions(
     transaction_ids = db_utils.execute(query, query_vars)
     # fetching transaction data
     transactions = []
+    accounts_dict = account.get_accounts_dict()
+    categories_dict = category.get_categories_dict()
+    payees_dict = payee.get_payees_dict()
     for t in transaction_ids:
-        transactions += get_transaction(t["id"])
+        transactions += get_transaction(t["id"], accounts_dict, payees_dict, categories_dict)
 
     return transactions
 
 
-def get_transaction(transaction_id):
+def get_transaction(transaction_id, accounts_map=None, payees_map=None, categories_map=None):
     """Get a transaction by transaction_id
 
     Args:
         transaction_id (int): transaction_id
+        accounts (dict) : mapping for account ids to names
+        payees (dict) : mapping for payees ids to names
+        categories (dict) : mapping for category ids to names
 
     Returns:
         dict: transaction dict
     """
+    if not accounts_map:
+        accounts_map = account.get_accounts_dict()
+    if not payees_map:
+        payees_map = payee.get_payees_dict()
+    if not categories_map:
+        categories_map = category.get_categories_dict()
 
     transactions = db_utils.execute(GET_TRANSACTION, {"transaction_id": transaction_id})
     categories = db_utils.execute(
@@ -359,8 +371,11 @@ def get_transaction(transaction_id):
     transactions = db_utils.int_to_bool(transactions, ["cleared", "reconciled"])
 
     for c in categories:
+        c["category_label"] = categories_map[str(c["category_id"])]
         del c["transaction_id"]
     for t in transactions:
+        t["payee_label"] = generate_payee_label(t, accounts_map, payees_map)
+        t["account_label"] = accounts_map[str(t["account_id"])]
         t["categories"] = categories
         t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
     return transactions
@@ -467,3 +482,22 @@ def is_valid_payee_id(payee_id):
         return True
 
     raise RuntimeError(f"Payee id: {payee_id} Not Found")
+
+
+def generate_payee_label(transaction, accounts, payees):
+    """generate appropriate payee label for transaction
+
+    Args:
+        transaction (dict): transaction data
+        accounts (dict): account ids to names mapping
+        payees (dict): payee ids to names mapping
+
+    Returns:
+        string: transaction payee label
+    """
+    if not transaction['payee_id']:
+        return ""
+    if (transaction["transfer_id"]):
+        return f"Transfer to/from {accounts[str(transaction['payee_id'])]}"
+    else:
+        return f"{payees[str(transaction['payee_id'])]}"

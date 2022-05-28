@@ -105,7 +105,7 @@ export const Account = ({ smallScreen }) => {
 
             return e1.id < e2.id;
         }))
-    }, [transactions])
+    }, [transactions, selectedTransaction])
 
     function addNewTransaction() {
         async function _addNewTransaction() {
@@ -186,7 +186,6 @@ export const Account = ({ smallScreen }) => {
         )
     }
 
-
     const createTransactions = (transaction) => {
         return <Transaction
             key={transaction.id}
@@ -198,7 +197,7 @@ export const Account = ({ smallScreen }) => {
             selectTransaction={selectTransaction}
             deleteTransaction={() => { deleteTransaction(transaction.id) }}
             deleteTransfer={() => { deleteTransfer(transaction.transfer_id) }}
-            fetchPayees={() => { fetchPayees() }} 
+            fetchPayees={() => { fetchPayees() }}
             reloadAccount={() => {fetchCurrentAccount()}}/>
     }
 
@@ -215,8 +214,8 @@ export const Account = ({ smallScreen }) => {
 
                 </div>
                 <div className="addTransactionButton" onClick={() => { addNewTransaction() }}>New Transaction </div>
-                <div className="filterTransactionsButton" />
-                <div className="searchTransactions" />
+                <div className="filterTransactionsButton" ></div>
+                <div className="searchTransactions"> </div>
             </div>
             <div className="accountTransactionsContent">
                 <table>

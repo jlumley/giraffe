@@ -500,6 +500,17 @@ def get_category_names():
     """Fetch all the category names and ids"""
     return db_utils.execute(GET_CATEGORY_NAMES)
 
+def get_categories_dict():
+    """Create a mapping of all categories to
+       their ids
+    """
+    raw_categories = db_utils.execute(
+        "SELECT * FROM categories;"
+    )
+    categories = {}
+    for c in raw_categories:
+        categories[str(c["id"])] = c["name"]
+    return categories
 
 def get_credit_card_category_names():
     """Fetch all the category names and ids"""
