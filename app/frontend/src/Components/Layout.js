@@ -12,10 +12,28 @@ import { Header } from './Header';
 
 import instance from '../axois';
 import accountRequests from '../requests/account';
-
-import '../style/Layout.css'
+import { lightBackground } from '../style/Colors';
 
 const SMALL_SCREEN = 1024;
+
+const LayoutDiv = {
+    height: '100%',
+    width: '100%',
+    position: 'fixed',
+    backgroundColor: lightBackground,
+    display: 'flex',
+    flexDirection: 'column'
+}
+
+const MainContentDiv = {
+    flexGrow: '1',
+    display: 'flex'
+}
+
+const WorkspaceContentDiv = {
+    flexGrow:'1'
+}
+
 export const AccountsContext = React.createContext({
     accounts: [],
     setAccounts: () => { }
@@ -48,14 +66,14 @@ export function Layout() {
     }, [])
 
     return (
-        <div className="layout">
+        <div style={LayoutDiv}>
             <Header smallScreen={smallScreen} toggleSidebar={() => { setSidebar(!sidebar) }} />
             <AccountsContext.Provider value={{ accounts, setAccounts }}>
-                <div className="mainContent">
+                <div style={MainContentDiv}>
                     {(sidebar || !smallScreen) && (
                         <Aside sidebar={sidebar} />
                     )}
-                    <div className="workspaceContent">
+                    <div style={WorkspaceContentDiv}>
                         <Routes>
                             <Route path="/account/:id" element={<Account smallScreen={smallScreen} />} />
                             <Route path="/reports" element={<Reports />} />
