@@ -170,15 +170,13 @@ export const Account = ({ smallScreen }) => {
     const transactionFilters = () =>{
         // <label>Date Range: <input type={"number"}/><Autosuggest/></label>
         return (
-            <div className="transactionFilters" >
-                <label><input type={"checkbox"} defaultChecked={showReconciled} onClick={() => {setShowReconciled(!showReconciled)}}/>Show Reconciled</label>
-           </div>
+            <label className="accountShowReconciledButton"><input type={"checkbox"} defaultChecked={showReconciled} onClick={() => {setShowReconciled(!showReconciled)}}/>Show Reconciled</label>
         )
     }
 
     const transactionSearch = () => {
         return (
-            <input className="transactionSearchBar" placeholder="search" value={searchTerm} onChange={(e)=> {setSearchTerm(e.target.value)}}/>
+            <input className="accountSearchBar" placeholder="search" value={searchTerm} onChange={(e)=> {setSearchTerm(e.target.value)}}/>
         )
     }
 
