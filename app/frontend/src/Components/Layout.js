@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import Aside from './Aside'
+import Sidebar from './Sidebar'
 import {
     Routes,
     Route
@@ -71,7 +71,7 @@ export function Layout() {
             <AccountsContext.Provider value={{ accounts, setAccounts }}>
                 <div style={MainContentDiv}>
                     {(sidebar || !smallScreen) && (
-                        <Aside sidebar={sidebar} />
+                        <Sidebar sidebar={sidebar} />
                     )}
                     <div style={WorkspaceContentDiv}>
                         <Routes>

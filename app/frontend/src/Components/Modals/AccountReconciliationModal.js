@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import { centsToMoney } from '../utils/money_utils';
+import { centsToMoney } from '../../utils/money_utils';
 import WindowCloseIcon from 'mdi-react/WindowCloseIcon';
-import MoneyInput from './Inputs/MoneyInput';
-import instance from '../axois';
-import accountRequests from '../requests/account';
+import MoneyInput from '../Inputs/MoneyInput';
+import instance from '../../axois';
+import accountRequests from '../../requests/account';
 
 const ReconcileAccountButton = {
   width: '100px',

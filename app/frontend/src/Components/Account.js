@@ -9,8 +9,7 @@ import transactionRequests from '../requests/transaction';
 import accountRequests from '../requests/account';
 import '../style/Account.css'
 import { centsToMoney } from '../utils/money_utils';
-import { AccountReconciliationModal } from './AccountReconciliationModal';
-import Autosuggest from './Inputs/Autosuggest';
+import { AccountReconciliationModal } from './Modals/AccountReconciliationModal';
 
 
 export const Account = ({ smallScreen }) => {
