@@ -15,7 +15,7 @@ import accountRequests from '../requests/account';
 
 import '../style/Layout.css'
 
-const SMALL_SCREEN = 1000;
+const SMALL_SCREEN = 1024;
 export const AccountsContext = React.createContext({
     accounts: [],
     setAccounts: () => { }
