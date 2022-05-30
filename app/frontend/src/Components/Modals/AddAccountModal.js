@@ -84,7 +84,7 @@ export function AddAccountModal() {
         <h2>Create New Account</h2>
         <input style={AccountNameInput} value={accountName} placeholder="Account Name" onChange={e => {setAccountName(e.target.value)}}/>
         <MoneyInput startingValue={startingBalance} onBlur={(e) => { setStartingBalance(e) }} />
-        <label><input type={"checkbox"} defaultChecked={isCreditCard} onClick={() => {setIsCreditCard(!isCreditCard)}}/>Is this a credit Card?</label>
+        <div><input type={"checkbox"} defaultChecked={isCreditCard} onClick={() => {setIsCreditCard(!isCreditCard)}}/>Is this a credit Card?</div>
       <div style={CreateAccountButton} onClick={createNewAccount}>Create Account</div>
       </Modal>
     </div>
