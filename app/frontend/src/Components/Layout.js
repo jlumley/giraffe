@@ -34,11 +34,6 @@ const WorkspaceContentDiv = {
     flexGrow:'1'
 }
 
-export const AccountsContext = React.createContext({
-    accounts: [],
-    setAccounts: () => { }
-});
-
 function setScreenSize() {
     if (window.innerWidth > SMALL_SCREEN) {
         return false;
@@ -68,20 +63,18 @@ export function Layout() {
     return (
         <div style={LayoutDiv}>
             <Header smallScreen={smallScreen} toggleSidebar={() => { setSidebar(!sidebar) }} />
-            <AccountsContext.Provider value={{ accounts, setAccounts }}>
-                <div style={MainContentDiv}>
-                    {(sidebar || !smallScreen) && (
-                        <Sidebar sidebar={sidebar} />
-                    )}
-                    <div style={WorkspaceContentDiv}>
-                        <Routes>
-                            <Route path="/account/:id" element={<Account smallScreen={smallScreen} />} />
-                            <Route path="/reports" element={<Reports />} />
-                            <Route path="/" element={<Budget smallScreen={smallScreen} />} />
-                        </Routes>
-                    </div>
+            <div style={MainContentDiv}>
+                {(sidebar || !smallScreen) && (
+                    <Sidebar accounts={accounts}/>
+                )}
+                <div style={WorkspaceContentDiv}>
+                    <Routes>
+                        <Route path="/account/:id" element={<Account smallScreen={smallScreen} />} />
+                        <Route path="/reports" element={<Reports />} />
+                        <Route path="/" element={<Budget smallScreen={smallScreen} />} />
+                    </Routes>
                 </div>
-            </AccountsContext.Provider>
+            </div>
         </div>
     );
 }

@@ -1,13 +1,10 @@
 import React, {useState} from 'react';
 import { centsToMoney } from '../utils/money_utils';
 import { Link } from 'react-router-dom';
-import { accentColor} from '../style/Colors'
+import { lightBackground} from '../style/Colors'
 
 import DotsVerticalIcon from 'mdi-react/DotsVerticalIcon'
 import EyeOffOutlineIcon from 'mdi-react/EyeOffOutlineIcon'
-
-
-
   
   const AccountDiv = {
     padding: 'clamp(5px, 3%, 8px)',
@@ -19,7 +16,7 @@ import EyeOffOutlineIcon from 'mdi-react/EyeOffOutlineIcon'
   const LinkDiv = {
     flexGrow: '1',
     textDecoration: 'none',
-    color: accentColor,
+    color: lightBackground,
   }
 
   const NameAndBalanceDiv = {
@@ -29,6 +26,7 @@ import EyeOffOutlineIcon from 'mdi-react/EyeOffOutlineIcon'
 
   const NameDiv = {
       flexGrow: '1',
+      userSelection: 'none'
   }
 
   const BalanceDiv = {
@@ -37,6 +35,7 @@ import EyeOffOutlineIcon from 'mdi-react/EyeOffOutlineIcon'
   }
 
   const MenuDots = {
+    color: lightBackground
   }
 
   const HideAccountButton = {
