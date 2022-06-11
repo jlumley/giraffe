@@ -35,11 +35,13 @@ import EyeOffOutlineIcon from 'mdi-react/EyeOffOutlineIcon'
   }
 
   const MenuDots = {
-    color: lightBackground
+    color: lightBackground,
+    cursor: 'pointer'
   }
 
   const HideAccountButton = {
-    color: 'salmon'
+    color: 'salmon',
+    cursor: 'pointer'
   }
 
 function SidebarAccount({account}) {

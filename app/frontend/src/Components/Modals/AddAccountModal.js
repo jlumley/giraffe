@@ -38,7 +38,16 @@ const modalStyle = {
 };
 
 const AccountNameInput = {
-
+  width: '80%',
+  borderColor: 'hsl(0, 0%, 80%)',
+  borderStyle: 'solid',
+  minHeight: '34px',
+  borderWidth: '1px',
+  color: 'var(--dark-color)',
+  borderRadius: '4px',
+  paddingLeft: '5px',
+  minWidth: '100px',
+  outline: 'none',
 };
 
 const closeButtonStlye = {
