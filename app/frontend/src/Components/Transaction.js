@@ -114,7 +114,7 @@ export const Transaction = ({
                 }
             })
             if (new_category) {
-                new_categories.push({ category_id: parseInt(c.category_id), amount: c.amount });
+                new_categories.push({ category_id: parseInt(c.category_id), amount: Math.round(c.amount) });
             }
         });
         return new_categories;
