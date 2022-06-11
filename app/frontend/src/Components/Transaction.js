@@ -191,7 +191,7 @@ export const Transaction = ({
             date: date.toISOString().slice(0, 10),
             cleared: cleared,
             memo: memo ? memo : '',
-            amount: amount,
+            amount: Math.round(amount),
         }
         if (transferData.amount > 0) {
             transferData.from_account_id = parseInt(payeeId)
@@ -214,7 +214,7 @@ export const Transaction = ({
             memo: memo ? memo : '',
             account_id: parseInt(accountId),
             categories: _categories,
-            amount: amount ? amount : _categories.reduce((prev, curr) => prev + curr.amount, 0)
+            amount: Math.round(amount ? amount : _categories.reduce((prev, curr) => prev + curr.amount, 0))
         }
         if (payeeId) transactionData.payee_id = parseInt(payeeId)
         await instance.put(

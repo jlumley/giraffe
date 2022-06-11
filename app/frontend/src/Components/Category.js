@@ -71,7 +71,7 @@ export function Category({
 
     const updateCategoryAssignment = (newValue) => {
         const req_data = {
-            amount: (newValue - categoryAssigned) * 100,
+            amount: Math.round((newValue - categoryAssigned) * 100),
             date: currentDate.toISOString().slice(0, 10)
         }
         if (req_data.amount < 0) {

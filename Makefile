@@ -16,6 +16,9 @@ test:
 
 
 build: ## build docker image
-	docker build . -t giraffe-budget
+	docker build . -t ghcr.io/jlumley/giraffe-budget:latest
+ 
+publish:  ## publish docker image to ghcr
+	docker push ghcr.io/jlumley/giraffe-budget:latest
 
 

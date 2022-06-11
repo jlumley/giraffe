@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import {darkGradient, accentColor, darkColor, lightBackground} from '../style/Colors'
+import {darkGradient, lightBackground} from '../style/Colors'
 import { AddAccountModal } from './Modals/AddAccountModal';
 import SidebarAccount from './SidebarAccount';
 
@@ -35,6 +35,7 @@ export default function Sidebar({accounts}) {
         })
       }
       <Link style={SidebarLink} to="/reports"><div style={SidebarLinkDiv}>Reports</div></Link>
+      <Link style={SidebarLink} to="/payees"><div style={SidebarLinkDiv}>Manage Payees</div></Link>
       <AddAccountModal/>
     </nav>
     </div>

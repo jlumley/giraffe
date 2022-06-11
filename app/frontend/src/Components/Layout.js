@@ -9,10 +9,12 @@ import { Budget } from './Budget';
 import { Account } from './Account';
 import Reports from './Reports';
 import { Header } from './Header';
+import ManagePayees from './ManagePayees';
 
 import instance from '../axois';
 import accountRequests from '../requests/account';
 import { lightBackground } from '../style/Colors';
+
 
 const SMALL_SCREEN = 1024;
 
@@ -27,7 +29,8 @@ const LayoutDiv = {
 
 const MainContentDiv = {
     flexGrow: '1',
-    display: 'flex'
+    display: 'flex',
+    minHeight: '0'
 }
 
 const WorkspaceContentDiv = {
@@ -71,6 +74,7 @@ export function Layout() {
                     <Routes>
                         <Route path="/account/:id" element={<Account smallScreen={smallScreen} />} />
                         <Route path="/reports" element={<Reports />} />
+                        <Route path="/payees" element={<ManagePayees />} />
                         <Route path="/" element={<Budget smallScreen={smallScreen} />} />
                     </Routes>
                 </div>

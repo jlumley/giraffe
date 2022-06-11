@@ -1,6 +1,7 @@
 FROM python:3.9-alpine
 
 LABEL maintainer="Jeremy Lumley <jeremy.lumley96@gmail.com>"
+LABEL org.opencontainers.image.source = "https://github.com/jlumley/giraffe"
 
 RUN apk update && apk upgrade
 

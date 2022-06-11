@@ -15,7 +15,6 @@ def create_app():
     load_config(app)
     register_blueprints(app)
     setup_logger(app)
-    app.logger.info(f"App Mode: {os.environ['APP_MODE']}")
     with app.app_context():
         init_db(app)
 
@@ -38,11 +37,14 @@ def create_app():
 
 def load_config(app):
 
-    if os.environ["APP_MODE"] == "DEV":
+    if os.environ.get("APP_MODE") == "DEV":
+        app.logger.info(f"App Mode: Dev")
         app.config.from_object(DevelopmentConfig)
-    if os.environ["APP_MODE"] == "TEST":
+    if os.environ.get("APP_MODE") == "TEST":
+        app.logger.info(f"App Mode: Test")
         app.config.from_object(DevelopmentConfig)
     else:
+        app.logger.info(f"App Mode: Prod")
         app.config.from_object(ProductionConfig)
 
 

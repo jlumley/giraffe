@@ -33,7 +33,8 @@ export const Account = ({ smallScreen }) => {
         cleared: false,
         amount: 0,
         id: 0,
-        new_transaction: true
+        new_transaction: true,
+        search_str: "",
     };
 
     function fetchTransactions() {
