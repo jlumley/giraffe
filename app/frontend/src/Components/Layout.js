@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import Aside from './Aside'
+import Sidebar from './Sidebar'
 import {
     Routes,
     Route
@@ -12,14 +12,27 @@ import { Header } from './Header';
 
 import instance from '../axois';
 import accountRequests from '../requests/account';
+import { lightBackground } from '../style/Colors';
 
-import '../style/Layout.css'
+const SMALL_SCREEN = 1024;
 
-const SMALL_SCREEN = 1000;
-export const AccountsContext = React.createContext({
-    accounts: [],
-    setAccounts: () => { }
-});
+const LayoutDiv = {
+    height: '100%',
+    width: '100%',
+    position: 'fixed',
+    backgroundColor: lightBackground,
+    display: 'flex',
+    flexDirection: 'column'
+}
+
+const MainContentDiv = {
+    flexGrow: '1',
+    display: 'flex'
+}
+
+const WorkspaceContentDiv = {
+    flexGrow:'1'
+}
 
 function setScreenSize() {
     if (window.innerWidth > SMALL_SCREEN) {
@@ -48,22 +61,20 @@ export function Layout() {
     }, [])
 
     return (
-        <div className="layout">
+        <div style={LayoutDiv}>
             <Header smallScreen={smallScreen} toggleSidebar={() => { setSidebar(!sidebar) }} />
-            <AccountsContext.Provider value={{ accounts, setAccounts }}>
-                <div className="mainContent">
-                    {(sidebar || !smallScreen) && (
-                        <Aside sidebar={sidebar} />
-                    )}
-                    <div className="workspaceContent">
-                        <Routes>
-                            <Route path="/account/:id" element={<Account smallScreen={smallScreen} />} />
-                            <Route path="/reports" element={<Reports />} />
-                            <Route path="/" element={<Budget smallScreen={smallScreen} />} />
-                        </Routes>
-                    </div>
+            <div style={MainContentDiv}>
+                {(sidebar || !smallScreen) && (
+                    <Sidebar accounts={accounts}/>
+                )}
+                <div style={WorkspaceContentDiv}>
+                    <Routes>
+                        <Route path="/account/:id" element={<Account smallScreen={smallScreen} />} />
+                        <Route path="/reports" element={<Reports />} />
+                        <Route path="/" element={<Budget smallScreen={smallScreen} />} />
+                    </Routes>
                 </div>
-            </AccountsContext.Provider>
+            </div>
         </div>
     );
 }

@@ -3,23 +3,25 @@ import { useParams } from 'react-router';
 
 import instance from '../axois'
 import { Transaction } from './Transaction';
-
 import categoryRequests from '../requests/category';
 import payeeRequests from '../requests/payee';
 import transactionRequests from '../requests/transaction';
 import accountRequests from '../requests/account';
 import '../style/Account.css'
 import { centsToMoney } from '../utils/money_utils';
-import { AccountReconciliationModal } from './AccountReconciliationModal';
+import { AccountReconciliationModal } from './Modals/AccountReconciliationModal';
 
 
 export const Account = ({ smallScreen }) => {
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [transactions, setTransactions] = useState([]);
+    const [filteredTransactions, setFilteredTransactions] = useState([]);
     const [payees, setPayees] = useState({});
     const [categories, setCategories] = useState({});
     const [accounts, setAccounts] = useState([]);
     const [currentAccount, setCurrentAccount] = useState(null);
+    const [showReconciled, setShowReconciled] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
     const { id } = useParams();
 
 
@@ -36,7 +38,10 @@ export const Account = ({ smallScreen }) => {
 
     function fetchTransactions() {
         async function _fetchTransactions() {
+            console.log(showReconciled)
             const params = (id !== 'all') ? { accounts: id } : {}
+            if (showReconciled === false) params.reconciled = showReconciled;
+
             const t = await instance.get(transactionRequests.fetchTransactions, { params })
             setTransactions(t.data.sort((e1, e2) => {
                 if (e1.date < e2.date) return 1;
@@ -81,31 +86,13 @@ export const Account = ({ smallScreen }) => {
     }
 
     function fetchCurrentAccount() {
+        if (id === 'all') return
         async function _fetchCurrentAccount() {
             const a = await instance.get(`${accountRequests.fetchAccount}${id}`)
             setCurrentAccount(a.data)
         }
         _fetchCurrentAccount()
     }
-
-    useEffect(() => {
-        fetchTransactions();
-        fetchCategories();
-        fetchPayees();
-        fetchAccounts();
-        fetchCurrentAccount();
-    }, [id]);
-
-    useEffect(() => {
-        if (selectedTransaction !== null) return
-        setTransactions(transactions.sort((e1, e2) => {
-            // sort transactions by date and break ties with id field
-            if (e1.date < e2.date) return 1;
-            if (e1.date > e2.date) return -1;
-
-            return e1.id < e2.id;
-        }))
-    }, [transactions])
 
     function addNewTransaction() {
         async function _addNewTransaction() {
@@ -120,26 +107,19 @@ export const Account = ({ smallScreen }) => {
         _addNewTransaction()
     }
 
-    function deleteTransaction(transaction_id) {
-        async function _deleteTransaction() {
-            instance.delete(`${transactionRequests.deleteTransaction}${transaction_id}`)
-            setTransactions(transactions.filter(t => t.id !== transaction_id));
-            setSelectedTransaction(null)
-        }
-        _deleteTransaction()
+    async function deleteTransaction(transaction_id) {
+        await instance.delete(`${transactionRequests.deleteTransaction}${transaction_id}`)
+        setSelectedTransaction(null)
+        fetchTransactions()
     }
 
-    function deleteTransfer(transfer_id) {
-        async function _deleteTransfer() {
-            instance.delete(
-                `${transactionRequests.deleteTransfer}${transfer_id}`,
-            )
-            const tempTransactions = transactions.filter(t => t.transfer_id !== transfer_id);
+    async function deleteTransfer(transfer_id) {
+        await instance.delete(
+            `${transactionRequests.deleteTransfer}${transfer_id}`,
+        )
+        setSelectedTransaction(null)
+        fetchTransactions()
 
-            setTransactions(tempTransactions);
-            setSelectedTransaction(null)
-        }
-        _deleteTransfer()
     }
 
     const selectTransaction = (transaction_id) => {
@@ -186,6 +166,18 @@ export const Account = ({ smallScreen }) => {
         )
     }
 
+    const transactionFilters = () =>{
+        // <label>Date Range: <input type={"number"}/><Autosuggest/></label>
+        return (
+            <label className="accountShowReconciledButton"><input type={"checkbox"} defaultChecked={showReconciled} onClick={() => {setShowReconciled(!showReconciled)}}/>Show Reconciled</label>
+        )
+    }
+
+    const transactionSearch = () => {
+        return (
+            <input className="accountSearchBar" placeholder="search" value={searchTerm} onChange={(e)=> {setSearchTerm(e.target.value)}}/>
+        )
+    }
 
     const createTransactions = (transaction) => {
         return <Transaction
@@ -198,9 +190,44 @@ export const Account = ({ smallScreen }) => {
             selectTransaction={selectTransaction}
             deleteTransaction={() => { deleteTransaction(transaction.id) }}
             deleteTransfer={() => { deleteTransfer(transaction.transfer_id) }}
-            fetchPayees={() => { fetchPayees() }} 
+            fetchPayees={() => { fetchPayees() }}
             reloadAccount={() => {fetchCurrentAccount()}}/>
     }
+
+    useEffect(() => {
+        if (searchTerm === "<empty string>"){
+            setFilteredTransactions(transactions)
+            return
+        }
+        const _searchTerm =  searchTerm.toLowerCase()
+        setFilteredTransactions(
+            transactions.filter((t)=>{ return t.search_str.includes(_searchTerm)})
+        )
+    },[transactions, searchTerm])
+
+    useEffect(() => {
+        fetchTransactions();
+        fetchCategories();
+        fetchPayees();
+        fetchAccounts();
+        fetchCurrentAccount();
+    }, [id]);
+
+    useEffect(() => {
+        if (selectedTransaction !== null) return
+        setTransactions(transactions.sort((e1, e2) => {
+            // sort transactions by date and break ties with id field
+            if (e1.date < e2.date) return 1;
+            if (e1.date > e2.date) return -1;
+
+            return e1.id < e2.id;
+        }))
+    }, [transactions, selectedTransaction])
+
+    useEffect(() => {
+      fetchTransactions()
+    }, [showReconciled])
+
 
     return (
         <div className="accountContent">
@@ -214,9 +241,13 @@ export const Account = ({ smallScreen }) => {
                     {(currentAccount) && (<AccountReconciliationModal account={currentAccount} reloadAccount={() => {fetchCurrentAccount(); fetchTransactions()}}/>)}
 
                 </div>
-                <div className="addTransactionButton" onClick={() => { addNewTransaction() }}>New Transaction </div>
-                <div className="filterTransactionsButton" />
-                <div className="searchTransactions" />
+                <div className="accountHeaderButtonRow">
+                    <div className="addTransactionButton" onClick={() => { addNewTransaction() }}>New Transaction </div>
+                    <div className="fillerDiv"/>
+                    {transactionFilters()}
+                    {transactionSearch()}
+
+                </div>
             </div>
             <div className="accountTransactionsContent">
                 <table>
@@ -231,7 +262,7 @@ export const Account = ({ smallScreen }) => {
                         <th className="accountTransactionsamountColumn"></th>
                     </tr></thead>
                     <tbody className="accountTransactionsTableBody">
-                        {transactions.map((t) => { return createTransactions(t) })}
+                        {filteredTransactions.map((t) => { return createTransactions(t) })}
                     </tbody>
                 </table>
             </div>

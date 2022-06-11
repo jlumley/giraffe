@@ -6,7 +6,6 @@ import ArrowRightCircleOutlineIcon from 'mdi-react/ArrowRightCircleOutlineIcon';
 import TabPlusIcon from 'mdi-react/TabPlusIcon'
 
 import categoryRequests from '../requests/category';
-import accountRequests from '../requests/account';
 
 import '../style/Budget.css'
 import { BudgetInfo } from './BudgetInfo';

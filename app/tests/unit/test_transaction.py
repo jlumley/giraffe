@@ -95,7 +95,7 @@ def test_update_transaction(test_client):
         "/account/create", json=dict(name="new_account1")
     ).json.get("id")
     category_id = test_client.post(
-        "/category/create", json=dict(group="new_group1", name="new_account1")
+        "/category/create", json=dict(group="new_group1", name="new_cat2")
     ).json.get("id")
 
     new_payee_id = test_client.post(
@@ -105,7 +105,7 @@ def test_update_transaction(test_client):
         "/account/create", json=dict(name="new_account12")
     ).json.get("id")
     new_category_id = test_client.post(
-        "/category/create", json=dict(group="new_group12", name="new_account1")
+        "/category/create", json=dict(group="new_group12", name="new_cat00")
     ).json.get("id")
     new_memo = "some new memo"
     new_date = "2022-05-22"
@@ -148,7 +148,7 @@ def test_update_transaction(test_client):
     assert transaction_response.json.get("memo") == new_memo
     assert transaction_response.json.get("date") == new_date
     assert transaction_response.json.get("amount") == new_amount
-    assert transaction_response.json.get("categories") == new_categories
+    assert transaction_response.json.get("categories") == [dict(category_id=new_category_id, amount=50, category_label="new_cat00")]
 
 
 def test_delete_transaction(test_client):
