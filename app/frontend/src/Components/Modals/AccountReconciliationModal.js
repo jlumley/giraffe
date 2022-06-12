@@ -58,19 +58,17 @@ export function AccountReconciliationModal({account, reloadAccount}) {
   }, [account])
   
 
-  function reconcileAccount() {
-    async function _reconcileAccount() {
-      await instance.put(
-        `${accountRequests.reconcileAccount}/${account.id}`,
-        {
-          date: new Date().toISOString().slice(0, 10),
-          balance: balance
-        })
-      // reload acount data
-      reloadAccount()
-      closeModal()
-    }
-    _reconcileAccount()
+
+  async function reconcileAccount() {
+    await instance.put(
+      `${accountRequests.reconcileAccount}/${account.id}`,
+      {
+        date: new Date().toISOString().slice(0, 10),
+        balance: balance
+      })
+    // reload acount data
+    reloadAccount()
+    closeModal()
   }
 
   return (

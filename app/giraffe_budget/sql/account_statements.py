@@ -31,7 +31,10 @@ RETURNING id, reconciled_date;
 """
 
 GET_ACCOUNT_BALANCE = """SELECT SUM(amount) AS balance
-FROM transactions
-WHERE cleared = :cleared
-AND account_id = :id
+FROM transaction_categories
+WHERE transaction_id in (
+    SELECT id FROM transactions
+    WHERE cleared = :cleared
+    AND account_id = :id
+);
 """

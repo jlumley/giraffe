@@ -92,6 +92,10 @@ def delete_transfer(transfer_id):
     Returns:
         int: id of deleted transfer
     """
+    db_utils.execute(
+        DELETE_TRANSFER_CATEGORIES,
+        {"transfer_id": transfer_id}
+    )
     transactions = db_utils.execute(
         DELETE_TRANSFER, {"transfer_id": transfer_id}, commit=True
     )
@@ -119,7 +123,6 @@ def update_transfer(
         transfer_id=transfer_id,
         from_account_id=from_account_id,
         to_account_id=to_account_id,
-        amount=abs(amount),
         date=date,
         memo=memo,
     )
@@ -138,20 +141,20 @@ def update_transfer(
         update_from_statement += ", date = :date"
         update_to_statement += ", date = :date"
 
-    if amount:
-        update_from_statement += ", amount = :amount"
-        update_to_statement += ", amount = :amount"
-
     if memo:
         update_from_statement += ", memo = :memo"
         update_to_statement += ", memo = :memo"
 
-    update_to_statement += " WHERE transfer_id = :transfer_id AND amount >= 0;"
-    update_from_statement += " WHERE transfer_id = :transfer_id AND amount <= 0;"
+    update_to_statement += " WHERE transfer_id = :transfer_id AND amount >= 0 RETURNING id;"
+    update_from_statement += " WHERE transfer_id = :transfer_id AND amount <= 0 RETURNING id;"
 
-    db_utils.execute(update_to_statement, update_vars)
-    update_vars["amount"] *= -1
-    db_utils.execute(update_from_statement, update_vars)
+    to_transaction_id = db_utils.execute(update_to_statement, update_vars)
+    from_transaction_id = db_utils.execute(update_from_statement, update_vars)
+
+    # update transfer amount
+    if amount:
+        db_utils.execute(UPDATE_TRANSFER_AMOUNT, {"transaction_id": to_transaction_id, "amount": abs(amount)})
+        db_utils.execute(UPDATE_TRANSFER_AMOUNT, {"transaction_id": from_transaction_id, "amount": -abs(amount)})
 
     db_utils.execute(GET_TRANSFER, update_vars, commit=True)
 
@@ -174,26 +177,38 @@ def create_transfer(**kwargs):
     """
     transfer_id = md5().hexdigest()
 
-    db_utils.execute(
+    _transaction_id = db_utils.execute(
         CREATE_TRANSFER,
         {
             **kwargs,
             "account_id": kwargs["from_account_id"],
             "payee_id": kwargs["to_account_id"],
-            "amount": abs(kwargs["amount"]) * -1,
             "transfer_id": transfer_id,
         },
+    )[0]["id"]
+    db_utils.execute(
+        CREATE_TRANSFER_CATEGORY,
+        {
+            "transaction_id": _transaction_id,
+            "amount": abs(kwargs["amount"]) * -1
+        }
     )
 
-    db_utils.execute(
+    _transaction_id = db_utils.execute(
         CREATE_TRANSFER,
         {
             **kwargs,
             "account_id": kwargs["to_account_id"],
             "payee_id": kwargs["from_account_id"],
-            "amount": abs(kwargs["amount"]),
             "transfer_id": transfer_id,
         },
+    )[0]["id"]
+    db_utils.execute(
+        CREATE_TRANSFER_CATEGORY,
+        {
+            "transaction_id": _transaction_id,
+            "amount": abs(kwargs["amount"])
+        }
     )
     db_utils.execute(GET_TRANSFER, {"transfer_id": transfer_id}, commit=True)
 
@@ -208,6 +223,7 @@ def get_transfer(transfer_id):
     """
     transactions = db_utils.execute(GET_TRANSFER, {"transfer_id": transfer_id})
     for t in transactions:
+        t["categories"] = db_utils.execute(GET_TRANSFER_CATEGORY, {"transaction_id": t["id"]})
         t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
 
     return transactions

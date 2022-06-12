@@ -159,11 +159,10 @@ def create_account(name, date, notes=None, starting_balance=0, credit_card=False
         )
 
     # if it is not a credit card add balance to "ready to assign"
-    categories = [] if credit_card else [dict(category_id=1, amount=starting_balance)]
+    categories = [dict(category_id=2, amount=starting_balance)] if credit_card else [dict(category_id=1, amount=starting_balance)]
     # Creating starting balance transaction
     transaction.create_transaction(
         account[0]["id"],
-        starting_balance,
         date,
         True,
         memo="Starting Balance",
@@ -209,7 +208,16 @@ def reconcile_account(account_id, date, balance):
     if adjustment_amount:
         # Add transaction to match balance
         transaction.create_transaction(
-            account_id, adjustment_amount, date, True, memo="Reconciliation Transaction"
+            account_id, 
+            date, 
+            True, 
+            memo="Reconciliation Transaction", 
+            categories=[
+                {
+                    "category_id": 2,
+                    "amount": adjustment_amount
+                }
+            ]
         )
 
     # mark cleared transactions as reconciled

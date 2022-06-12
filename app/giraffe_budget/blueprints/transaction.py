@@ -84,7 +84,6 @@ def _create_transaction():
     try:
         transaction_id = create_transaction(
             data.get("account_id"),
-            data.get("amount"),
             time_utils.datestr_to_sqlite_date(data.get("date")),
             int(data.get("cleared")),
             payee_id=data.get("payee_id"),
@@ -152,7 +151,6 @@ def update_transaction(**kwargs):
         payee_id (int, optional): new payee id. Defaults to None.
         date (int, optional): new sql date (YYYMMDD). Defaults to None.
         memo (str, optional): new memo. Defaults to None.
-        amount (int, optional): new amount. Defaults to None.
         cleared (bool, optional): new cleared value. Defaults to None.
         categories (list, optional): new categories. Defaults to [].
 
@@ -203,9 +201,6 @@ def update_transaction(**kwargs):
     if "date" in kwargs and kwargs.get("date"):
         update_statement += ", date = :date"
 
-    if "amount" in kwargs:
-        update_statement += ", amount = :amount"
-
     if "memo" in kwargs:
         update_statement += ", memo = :memo"
 
@@ -219,13 +214,12 @@ def update_transaction(**kwargs):
 
 
 def create_transaction(
-    account_id, amount, date, cleared, payee_id=None, memo=None, categories=[]
+    account_id, date, cleared, payee_id=None, memo=None, categories=[]
 ):
     """Create a new Transaction
 
     Args:
         account_id (int): account_id
-        amount (int): total transaction amount in cents
         date (str): date of the transaction (YYY-MM-DD)
         cleared (int): whether or not the transaction has cleared
         payee_id (int, optional): payee_id. Defaults to None.
@@ -238,9 +232,6 @@ def create_transaction(
     Returns:
         int: trnasaction id
     """
-    if categories and sum([c["amount"] for c in categories]) != amount:
-        raise RuntimeError("Category amounts do not match transaction amount")
-
     is_valid_payee_id(payee_id)
     is_valid_account_id(account_id)
 
@@ -248,7 +239,6 @@ def create_transaction(
         CREATE_TRANSACTION,
         {
             "account_id": account_id,
-            "amount": amount,
             "date": date,
             "cleared": cleared,
             "payee_id": payee_id,

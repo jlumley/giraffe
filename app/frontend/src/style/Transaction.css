@@ -56,11 +56,6 @@
     border-bottom: var(--light-grey) solid 1px;
 }
 
-.transactionAmount {
-    width: 20%;
-    text-align: right;
-}
-
 .transactionClearedColumn {
     min-width: 20px;
     cursor: pointer;
@@ -91,10 +86,6 @@
 
 .transactionCategoriesColumn {
     min-width: 100px;
-}
-
-.transactionAmountColumn {
-    min-width: 30px;
 }
 
 .transactonCategoryRow {

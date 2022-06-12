@@ -131,8 +131,3 @@ table {
     width: 40%;
     min-width: 300px;
 }
-
-.accountTransactionsAmountColumn {
-    width: 10%;
-    min-width: 30px;
-}

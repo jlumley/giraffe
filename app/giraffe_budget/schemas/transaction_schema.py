@@ -16,9 +16,8 @@ POST_TRANSACTION_CREATE_SCHEMA = {
         "date": {"type": "string"},
         "memo": {"type": "string"},
         "cleared": {"type": "boolean"},
-        "amount": {"type": "integer"},
     },
-    "required": ["account_id", "date", "cleared", "amount"],
+    "required": ["account_id", "date", "cleared", "categories"],
 }
 
 TRANSFER_SCHEMA = {
@@ -28,9 +27,8 @@ TRANSFER_SCHEMA = {
         "to_account_id": {"type": "integer"},
         "date": {"type": "string"},
         "memo": {"type": "string"},
-        "amount": {"type": "integer"},
     },
-    "required": ["from_account_id", "to_account_id", "date", "amount"],
+    "required": ["from_account_id", "to_account_id", "date", "categories"],
 }
 
 PUT_TRANSACTION_UPDATE_SCHEMA = {
@@ -51,6 +49,5 @@ PUT_TRANSACTION_UPDATE_SCHEMA = {
         "date": {"type": "string"},
         "memo": {"type": "string"},
         "cleared": {"type": "boolean"},
-        "amount": {"type": "integer"},
     },
 }

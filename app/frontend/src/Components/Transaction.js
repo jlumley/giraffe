@@ -45,7 +45,6 @@ export const Transaction = ({
     const [payeeId, setPayeeId] = useState(transaction.payee_id);
     const [payeeLabel, setPayeeLabel] = useState(transaction.payee_label)
     const [memo, setMemo] = useState(transaction.memo);
-    const [amount, setAmount] = useState(transaction.amount);
     const [transactionCategories, setTransactionCategories] = useState(transaction.categories.map(obj => ({ ...obj, uuid: uuidv4() })));
     const updateTransactionButton = useRef(null);
     const deleteTransactionButton = useRef(null);
@@ -146,14 +145,12 @@ export const Transaction = ({
 
 
     async function _createTransaction() {
-        var _categories = consolidateCategories()
         var transactionData = {
             date: date.toISOString().slice(0, 10),
             cleared: cleared,
             memo: memo ? memo : '',
             account_id: parseInt(accountId),
-            categories: _categories,
-            amount: amount ? amount : _categories.reduce((prev, curr) => prev + curr.amount, 0)
+            categories: consolidateCategories()
         }
         if (payeeId) transactionData.payee_id = parseInt(payeeId)
         const resp = await instance.post(
@@ -163,11 +160,12 @@ export const Transaction = ({
         setTransactionId(resp.data.id)
     }
     async function _createTransfer() {
+        var _categories = consolidateCategories()
         var transferData = {
             date: date.toISOString().slice(0, 10),
             cleared: cleared,
             memo: memo ? memo : '',
-            amount: amount,
+            amount: _categories.reduce((prev, curr) => prev + curr.amount, 0),
         }
         if (transferData.amount > 0) {
             transferData.from_account_id = parseInt(payeeId)
@@ -187,11 +185,12 @@ export const Transaction = ({
     }
 
     async function _updateTransfer() {
+        const _categories = consolidateCategories()
         var transferData = {
             date: date.toISOString().slice(0, 10),
             cleared: cleared,
             memo: memo ? memo : '',
-            amount: Math.round(amount),
+            amount: Math.round(_categories.reduce((prev, curr) => prev + curr.amount, 0)),
         }
         if (transferData.amount > 0) {
             transferData.from_account_id = parseInt(payeeId)
@@ -207,14 +206,12 @@ export const Transaction = ({
     }
 
     async function _updateTransaction() {
-        const _categories = consolidateCategories()
         const transactionData = {
             date: date.toISOString().slice(0, 10),
             cleared: cleared,
             memo: memo ? memo : '',
             account_id: parseInt(accountId),
-            categories: _categories,
-            amount: Math.round(amount ? amount : _categories.reduce((prev, curr) => prev + curr.amount, 0))
+            categories: consolidateCategories(),
         }
         if (payeeId) transactionData.payee_id = parseInt(payeeId)
         await instance.put(
@@ -295,19 +292,19 @@ export const Transaction = ({
     }
 
     const transactionCategory = () => {
-        if (transfer) return
         if (selected) {
-            return transactionCategories.map((_category, index) => {
+            const categoryRows = transactionCategories.map((_category, index) => {
                 return (<table key={_category.uuid} className="transactionCategoryRow">
                     <tbody><tr>
-                        <td className="deleteTransactionCategory"><CloseCircleOutlineIcon size={15} onClick={() => { removeCategory(index) }} /></td>
+                        {(index > 0 ) && (<td className="deleteTransactionCategory"><CloseCircleOutlineIcon size={15} onClick={() => { removeCategory(index) }} /></td>)}
                         <td className="transactionCategoryName"><Autosuggest startingValue={{ value: _category.category_id, label: categories[_category.category_id] }} options={categoryOptions()} updateMethod={(newValue) => { updateTransactionCategoryNames(index, newValue.value) }} /> </td>
                         <td className="transactionCategoryAmount"><MoneyInput startingValue={_category.amount / 100} onBlur={(e) => { updateTransactionAmounts(index, e) }} updateOnChange={true} /></td>
                     </tr></tbody>
                 </table>
                 );
-            }).concat(<PlusCircleOutlineIcon size={15} onClick={addCategory} />)
-
+            })
+            if (!transferId) categoryRows.concat(<PlusCircleOutlineIcon size={15} onClick={addCategory} />)
+            return categoryRows
         } else {
             return transactionCategories.map((_category) => {
                 return (
@@ -320,13 +317,6 @@ export const Transaction = ({
         }
     }
 
-    const amountDiv = () => {
-        if (selected) {
-            return (<div ><MoneyInput startingValue={amount / 100} onBlur={(e) => { setAmount(e * 100) }} updateOnChange={true} /></div>);
-        } else {
-            return (<div>{centsToMoney(amount)}</div>)
-        }
-    }
 
     return (
         <tr className={`transactionRow ${selected ? 'selected' : ''}`}>
@@ -336,7 +326,6 @@ export const Transaction = ({
             <td className="transactionPayeeColumn" onClick={selectCurrentTransaction} > {payeeInputField()} </td>
             <td className="transactionMemoColumn" onClick={selectCurrentTransaction} > {memoInputField()} </td>
             <td className="transactionCategoriesColumn" onClick={selectCurrentTransaction} > {transactionCategory()} </td>
-            <td className="transactionAmountColumn" onClick={selectCurrentTransaction} > {amountDiv()} </td>
             {(selected) && (<td className="transactionSaveColumn">
                 <div ref={updateTransactionButton} onClick={() => { update() }}><CheckIcon /></div>
                 <div ref={deleteTransactionButton} onClick={() => {

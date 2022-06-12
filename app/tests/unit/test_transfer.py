@@ -58,8 +58,7 @@ def test_get_transfer(test_client):
     assert transfer_response.status_code == 200
     for transaction in transfer_response.json:
         assert transaction.get("transfer_id") == transfer_id
-        assert abs(transaction.get("amount")) == 500
-        assert transaction.get("categories") == None
+        assert transaction.get("categories") != None
         assert transaction.get("cleared") == False
 
 

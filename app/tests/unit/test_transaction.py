@@ -23,22 +23,13 @@ def test_create_transaction_success(test_client):
             date="2022-04-22",
             cleared=True,
             memo="testing new transaction",
-            amount=-5000,
-        ),
-        dict(
-            payee_id=payee_id,
-            account_id=account_id,
-            date="2022-04-22",
-            cleared=True,
-            amount=500,
-        ),
+        )
     ]
     for transaction in transactions:
         create_response = test_client.post("/transaction/create", json=transaction)
         transaction_id = create_response.json.get("id")
         transaction_response = test_client.get(f"/transaction/{transaction_id}")
         assert create_response.status_code == 201
-        assert transaction_response.json.get("amount") == transaction.get("amount")
         assert transaction_response.json.get("date") == transaction.get("date")
         assert transaction_response.json.get("cleared") == transaction.get("cleared")
 
@@ -58,19 +49,9 @@ def test_create_transaction_fail(test_client):
     transactions = [
         dict(
             payee_id=payee_id,
-            account_id=account_id,
-            categories=[dict(category_id=category_id, amount=-5999)],
-            date="2022-04-22",
-            cleared=True,
-            memo="testing new transaction",
-            amount=899,
-        ),
-        dict(
-            payee_id=payee_id,
             account_id=99999,
             date="2022-04-22",
             cleared=True,
-            amount=500,
         ),
         dict(
             payee_id=99999,
@@ -120,7 +101,6 @@ def test_update_transaction(test_client):
         date="2022-04-22",
         cleared=True,
         memo="testing new transaction",
-        amount=-5000,
     )
     create_response = test_client.post("/transaction/create", json=transaction)
     transaction_id = create_response.json.get("id")
@@ -147,7 +127,6 @@ def test_update_transaction(test_client):
     assert transaction_response.json.get("account_id") == new_account_id
     assert transaction_response.json.get("memo") == new_memo
     assert transaction_response.json.get("date") == new_date
-    assert transaction_response.json.get("amount") == new_amount
     assert transaction_response.json.get("categories") == [dict(category_id=new_category_id, amount=50, category_label="new_cat00")]
 
 
@@ -170,7 +149,6 @@ def test_delete_transaction(test_client):
         date="2022-04-26",
         cleared=True,
         memo="testing deleting transaction",
-        amount=99,
     )
     create_response = test_client.post("/transaction/create", json=transaction)
     transaction_id = create_response.json.get("id")
@@ -207,10 +185,9 @@ def test_get_transaction(test_client):
         payee_id=payee_id,
         account_id=account_id,
         categories=[dict(category_id=category_id, amount=99)],
-        date="2022-04-26",
+        date="2022-08-26",
         cleared=True,
         memo="testing deleting transaction",
-        amount=99,
     )
     create_response = test_client.post("/transaction/create", json=transaction)
     transaction_id = create_response.json.get("id")
