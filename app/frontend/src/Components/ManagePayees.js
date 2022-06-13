@@ -20,7 +20,6 @@ export default function ManagePayees() {
   return (
     <div>
         {payees.map(p => {
-            console.log(p)
             return (
                 <Payee key={p.id} id={p.id} name={p.name} fetchPayees={fetchPayees}/>
             )

@@ -88,18 +88,6 @@
     min-width: 100px;
 }
 
-.transactonCategoryRow {
-    width: 100%;
-    padding: 15px;
-}
-
-.deleteTransactionCategory {
-    width: 15px;
-}
-
-.transactionCategoryName {
-    width: 65%;
-}
 
 .transactionCategoryAmount {
     padding-right: 20px;

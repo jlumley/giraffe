@@ -5,8 +5,6 @@ import instance from '../axois'
 
 import CheckboxMarkedIcon from "mdi-react/CheckboxMarkedIcon"
 import CheckboxBlankOutlineIcon from "mdi-react/CheckboxBlankOutlineIcon"
-import PlusCircleOutlineIcon from 'mdi-react/PlusCircleOutlineIcon'
-import CloseCircleOutlineIcon from 'mdi-react/CloseCircleOutlineIcon'
 import TrashCanOutlineIcon from 'mdi-react/TrashCanOutlineIcon'
 import LockOutlineIcon from 'mdi-react/LockOutlineIcon'
 import CheckIcon from 'mdi-react/CheckIcon'
@@ -16,10 +14,9 @@ import transferRequests from '../requests/transfer';
 import payeeRequests from '../requests/payee';
 
 import Autosuggest from './Inputs/Autosuggest';
-import { centsToMoney } from '../utils/money_utils';
-import MoneyInput from './Inputs/MoneyInput';
 
 import "../style/Transaction.css"
+import TransactionCategory from './TransactionCategory';
 
 
 export const Transaction = ({
@@ -59,10 +56,6 @@ export const Transaction = ({
 
     const transferOptions = () => {
         return Object.keys(accounts).map((id) => { return { value: id, label: `Transfer to/from ${accounts[id]}`, transfer: true } })
-    }
-
-    const categoryOptions = () => {
-        return Object.keys(categories).map((id) => { return { value: id, label: categories[id] } })
     }
 
     function reloadTransaction() {
@@ -119,31 +112,6 @@ export const Transaction = ({
         return new_categories;
     }
 
-    function addCategory() {
-        var tempArray = [...transactionCategories];
-        tempArray.push({ category_id: 0, amount: 0, uuid: uuidv4() });
-        setTransactionCategories(tempArray)
-    }
-
-    function removeCategory(index) {
-        var tempArray = [...transactionCategories];
-        tempArray.splice(index, 1)
-        setTransactionCategories(tempArray)
-    }
-
-    function updateTransactionCategoryNames(index, new_category) {
-        var tempArray = [...transactionCategories];
-        tempArray[index].category_id = parseInt(new_category)
-        setTransactionCategories(tempArray);
-    }
-
-    function updateTransactionAmounts(index, new_amount) {
-        var tempArray = [...transactionCategories];
-        tempArray[index].amount = new_amount * 100;
-        setTransactionCategories(tempArray);
-    }
-
-
     async function _createTransaction() {
         var transactionData = {
             date: date.toISOString().slice(0, 10),
@@ -181,7 +149,7 @@ export const Transaction = ({
         var _transactionId;
         for (const t in resp.data) { if (t.account_id === accountId) _transactionId = t.id }
         setTransactionId(_transactionId)
-        setTransferId(resp.data[0].transfer_id)
+        setTransferId(resp.data.transfer_id)
     }
 
     async function _updateTransfer() {
@@ -292,29 +260,12 @@ export const Transaction = ({
     }
 
     const transactionCategory = () => {
-        if (selected) {
-            const categoryRows = transactionCategories.map((_category, index) => {
-                return (<table key={_category.uuid} className="transactionCategoryRow">
-                    <tbody><tr>
-                        {(index > 0 ) && (<td className="deleteTransactionCategory"><CloseCircleOutlineIcon size={15} onClick={() => { removeCategory(index) }} /></td>)}
-                        <td className="transactionCategoryName"><Autosuggest startingValue={{ value: _category.category_id, label: categories[_category.category_id] }} options={categoryOptions()} updateMethod={(newValue) => { updateTransactionCategoryNames(index, newValue.value) }} /> </td>
-                        <td className="transactionCategoryAmount"><MoneyInput startingValue={_category.amount / 100} onBlur={(e) => { updateTransactionAmounts(index, e) }} updateOnChange={true} /></td>
-                    </tr></tbody>
-                </table>
-                );
-            })
-            if (!transferId) categoryRows.concat(<PlusCircleOutlineIcon size={15} onClick={addCategory} />)
-            return categoryRows
-        } else {
-            return transactionCategories.map((_category) => {
-                return (
-                    <div key={_category.uuid} className="transactionCategory">
-                        <div className="transactionCategoryName">{categories[_category.category_id]}</div>
-                        <div className="transactionCategoryAmount">{centsToMoney(_category.amount)}</div>
-                    </div>
-                )
-            })
-        }
+       return <TransactionCategory 
+       categories={categories} 
+       transactionCategories={transactionCategories}
+       setTransactionCategories={setTransactionCategories}
+       selected={selected}
+       transfer={transfer}/>
     }
 
 

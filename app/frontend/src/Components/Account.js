@@ -29,7 +29,7 @@ export const Account = ({ smallScreen }) => {
         date: new Date().toLocaleString().slice(0, 10),
         account_id: (id !== 'all') ? parseInt(id) : null,
         memo: "",
-        categories: [{ category_id: 0, amount: 0 }],
+        categories: [{ category_id: 2, amount: 0 }],
         cleared: false,
         amount: 0,
         id: 0,
@@ -39,7 +39,6 @@ export const Account = ({ smallScreen }) => {
 
     function fetchTransactions() {
         async function _fetchTransactions() {
-            console.log(showReconciled)
             const params = (id !== 'all') ? { accounts: id } : {}
             if (showReconciled === false) params.reconciled = showReconciled;
 
@@ -258,7 +257,11 @@ export const Account = ({ smallScreen }) => {
                         <th className="accountTransactionsAccountColumn">Account</th>
                         <th className="accountTransactionsPayeeColumn">Payee</th>
                         <th className="accountTransactionsMemoColumn">Memo</th>
-                        <th className="accountTransactionsCategoryColumn">Categories</th>
+                        <th className="accountTransactionsCategoryColumn">
+                            <div style={{width:'50%'}}>Category Name</div>
+                            <div style={{width:'25%'}}>Inflow</div>
+                            <div style={{width:'25%'}}>Outflow</div>
+                        </th>
                     </tr></thead>
                     <tbody className="accountTransactionsTableBody">
                         {filteredTransactions.map((t) => { return createTransactions(t) })}

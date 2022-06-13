@@ -41,7 +41,7 @@ def _create_transfer():
 
     try:
         transfer_data = {**data}
-        transfer_data["data"] = time_utils.datestr_to_sqlite_date(data.get("date"))
+        transfer_data["date"] = time_utils.datestr_to_sqlite_date(data.get("date"))
         transfer_id = create_transfer(**transfer_data)
     except (RuntimeError, TypeError, sqlite3.IntegrityError) as e:
         return make_response(jsonify(str(e)), 400)
@@ -145,11 +145,19 @@ def update_transfer(
         update_from_statement += ", memo = :memo"
         update_to_statement += ", memo = :memo"
 
-    update_to_statement += " WHERE transfer_id = :transfer_id AND amount >= 0 RETURNING id;"
-    update_from_statement += " WHERE transfer_id = :transfer_id AND amount <= 0 RETURNING id;"
+    update_to_statement += """ 
+    WHERE transfer_id = :transfer_id AND
+    id IN (
+        SELECT transaction_id FROM transaction_categories WHERE amount > 0
+    ) RETURNING id;"""
+    update_from_statement += """ 
+    WHERE transfer_id = :transfer_id AND
+    id IN (
+        SELECT transaction_id FROM transaction_categories WHERE amount < 0
+    ) RETURNING id;"""
 
-    to_transaction_id = db_utils.execute(update_to_statement, update_vars)
-    from_transaction_id = db_utils.execute(update_from_statement, update_vars)
+    to_transaction_id = db_utils.execute(update_to_statement, update_vars)[0]["id"]
+    from_transaction_id = db_utils.execute(update_from_statement, update_vars)[0]["id"]
 
     # update transfer amount
     if amount:
