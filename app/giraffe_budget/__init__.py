@@ -3,7 +3,7 @@ import os
 import sqlite3
 
 from .config import *
-from .blueprints import account, category, transaction, payee, transfer
+from .blueprints import account, category, transaction, payee, transfer, health
 from .utils.db_utils import *
 from flask import Flask, g, current_app
 
@@ -59,3 +59,4 @@ def register_blueprints(app):
     app.register_blueprint(category.category)
     app.register_blueprint(payee.payee)
     app.register_blueprint(transfer.transfer)
+    app.register_blueprint(health.health)

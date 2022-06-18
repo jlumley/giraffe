@@ -246,13 +246,13 @@ export const Transaction = ({
     }
     const payeeInputField = () => {
         if (!selected) return <div>{payeeLabel}</div>
-        if (transaction.new_transaction) return <Autosuggest startingValue={{ value: payeeId, label: payeeLabel }} options={transferOptions().concat(payeeOptions())} createOptionUrl={payeeRequests.createPayee} updateMethod={(newValue) => { setPayeeId(newValue.value); setTransfer(newValue.transfer) }} allowNewValues={true} />
-        if (transfer) return <Autosuggest startingValue={{ value: payeeId, label: payeeLabel }} options={transferOptions()} updateMethod={(newValue) => { setPayeeId(newValue.value) }} allowNewValues={true} />
-        return <Autosuggest startingValue={{ value: payeeId, label: payeeLabel }} options={payeeOptions()} createOptionUrl={payeeRequests.createPayee} allowNewValues={true} allowEmpty={true} updateMethod={(newValue) => { setPayeeId(newValue.value) }} />
+        if (transaction.new_transaction) return <Autosuggest startingValue={{ value: payeeId, label: payeeLabel }} options={transferOptions().concat(payeeOptions())} createOptionUrl={payeeRequests.createPayee} onBlur={(newValue) => { setPayeeId(newValue.value); setTransfer(newValue.transfer) }} allowNewValues={true} />
+        if (transfer) return <Autosuggest startingValue={{ value: payeeId, label: payeeLabel }} options={transferOptions()} onBlur={(newValue) => { setPayeeId(newValue.value) }} allowNewValues={true} />
+        return <Autosuggest startingValue={{ value: payeeId, label: payeeLabel }} options={payeeOptions()} createOptionUrl={payeeRequests.createPayee} allowNewValues={true} allowEmpty={true} onBlur={(newValue) => { setPayeeId(newValue.value) }} />
     }
     const accountInputField = () => {
         if (!selected) return <div>{accountLabel}</div>
-        return <Autosuggest startingValue={{ value: accountId, label: accountLabel }} options={accountOptions()} updateMethod={(newValue) => { setAccountId(newValue.value) }} />
+        return <Autosuggest startingValue={{ value: accountId, label: accountLabel }} options={accountOptions()} onBlur={(newValue) => { setAccountId(newValue.value) }} />
     }
     const memoInputField = () => {
         if (!selected) return <div>{memo}</div>

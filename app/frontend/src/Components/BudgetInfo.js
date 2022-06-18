@@ -85,7 +85,7 @@ export function BudgetInfo({ category_ids, currentDate }) {
         return (
             <div className="categoryTarget">
                 <div className="categoryTargetTitle">{categoryName} Target</div>
-                <div className="categoryTargetType"> <Autosuggest startingValue={{ value: startingValue, label: startingLabel }} options={targetTypesArray} allowEmpty={true} updateMethod={updateTargetType} /> </div>
+                <div className="categoryTargetType"> <Autosuggest startingValue={{ value: startingValue, label: startingLabel }} options={targetTypesArray} allowEmpty={true} onBlur={updateTargetType} /> </div>
                 {(targetType) && (<div className="categoryTargetAmount"> <MoneyInput startingValue={targetAmount} onBlur={(value) => { setTargetAmount(value) }} /></div>)}
                 {(targetType === "savings_target") && (<div className="categoryTargetDate"> <DateInput selected={targetDate} onChange={(date) => { setTargetDate(date) }} /></div>)}
                 {(targetType) && (<div className="budgetInfoButton" onClick={deleteCategoryTarget}> Remove Target</div>)}

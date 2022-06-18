@@ -4,7 +4,7 @@ import Creatable from 'react-select/creatable'
 import instance from '../../axois';
 
 
-export default function Autosuggest({ startingValue, options, createOptionUrl, updateMethod, allowNewValues, allowEmpty }) {
+export default function Autosuggest({ startingValue, options, createOptionUrl, onBlur, allowNewValues, allowEmpty }) {
     const [optionsArray, setOptionsArray] = useState(options);
     const [value, setValue] = useState(startingValue);
 
@@ -19,11 +19,11 @@ export default function Autosuggest({ startingValue, options, createOptionUrl, u
         const newOptions = [...optionsArray]
         newOptions.push({ label: newValue, value: resp.data.id })
         setOptionsArray(newOptions)
-        updateMethod({ label: newValue, value: resp.data.id })
+        onBlur({ label: newValue, value: resp.data.id })
     }
 
     function handleChange(newValue) {
-        updateMethod(newValue)
+        onBlur(newValue)
         setValue(newValue)
     }
 
