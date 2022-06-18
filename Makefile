@@ -19,6 +19,6 @@ build: ## build docker image
 	docker build . -t ghcr.io/jlumley/giraffe-budget:latest
  
 publish:  ## publish docker image to ghcr
-	docker push ghcr.io/jlumley/giraffe-budget:latest
+	make test && docker push ghcr.io/jlumley/giraffe-budget:latest
 
 
