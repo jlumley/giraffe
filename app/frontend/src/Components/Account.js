@@ -26,7 +26,7 @@ export const Account = ({ smallScreen }) => {
 
 
     const newEmptyTransaction = {
-        date: new Date().toLocaleString().slice(0, 10),
+        date: new Date(),
         account_id: (id !== 'all') ? parseInt(id) : null,
         memo: "",
         categories: [{ category_id: 2, amount: 0 }],
