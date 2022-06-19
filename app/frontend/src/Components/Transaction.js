@@ -84,7 +84,7 @@ export const Transaction = ({
 
     async function updateTransactionCleared (){
         await instance.put(
-            `${transactionRequests.updateTransactionCleared}${transactionId}/${cleared.toString()}`,
+            `${transactionRequests.updateTransactionCleared}${transactionId}/${!cleared.toString()}`,
         )
         setCleared(!cleared)
         reloadAccount()
