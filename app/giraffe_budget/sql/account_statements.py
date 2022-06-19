@@ -19,8 +19,7 @@ RETURNING id, hidden;
 
 RECONCILE_ACCOUNT_TRANSACTIONS = """UPDATE transactions
 SET reconciled = 1
-WHERE reconciled = 0
-AND cleared = 1
+WHERE cleared = 1
 AND account_id = :id;
 """
 
