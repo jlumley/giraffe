@@ -81,17 +81,15 @@ export const Transaction = ({
         }
     }
 
-    function updateTransactionCleared() {
-        async function _updateTransactionCleared (){
-            await instance.put(
-                `${transactionRequests.updateTransaction}${transactionId}`,
-                { cleared: !cleared }
-            )
-            setCleared(!cleared)
-            reloadAccount()
-            }
-        _updateTransactionCleared()
-    }
+
+    async function updateTransactionCleared (){
+        await instance.put(
+            `${transactionRequests.updateTransactionCleared}${transactionId}/${cleared.toString()}`,
+        )
+        setCleared(!cleared)
+        reloadAccount()
+        }
+
 
     function consolidateCategories() {
         // remove empty categories and consolidate duplicate categories
