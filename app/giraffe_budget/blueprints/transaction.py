@@ -91,7 +91,7 @@ def _create_transaction():
             categories=data.get("categories", []),
         )
     except (RuntimeError, TypeError, sqlite3.IntegrityError) as e:
-        return make_response(jsonify(str(e)), 400)
+        return make_response(jsonify(repr(e)), 400)
 
     return make_response(jsonify({"id": transaction_id}), 201)
 
@@ -108,7 +108,19 @@ def update_transaction(transaction_id):
         }
         transaction = update_transaction(**update_data)
     except (RuntimeError, TypeError, sqlite3.IntegrityError) as e:
-        return make_response(jsonify(e), 400)
+        return make_response(jsonify(repr(e)), 400)
+
+    return make_response(jsonify(transaction), 200)
+
+# TODO: implement custom bool converter for cleared
+@transaction.route("/update/cleared/<int:transaction_id>/<string:cleared>", methods=("PUT",))
+def _update_transaction_cleared(transaction_id, cleared):
+    """clear/unclear a transaction"""
+    cleared = str2bool(cleared)
+    try:
+        transaction = update_transaction_cleared(transaction_id, cleared)
+    except (RuntimeError) as e:
+        return make_response(jsonify(repr(e)), 400)
 
     return make_response(jsonify(transaction), 200)
 
@@ -211,6 +223,42 @@ def update_transaction(**kwargs):
     transaction_id = db_utils.execute(update_statement, kwargs, commit=True)
 
     return transaction_id[0]
+
+
+def update_transaction_cleared(transaction_id, cleared):
+    """update a transaction
+
+    Kwargs:
+        transaction_id (int): transaction_id
+        cleared (bool, optional): new cleared value. Defaults to None.
+
+    Returns:
+        transaction
+    """
+    ## input validation stuff
+    old_transaction = get_transaction(transaction_id)
+    if not old_transaction:
+        raise RuntimeError(f"Invalid transaction id: {transaction_id}")
+    else:
+        old_transaction = old_transaction[0]
+
+    update_statement = """
+    UPDATE transactions 
+    SET cleared = :cleared
+    WHERE id = :transaction_id"""
+
+    transaction_id = db_utils.execute(
+        update_statement, 
+        {
+            "transaction_id": transaction_id,
+            "cleared": cleared,
+        }, 
+        commit=True
+    )
+
+    return transaction_id
+
+
 
 
 def create_transaction(
@@ -513,3 +561,7 @@ def generate_search_str(transaction):
 
 
     return search_str.lower()
+
+
+def str2bool(v):
+  return v.lower() in ("yes", "true", "t", "1")
