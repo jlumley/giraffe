@@ -24,10 +24,10 @@ export const Account = ({ smallScreen }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const { id } = useParams();
 
-
     const newEmptyTransaction = {
         date: new Date(),
         account_id: (id !== 'all') ? parseInt(id) : null,
+        account_label: (id !== 'all') ? currentAccount.name : "",
         memo: "",
         categories: [{ category_id: 2, amount: 0 }],
         cleared: false,
