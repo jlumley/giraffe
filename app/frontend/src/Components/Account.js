@@ -27,7 +27,7 @@ export const Account = ({ smallScreen }) => {
     const newEmptyTransaction = {
         date: new Date(),
         account_id: (id !== 'all') ? parseInt(id) : null,
-        account_label: (id !== 'all') ? currentAccount.name : "",
+        account_label: (currentAccount) ? currentAccount.name : "",
         memo: "",
         categories: [{ category_id: 2, amount: 0 }],
         cleared: false,
