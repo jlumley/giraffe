@@ -9,8 +9,8 @@ WHERE transaction_id = :transaction_id;
 """
 
 CREATE_TRANSFER = """INSERT INTO transactions
-(account_id, payee_id, date, memo, cleared, transfer_id)
-VALUES (:account_id, :payee_id, :date, :memo, :cleared, :transfer_id)
+(account_id, payee_id, date, memo, cleared, reconciled, transfer_id)
+VALUES (:account_id, :payee_id, :date, :memo, :cleared, false, :transfer_id)
 RETURNING id;
 """
 

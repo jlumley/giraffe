@@ -20,7 +20,7 @@ export const Account = ({ smallScreen }) => {
     const [categories, setCategories] = useState({});
     const [accounts, setAccounts] = useState([]);
     const [currentAccount, setCurrentAccount] = useState(null);
-    const [showReconciled, setShowReconciled] = useState(true);
+    const [showReconciled, setShowReconciled] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const { id } = useParams();
 
