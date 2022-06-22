@@ -25,12 +25,10 @@ export function Budget({ smallScreen }) {
     fetchCategoryGroups()
     fetchReadyToAssign()
   }, [])
-  useEffect(() => { fetchReadyToAssign() }, [currentDate])
-
 
   const fetchReadyToAssign = () => {
     async function _fetchReadyToAssign() {
-      const category = await instance.get(`${categoryRequests.fetchCategory}/1/${currentDate.toISOString().slice(0, 10)}`)
+      const category = await instance.get(`${categoryRequests.fetchCategory}/1/9999-12-31`)
       setReadyToAssign(category.data.balance)
     }
     _fetchReadyToAssign()
