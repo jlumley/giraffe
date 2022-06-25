@@ -39,7 +39,8 @@ def _get_category_target_types():
 def _get_categories(date):
     """Get all categories"""
     date = time_utils.datestr_to_sqlite_date(date)
-    categories = get_categories(date)
+    group = request.args.get("group")
+    categories = get_categories(date, group=group)
 
     return make_response(jsonify(categories), 200)
 
@@ -442,17 +443,24 @@ def get_category_transactions_sum(category_id, before=MAX_INT, after=0):
     return amount if amount else 0
 
 
-def get_categories(sql_date):
+def get_categories(sql_date, group):
     """get all categories
 
     Args:
-        date (int): sql date (YYYMMDD)
+        date   (int): sql date (YYYMMDD)
+        groups (str): filter categories by group
 
     Returns:
         list: list of all categories
     """
+    select = GET_ALL_CATEGORIES
+    select_values = {}
 
-    category_ids = db_utils.execute(GET_ALL_CATEGORIES)
+    if group:
+        select += " AND category_group = :group"
+        select_values["group"] = group
+    
+    category_ids = db_utils.execute(select, select_values)
     categories = []
     for c in category_ids:
         categories.append(get_category(c["id"], sql_date))

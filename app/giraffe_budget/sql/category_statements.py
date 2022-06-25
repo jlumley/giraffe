@@ -1,5 +1,6 @@
 GET_ALL_CATEGORIES = """SELECT id
-FROM categories;"""
+FROM categories
+WHERE true """
 
 GET_CATEGORY = """SELECT *
 FROM CATEGORIES
