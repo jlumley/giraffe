@@ -24,6 +24,12 @@ export function Category({
     const [categorySpent, setCategorySpent] = useState(category.spent_this_month);
     const [selected, setSelected] = useState(false);
 
+    useEffect( () => {
+        setCategoryName(category.name)
+        setCategoryAssigned(category.assigned_this_month / 100)
+        setCategoryBalance(category.balance)
+        setCategorySpent(category.spent_this_month)
+    }, [category, currentDate])
 
     const fetchCategory = () => {
         async function _fetchCategory() {
@@ -38,10 +44,11 @@ export function Category({
     };
 
     useEffect(() => {
+        if (categoryAssigned === category.assigned_this_month/100) return
         fetchCategory()
         updateAssignedTotalAssigned()
         updateUnderfunded()
-    }, [categoryAssigned, currentDate])
+    }, [categoryAssigned])
 
 
     const handleChangeCategoryName = (event) => {

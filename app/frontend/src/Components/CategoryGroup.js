@@ -15,7 +15,7 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTo
 
   useEffect(() => {
     fetchCategories()
-  }, [])
+  }, [currentDate])
 
   const category = (category) => {
     return <Category
@@ -32,8 +32,11 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTo
   const fetchCategories = () => {
     async function _fetchCategories() {
       const today = currentDate.toISOString().slice(0, 10);
-      const resp = await instance.get(`${categoryRequests.fetchAllCategories}/${today}`)
-      setCategories(resp.data.filter(cat => cat.group === categoryGroupName))
+      const params = {group: categoryGroupName}
+      const resp = await instance.get(
+        `${categoryRequests.fetchAllCategories}/${today}`,
+        { params })
+      setCategories(resp.data)
     }
     _fetchCategories()
   };
@@ -53,7 +56,7 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTo
   const editCategoryGroupName = (event) => {
     if (isCreditCardGroup) return
     setCategoryGroupName(event.target.value);
-  }
+  } 
   const updateCategoryGroupName = (event) => {
     categories.forEach(cat => {
       instance.put(`${categoryRequests.updateCategory}${cat.id}`,
