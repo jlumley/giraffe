@@ -78,6 +78,7 @@ export function Category({
     }
 
     const updateCategoryAssignment = (newValue) => {
+        if (parseInt(newValue) === categoryAssigned) return
         const req_data = {
             amount: Math.round((newValue - categoryAssigned) * 100),
             date: currentDate.toISOString().slice(0, 10)
@@ -88,7 +89,7 @@ export function Category({
         else if (req_data.amount > 0) {
             instance.put(`${categoryRequests.assignCategory}${category.id}`, req_data)
         }
-        setCategoryAssigned(newValue)
+        setCategoryAssigned(newValue)   
     }
 
     return (

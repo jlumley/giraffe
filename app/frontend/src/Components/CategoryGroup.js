@@ -58,6 +58,7 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTo
     setCategoryGroupName(event.target.value);
   } 
   const updateCategoryGroupName = (event) => {
+    if (event.target.value === categoryGroupName) return
     categories.forEach(cat => {
       instance.put(`${categoryRequests.updateCategory}${cat.id}`,
         { "group": event.target.value }
