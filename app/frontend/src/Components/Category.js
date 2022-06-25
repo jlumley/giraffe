@@ -56,6 +56,7 @@ export function Category({
     }
 
     const updateCategoryName = (event) => {
+        if (event.target.value === category.name) return
         instance.put(
             `${categoryRequests.updateCategory}${category.id}`,
             { name: event.target.value }
