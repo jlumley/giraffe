@@ -65,8 +65,12 @@ export function Category({
         fetchCategory()
         updateAssignedTotalAssigned()
         updateUnderfunded()
-        setProgressWidth(calculateProgressBarWidth())
+        setCategoryUnderfunded(category.underfunded/100)
     }, [categoryAssigned])
+
+    useEffect(() => {
+        setProgressWidth(calculateProgressBarWidth())
+    }, [categoryAssigned, categoryUnderfunded])
 
     const fetchCategory = () => {
         async function _fetchCategory() {
