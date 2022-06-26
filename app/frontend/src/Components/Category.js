@@ -9,7 +9,6 @@ import CheckboxMarkedCircleIcon from 'mdi-react/CheckboxMarkedCircleIcon'
 import '../style/Category.css'
 import MoneyInput from './Inputs/MoneyInput';
 
-
 export function Category({
     category,
     currentDate,
@@ -22,14 +21,52 @@ export function Category({
     const [categoryAssigned, setCategoryAssigned] = useState(category.assigned_this_month / 100);
     const [categoryBalance, setCategoryBalance] = useState(category.balance);
     const [categorySpent, setCategorySpent] = useState(category.spent_this_month);
+    const [categoryUnderfunded, setCategoryUnderfunded] = useState(category.underfunded/100);
     const [selected, setSelected] = useState(false);
+    const [progressWidth, setProgressWidth] = useState(calculateProgressBarWidth());
+
+    const categoryNameColumnStyle = {
+        width: '30%'
+    }
+    
+    const categoryNameInputStyle = {
+        width: '80%',
+        borderColor: 'hsl(0, 0%, 80%)',
+        borderStyle: 'solid',
+        height: '34px',
+        borderWidth: '1px',
+        color: 'var(--dark-color)',
+        borderRadius: '4px',
+        paddingLeft: '5px',
+        minWidth: '100px',
+        outline: 'none'
+    }
+    
+    const categoryProgresBarStlye = {
+        backgroundColor: 'lightgreen',
+        width: progressWidth,
+        height: '3px',
+        paddingLeft: '5px',
+        marginLeft: '2px',
+        marginRight: '2px'
+    }
+
 
     useEffect( () => {
         setCategoryName(category.name)
         setCategoryAssigned(category.assigned_this_month / 100)
         setCategoryBalance(category.balance)
         setCategorySpent(category.spent_this_month)
+        setCategoryUnderfunded(category.underfunded/100)
     }, [category, currentDate])
+
+    useEffect(() => {
+        if (categoryAssigned === category.assigned_this_month/100) return
+        fetchCategory()
+        updateAssignedTotalAssigned()
+        updateUnderfunded()
+        setProgressWidth(calculateProgressBarWidth())
+    }, [categoryAssigned])
 
     const fetchCategory = () => {
         async function _fetchCategory() {
@@ -43,13 +80,13 @@ export function Category({
         _fetchCategory()
     };
 
-    useEffect(() => {
-        if (categoryAssigned === category.assigned_this_month/100) return
-        fetchCategory()
-        updateAssignedTotalAssigned()
-        updateUnderfunded()
-    }, [categoryAssigned])
-
+    function calculateProgressBarWidth () {
+        if (categoryUnderfunded === 0) return '80%'
+        const progress = (
+            categoryAssigned
+        ) / (categoryAssigned + categoryUnderfunded)
+        return `${progress*80}%`
+    }
 
     const handleChangeCategoryName = (event) => {
         setCategoryName(event.target.value);
@@ -92,13 +129,26 @@ export function Category({
         setCategoryAssigned(newValue)   
     }
 
+    const categoryNameInput = () => {
+        if (category.credit_card) {
+            return (
+                <td style={categoryNameColumnStyle}>
+                    <input style={categoryNameInputStyle} type="text" value={categoryName} />
+                </td>
+            )
+        } 
+        return (
+            <td style={categoryNameColumnStyle}>
+                <input style={categoryNameInputStyle} type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} />
+                <div style={categoryProgresBarStlye}></div>
+            </td>
+        )
+    }
+
     return (
         <tr className="categoryRow">
             {(!smallScreen) && (<td className="selectedColumn">{ifSelected()}</td>)}
-            <td className="nameColumn">
-                {(!category.credit_card) && (<input className="categoryName" type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} />)}
-                {(category.credit_card) && (<input className="categoryName" type="text" value={categoryName} />)}
-            </td>
+            {categoryNameInput()}
             <td className="assignedColumn"><MoneyInput startingValue={categoryAssigned} onBlur={updateCategoryAssignment} /></td>
             {(!smallScreen) && (<td className="spentColumn">{centsToMoney(categorySpent)}</td>)}
             <td className="balanceColumn">{centsToMoney(categoryBalance)}</td>
