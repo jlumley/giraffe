@@ -20,6 +20,18 @@ export function BudgetInfo({ category_ids, currentDate }) {
     const [targetAmount, setTargetAmount] = useState(null);
     const [targetType, setTargetType] = useState(null);
 
+
+    const buttonStyle = {
+        margin: '5px',
+        width: '50%',
+        padding: '8px',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        backgroundColor: 'var(--light-grey)',
+        textAlign: 'center',
+        userSelect: 'none',
+    }
+
     async function fetchTargetTypes() {
         const _types = (await instance.get(categoryRequests.fetchTargetTypes)).data
         const _typesArray = Object.keys(_types).map((t) => { return { value: t, label: _types[t] } })
@@ -47,7 +59,7 @@ export function BudgetInfo({ category_ids, currentDate }) {
         const underfunded = _categories.reduce((currentValue, nextValue) => {
             return currentValue + nextValue.underfunded
         }, 0)
-        return (<div className="budgetInfoButton" onClick={autoAssignUnderfunded}> {`Underfunded: ${centsToMoney(underfunded)}`}</div>)
+        return (<div style={buttonStyle} onClick={autoAssignUnderfunded}> {`Underfunded: ${centsToMoney(underfunded)}`}</div>)
     }
 
     function updateTargetType(type) {
@@ -88,7 +100,12 @@ export function BudgetInfo({ category_ids, currentDate }) {
                 <div className="categoryTargetType"> <Autosuggest startingValue={{ value: startingValue, label: startingLabel }} options={targetTypesArray} allowEmpty={true} onBlur={updateTargetType} /> </div>
                 {(targetType) && (<div className="categoryTargetAmount"> <MoneyInput startingValue={targetAmount} onBlur={(value) => { setTargetAmount(value) }} /></div>)}
                 {(targetType === "savings_target") && (<div className="categoryTargetDate"> <DateInput selected={targetDate} onChange={(date) => { setTargetDate(date) }} /></div>)}
-                {(targetType) && (<div className="budgetInfoButton" onClick={deleteCategoryTarget}> Remove Target</div>)}
+                {(targetType) && (
+                    <div style={{display: 'flex'}}>
+                        <div style={buttonStyle} onClick={updateCategoryTarget}> Update Target</div>
+                        <div style={buttonStyle} onClick={deleteCategoryTarget}> Remove Target</div>
+                    </div>
+                )}
             </div>
         )
     }
@@ -96,9 +113,6 @@ export function BudgetInfo({ category_ids, currentDate }) {
     useEffect(() => {
         fetchCategories()
     }, [category_ids, currentDate])
-    useEffect(() => {
-        updateCategoryTarget()
-    }, [targetType, targetAmount, targetDate])
     useEffect(() => {
         fetchTargetTypes()
     }, [])

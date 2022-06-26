@@ -49,15 +49,3 @@
 .categoryTargetAmount {
     margin: 5px;
 }
-
-.budgetInfoButton {
-    margin: 5px;
-    width: 50%;
-    margin: auto;
-    padding: 8px;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: var(--light-grey);
-    text-align: center;
-    user-select: none;
-}
