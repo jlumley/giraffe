@@ -48,7 +48,8 @@ export function Category({
         height: '3px',
         paddingLeft: '5px',
         marginLeft: '2px',
-        marginRight: '2px'
+        marginRight: '2px',
+        borderRadius: '4px'
     }
 
 
