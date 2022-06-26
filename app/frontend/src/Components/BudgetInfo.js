@@ -10,7 +10,12 @@ import DateInput from './Inputs/DateInput';
 
 import '../style/BudgetInfo.css'
 
-export function BudgetInfo({ category_ids, currentDate }) {
+export function BudgetInfo({
+    categories,
+    fetchCategories,
+    categoryIds, 
+    currentDate
+}) {
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [totalAssigned, setTotalAssigned] = useState(0);
     const [totalAvailable, setTotalAvailable] = useState(0);
@@ -39,20 +44,13 @@ export function BudgetInfo({ category_ids, currentDate }) {
         setTargetTypesArray(_typesArray)
     }
 
-
-    async function fetchCategories() {
-        const today = currentDate.toISOString().slice(0, 10);
-        const resp = await instance.get(`${categoryRequests.fetchAllCategories}/${today}`)
-        setSelectedCategories(resp.data.filter(c => category_ids.includes(c.id)))
-    }
-
     async function autoAssignUnderfunded() {
         const today = currentDate.toISOString().slice(0, 10);
         for (const i in selectedCategories) {
             if (!selectedCategories[i].underfunded) continue
             await instance.put(`${categoryRequests.assignCategory}/${selectedCategories[i].id}`, { date: today, amount: selectedCategories[i].underfunded })
         }
-        await fetchCategories()
+        fetchCategories()
     }
 
     const autoAssignUnderfundedButton = (_categories) => {
@@ -71,9 +69,9 @@ export function BudgetInfo({ category_ids, currentDate }) {
     }
 
     async function updateCategoryTarget() {
-        if (!category_ids) return
+        if (!categoryIds) return
         if (targetType) {
-            await instance.put(`${categoryRequests.updateCategoryTarget}${category_ids[0]}`, {
+            await instance.put(`${categoryRequests.updateCategoryTarget}${categoryIds[0]}`, {
                 target_amount: parseInt(targetAmount * 100),
                 target_type: targetType,
                 target_date: targetDate ? targetDate.toISOString().slice(0, 10) : ''
@@ -83,7 +81,7 @@ export function BudgetInfo({ category_ids, currentDate }) {
     }
 
     function deleteCategoryTarget() {
-        instance.delete(`${categoryRequests.DeleteCategoryTarget}/${category_ids[0]}`)
+        instance.delete(`${categoryRequests.DeleteCategoryTarget}/${categoryIds[0]}`)
         setTargetType(null)
         setTargetAmount(null)
         setTargetDate(null)
@@ -111,8 +109,9 @@ export function BudgetInfo({ category_ids, currentDate }) {
     }
 
     useEffect(() => {
-        fetchCategories()
-    }, [category_ids, currentDate])
+      setSelectedCategories(categories.filter(e => {return categoryIds.includes(e.id)}))
+    }, [categories, categoryIds])
+    
     useEffect(() => {
         fetchTargetTypes()
     }, [])

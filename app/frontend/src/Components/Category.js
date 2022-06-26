@@ -15,8 +15,7 @@ export function Category({
     smallScreen,
     selectedCategories,
     setSelectedCategories,
-    updateAssignedTotalAssigned,
-    updateUnderfunded,
+    fetchCategories
 }) {
     const [categoryName, setCategoryName] = useState(category.name);
     const [categoryAssigned, setCategoryAssigned] = useState(category.assigned_this_month / 100);
@@ -64,9 +63,7 @@ export function Category({
 
     useEffect(() => {
         if (categoryAssigned === category.assigned_this_month/100) return
-        fetchCategory()
-        updateAssignedTotalAssigned()
-        updateUnderfunded()
+        fetchCategories()
         setCategoryUnderfunded(category.underfunded/100)
     }, [categoryAssigned])
 
@@ -77,19 +74,6 @@ export function Category({
     useEffect(() => {
       setSelected(selectedCategories.includes(category.id))
     }, [selectedCategories, category])
-    
-
-    const fetchCategory = () => {
-        async function _fetchCategory() {
-            const today = currentDate.toISOString().slice(0, 10);
-            const resp = await instance.get(`${categoryRequests.fetchCategory}/${category.id}/${today}`)
-
-            setCategoryBalance(resp.data.balance)
-            setCategorySpent(resp.data.spent_this_month)
-            setCategoryAssigned(resp.data.assigned_this_month / 100)
-        }
-        _fetchCategory()
-    };
 
     function calculateProgressBarWidth () {
         if (categoryUnderfunded === 0) return '80%'

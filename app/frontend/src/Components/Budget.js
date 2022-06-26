@@ -20,46 +20,58 @@ export function Budget({ smallScreen }) {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [readyToAssign, setReadyToAssign] = useState(0);
   const [underfunded, setUnderfunded] = useState(0);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
+    fetchCategories()
     fetchCategoryGroups()
-    fetchReadyToAssign()
   }, [])
 
-  const fetchReadyToAssign = () => {
-    async function _fetchReadyToAssign() {
-      const category = await instance.get(`${categoryRequests.fetchCategory}/1/9999-12-31`)
-      setReadyToAssign(category.data.balance)
-    }
-    _fetchReadyToAssign()
+  useEffect(() => {
+    fetchReadyToAssign()
+    fetchUnderfunded()
+  }, [categories])
+  
+
+  useEffect(() => {
+    fetchCategories()
+  }, [currentDate])
+
+
+  async function fetchReadyToAssign() {
+    setReadyToAssign(categories.reduce(
+      (prev, next) => { 
+        if (next.id === 1) return next.balance
+        return prev
+      },
+      0
+    ))
   }
 
-  const fetchUnderfunded = () => {
-    async function _fetchUnderfunded() {
-      const categories = await instance.get(`${categoryRequests.fetchCategory}/${currentDate.toISOString().slice(0, 10)}`)
-      const underfunded = categories.data.reduce((currentValue, nextValue) => {
-        return currentValue + nextValue.underfunded
-      }, 0)
-      setUnderfunded(underfunded)
-    }
-    _fetchUnderfunded()
+  async function fetchUnderfunded() {
+    setUnderfunded(categories.reduce((currentValue, nextValue) => {
+      return currentValue + nextValue.underfunded
+    }, 0))
   }
 
-  const fetchCategoryGroups = () => {
-    async function _fetchCategoryGroups() {
-      const categoryGroups = await instance.get(`${categoryRequests.fetchAllCategoryGroups}`)
-      setCategoryGroups(categoryGroups.data)
-    }
-    _fetchCategoryGroups()
+  async function fetchCategories() {
+    const today = currentDate.toISOString().slice(0, 10);
+    const resp = await instance.get(`${categoryRequests.fetchAllCategories}/${today}`)
+    setCategories(resp.data)
+}
+
+  async function fetchCategoryGroups() {
+    const categoryGroups = await instance.get(`${categoryRequests.fetchAllCategoryGroups}`)
+    setCategoryGroups(categoryGroups.data)
   }
 
   const categoryGroup = (name) => {
     return (<CategoryGroup
       name={name}
+      categories={categories}
+      fetchCategories={fetchCategories}
       currentDate={currentDate}
       smallScreen={smallScreen}
-      updateAssignedTotalAssigned={fetchReadyToAssign}
-      updateUnderfunded={fetchUnderfunded}
       setSelectedCategories={setSelectedCategories}
       selectedCategories={selectedCategories} />)
   }
@@ -71,7 +83,11 @@ export function Budget({ smallScreen }) {
 
   const budgetExtraInfo = () => {
     if (smallScreen) return
-    return <BudgetInfo category_ids={selectedCategories} currentDate={currentDate} />
+    return <BudgetInfo 
+      categories={categories}
+      categoryIds={selectedCategories} 
+      currentDate={currentDate} 
+      fetchCategories={fetchCategories}/>
   }
 
   function updateDate(monthAdjustment) {
