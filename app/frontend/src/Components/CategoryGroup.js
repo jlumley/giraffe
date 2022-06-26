@@ -2,12 +2,22 @@ import { useEffect, useState } from 'react';
 import { Category } from './Category'
 
 import PlusCircleOutlineIcon from 'mdi-react/PlusCircleOutlineIcon'
+import CheckboxBlankCircleOutlineIcon from 'mdi-react/CheckboxBlankCircleOutlineIcon'
+import CheckboxMarkedCircleIcon from 'mdi-react/CheckboxMarkedCircleIcon'
 
 import '../style/CategoryGroup.css'
 import instance from '../axois';
 import categoryRequests from '../requests/category';
 
-export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTotalAssigned, updateUnderfunded, selectCategory }) => {
+export const CategoryGroup = ({ 
+  name, 
+  currentDate, 
+  smallScreen, 
+  updateAssignedTotalAssigned, 
+  updateUnderfunded, 
+  setSelectedCategories,
+  selectedCategories,
+}) => {
   const [categoryGroupName, setCategoryGroupName] = useState(name);
   const [categories, setCategories] = useState([]);
   const [newCategories, setNewCategories] = useState([]);
@@ -25,7 +35,8 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTo
       category={category}
       updateAssignedTotalAssigned={updateAssignedTotalAssigned}
       updateUnderfunded={updateUnderfunded}
-      selectCategory={selectCategory}
+      setSelectedCategories={setSelectedCategories}
+      selectedCategories={selectedCategories}
     />
   }
 
@@ -64,12 +75,28 @@ export const CategoryGroup = ({ name, currentDate, smallScreen, updateAssignedTo
         { "group": event.target.value }
       )
     });
-  }
+  }    
+  
+  const ifGroupSelected = () => {
+    if (isCreditCardGroup) return
+    const groupIds = categories.map(e => e.id)
+    const isSelectedGroup = categories.every(e => selectedCategories.includes(e.id))
+    if (isSelectedGroup) {
+        return <CheckboxMarkedCircleIcon size={15} onClick={()=>{
+          setSelectedCategories(selectedCategories.filter(e => !groupIds.includes(e)))
+        }}/>
+    } else {
+        return <CheckboxBlankCircleOutlineIcon size={15} onClick={()=>{
+          setSelectedCategories([... new Set(selectedCategories.concat(groupIds))])
+        }} />
+    }
+}
 
   return <div>
     <div className="categoryGroupTitle">
+      {ifGroupSelected()}
       <input className="categoryGroupTitleInput" value={categoryGroupName} onChange={editCategoryGroupName} onBlur={updateCategoryGroupName} />
-      {(!isCreditCardGroup) && (<PlusCircleOutlineIcon onClick={createNewCategory} className="newCategoryButton" />)}
+      {(!isCreditCardGroup) && (<PlusCircleOutlineIcon onClick={createNewCategory} />)}
     </div>
     <table>
       {categories.map(c => {

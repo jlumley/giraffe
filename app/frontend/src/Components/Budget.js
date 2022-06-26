@@ -53,16 +53,6 @@ export function Budget({ smallScreen }) {
     _fetchCategoryGroups()
   }
 
-  const selectCategory = (category_id) => {
-    let newSelections = [...selectedCategories]
-    if (selectedCategories.includes(category_id)) {
-      newSelections = (selectedCategories.filter(e => { return e !== category_id }))
-    } else {
-      newSelections.push(category_id)
-    }
-    setSelectedCategories(newSelections)
-  }
-
   const categoryGroup = (name) => {
     return (<CategoryGroup
       name={name}
@@ -70,7 +60,8 @@ export function Budget({ smallScreen }) {
       smallScreen={smallScreen}
       updateAssignedTotalAssigned={fetchReadyToAssign}
       updateUnderfunded={fetchUnderfunded}
-      selectCategory={selectCategory} />)
+      setSelectedCategories={setSelectedCategories}
+      selectedCategories={selectedCategories} />)
   }
 
   const createNewCategoryGroup = () => {

@@ -13,7 +13,8 @@ export function Category({
     category,
     currentDate,
     smallScreen,
-    selectCategory,
+    selectedCategories,
+    setSelectedCategories,
     updateAssignedTotalAssigned,
     updateUnderfunded,
 }) {
@@ -22,8 +23,8 @@ export function Category({
     const [categoryBalance, setCategoryBalance] = useState(category.balance);
     const [categorySpent, setCategorySpent] = useState(category.spent_this_month);
     const [categoryUnderfunded, setCategoryUnderfunded] = useState(category.underfunded/100);
-    const [selected, setSelected] = useState(false);
     const [progressWidth, setProgressWidth] = useState(calculateProgressBarWidth());
+    const [selected, setSelected] = useState(selectedCategories.includes(category.id))
 
     const categoryNameColumnStyle = {
         width: '30%'
@@ -73,6 +74,11 @@ export function Category({
         setProgressWidth(calculateProgressBarWidth())
     }, [categoryAssigned, categoryUnderfunded])
 
+    useEffect(() => {
+      setSelected(selectedCategories.includes(category.id))
+    }, [selectedCategories, category])
+    
+
     const fetchCategory = () => {
         async function _fetchCategory() {
             const today = currentDate.toISOString().slice(0, 10);
@@ -106,8 +112,13 @@ export function Category({
     }
 
     function selectCurrentCategory() {
-        setSelected(!selected)
-        selectCategory(category.id)
+        let newSelections = [...selectedCategories]
+        if (selectedCategories.includes(category.id)) {
+            newSelections = (selectedCategories.filter(e => { return e !== category.id }))
+        } else {
+            newSelections.push(category.id)
+        }
+        setSelectedCategories(newSelections)
     }
 
     const ifSelected = () => {
