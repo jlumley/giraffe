@@ -104,16 +104,23 @@ function TransactionCategory({categories, transactionCategories, setTransactionC
         }
     }
 
+    function categorieDeleteButton (index) {
+        if (!selected) return
+        return (
+            <CloseCircleOutlineIcon 
+                            size={15} 
+                            onClick={() => { removeCategory(index) }} />
+        )
+
+    }
+
     function generateTransactionCategories() {
         let categoriesDiv = transactionCategories.map((_category, index) => {
             return (<table key={_category.uuid} style={transactionCategoryTableStlye}>
                 <tbody><tr>
-                    {(index > 0 ) && (
                     <td style={deleteCategoryButtonStyle}>
-                        <CloseCircleOutlineIcon 
-                            size={15} 
-                            onClick={() => { removeCategory(index) }} />
-                    </td>)}
+                        {categorieDeleteButton(index)}
+                    </td>
                     <td style={categoryNameStyle}>
                         {categoryName(_category, index)} 
                     </td>
