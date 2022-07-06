@@ -38,7 +38,7 @@ export function Category({
         height: '34px',
         borderWidth: '1px',
         color: 'var(--dark-color)',
-        borderRadius: '4px',
+        borderRadius: '10px',
         paddingLeft: '5px',
         minWidth: '100px',
         outline: 'none'
@@ -48,10 +48,9 @@ export function Category({
         backgroundColor: 'lightgreen',
         width: progressWidth,
         height: '3px',
-        paddingLeft: '5px',
-        marginLeft: '2px',
-        marginRight: '2px',
-        borderRadius: '4px'
+        marginLeft: '10px',
+        marginRight: '10px',
+        borderRadius: '10px'
     }
 
     const categoryAmountColumnStyle = {
@@ -98,7 +97,7 @@ export function Category({
     }, [selectedCategories, category])
 
     function calculateProgressBarWidth () {
-        if (categoryUnderfunded === 0) return '80%'
+        if (categoryUnderfunded === 0) return '73%'
         const progress = (
             categoryAssigned
         ) / (categoryAssigned + categoryUnderfunded)

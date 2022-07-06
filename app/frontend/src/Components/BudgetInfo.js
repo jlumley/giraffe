@@ -30,7 +30,7 @@ export function BudgetInfo({
         margin: '5px',
         width: '50%',
         padding: '8px',
-        borderRadius: '5px',
+        borderRadius: '10px',
         cursor: 'pointer',
         backgroundColor: 'var(--light-grey)',
         textAlign: 'center',

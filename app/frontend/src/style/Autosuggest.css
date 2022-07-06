@@ -1,17 +1,5 @@
 @import url("colors.css");
 
-.autoSuggestInput {
-    color: var(--dark-color);
-    background-color: var(--light-grey);
-    border-color: transparent;
-    outline: none;
-    text-align: left;
-    border-radius: 5px;
-    padding: 3px;
-    padding-left: 5px;
-    width: 80%;
-}
-
 .autoSuggestDiv {
     padding: 5px;
     text-align: left;

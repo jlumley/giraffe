@@ -12,7 +12,7 @@ const PayeesInput = {
   minHeight: '34px',
   borderWidth: '1px',
   color: darkColor,
-  borderRadius: '4px',
+  borderRadius: '10px',
   paddingLeft: '5px',
   minWidth: '100px',
   outline: 'none',
