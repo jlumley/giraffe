@@ -22,8 +22,10 @@ export function Category({
     const [categoryBalance, setCategoryBalance] = useState(category.balance);
     const [categorySpent, setCategorySpent] = useState(category.spent_this_month);
     const [categoryUnderfunded, setCategoryUnderfunded] = useState(category.underfunded/100);
+    const [selected, setSelected] = useState(selectedCategories.includes(category.id));
+
     const [progressWidth, setProgressWidth] = useState(calculateProgressBarWidth());
-    const [selected, setSelected] = useState(selectedCategories.includes(category.id))
+    const [categoryBalanceColor, setCategoryBalanceColor] = useState("white")
 
     const categoryNameColumnStyle = {
         width: '30%'
@@ -52,6 +54,18 @@ export function Category({
         borderRadius: '4px'
     }
 
+    const categoryAmountColumnStyle = {
+        minWidth: '25px;',
+        width: '15%',
+        textAlign: 'center',
+    }
+
+    const categoryBalanceStyle = {
+        borderRadius: '10px',
+        backgroundColor: categoryBalanceColor,
+        width: 'fit-content',
+        padding: '5%'
+    }
 
     useEffect( () => {
         setCategoryName(category.name)
@@ -60,6 +74,14 @@ export function Category({
         setCategorySpent(category.spent_this_month)
         setCategoryUnderfunded(category.underfunded/100)
     }, [category])
+
+    useEffect(() => {
+        if (categoryBalance === 0) {
+            setCategoryBalanceColor("lightblue")
+        } else {
+            setCategoryBalanceColor(categoryBalance > 0 ? "lightgreen" : "salmon" )
+        }
+    }, [categoryBalance])
 
     useEffect(() => {
         if (categoryAssigned === category.assigned_this_month/100) return
@@ -149,9 +171,9 @@ export function Category({
         <tr className="categoryRow">
             {(!smallScreen) && (<td className="selectedColumn">{ifSelected()}</td>)}
             {categoryNameInput()}
-            <td className="assignedColumn"><MoneyInput startingValue={categoryAssigned} onBlur={updateCategoryAssignment} /></td>
-            {(!smallScreen) && (<td className="spentColumn">{centsToMoney(categorySpent)}</td>)}
-            <td className="balanceColumn">{centsToMoney(categoryBalance)}</td>
+            <td style={categoryAmountColumnStyle}><MoneyInput startingValue={categoryAssigned} onBlur={updateCategoryAssignment} /></td>
+            {(!smallScreen) && (<td style={categoryAmountColumnStyle}>{centsToMoney(categorySpent)}</td>)}
+            <td style={categoryAmountColumnStyle}><div style={categoryBalanceStyle}>{centsToMoney(categoryBalance)}</div></td>
         </tr >
     );
 }

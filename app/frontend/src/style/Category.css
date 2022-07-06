@@ -13,19 +13,3 @@
     min-width: 10px;
     width: 2%;
 }
-
-
-.spentColumn {
-    min-width: 25px;
-    width: 15%;
-}
-
-.assignedColumn {
-    min-width: 25px;
-    width: 15%;
-}
-
-.balanceColumn {
-    min-width: 25px;
-    width: 15%;
-}
