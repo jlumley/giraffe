@@ -74,7 +74,7 @@ export const CategoryGroup = ({
   }    
   
   const ifGroupSelected = () => {
-    if (isCreditCardGroup) return
+    if (isCreditCardGroup || smallScreen) return
     const groupIds = groupCategories.map(e => e.id)
     const isSelectedGroup = groupCategories.every(e => selectedCategories.includes(e.id))
     if (isSelectedGroup) {

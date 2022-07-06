@@ -63,7 +63,8 @@ export function Category({
         borderRadius: '10px',
         backgroundColor: categoryBalanceColor,
         width: 'fit-content',
-        padding: '5%'
+        padding: '5%',
+        textAlign:'center'
     }
 
     useEffect( () => {
