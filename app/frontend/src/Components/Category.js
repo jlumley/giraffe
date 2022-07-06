@@ -59,7 +59,7 @@ export function Category({
         setCategoryBalance(category.balance)
         setCategorySpent(category.spent_this_month)
         setCategoryUnderfunded(category.underfunded/100)
-    }, [category, currentDate])
+    }, [category])
 
     useEffect(() => {
         if (categoryAssigned === category.assigned_this_month/100) return
@@ -115,7 +115,7 @@ export function Category({
     }
 
     const updateCategoryAssignment = (newValue) => {
-        if (parseInt(newValue) === categoryAssigned) return
+        if (Number(newValue) === categoryAssigned) return
         const req_data = {
             amount: Math.round((newValue - categoryAssigned) * 100),
             date: currentDate.toISOString().slice(0, 10)
