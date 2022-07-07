@@ -35,7 +35,7 @@ export function Category({
         width: '80%',
         borderColor: 'hsl(0, 0%, 80%)',
         borderStyle: 'solid',
-        height: '34px',
+        height: '24px',
         borderWidth: '1px',
         color: 'var(--dark-color)',
         borderRadius: '10px',
@@ -54,7 +54,7 @@ export function Category({
     }
 
     const categoryAmountColumnStyle = {
-        minWidth: '25px;',
+        minWidth: '30px;',
         width: '15%',
         textAlign: 'center',
     }
@@ -64,6 +64,7 @@ export function Category({
         backgroundColor: categoryBalanceColor,
         width: 'fit-content',
         padding: '5%',
+        margin: 'auto',
         textAlign:'center'
     }
 

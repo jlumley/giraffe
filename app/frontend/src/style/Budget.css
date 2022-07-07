@@ -52,10 +52,6 @@
     text-align: center;
 }
 
-.budgetColumnTitles {
-    height: 15px;
-}
-
 .budgetCategories {
     width: 100%;
     flex-grow: 1;
@@ -67,26 +63,6 @@
 .categeorySelectedColumn {
     min-width: 10px;
     width: 7%;
-}
-
-.categeoryNameColumn {
-    min-width: 30px;
-    width: 20%;
-}
-
-.categeoryAssignedColumn {
-    min-width: 25px;
-    width: 15%;
-}
-
-.categeorySpentColumn {
-    min-width: 25px;
-    width: 15%;
-}
-
-.categeoryAvailableColumn {
-    min-width: 25px;
-    width: 15%;
 }
 
 .budgetStatsDiv {

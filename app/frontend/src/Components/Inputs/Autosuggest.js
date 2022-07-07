@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import Select from 'react-select'
 import Creatable from 'react-select/creatable'
 import instance from '../../axois';
@@ -8,10 +8,14 @@ export default function Autosuggest({ startingValue, options, createOptionUrl, o
     const [optionsArray, setOptionsArray] = useState(options);
     const [value, setValue] = useState(startingValue);
 
-    useEffect(() => {
-        //setOptionsArray(options)
-        //setValue(startingValue)
-    }, [options, startingValue]);
+    const inputStyle = {
+        control: (provided) => ({
+          ...provided,
+          borderRadius: '10px',
+          minHeight: '25px',
+          height: '25px',
+        })
+    };
 
     async function createNewOption(newValue) {
         const resp = await instance.post(createOptionUrl, { name: newValue })
@@ -28,9 +32,11 @@ export default function Autosuggest({ startingValue, options, createOptionUrl, o
     }
 
     return (
-        <div className="autoSuggestDiv">
+        <div>
             {(allowNewValues) && (
                 <Creatable
+                    components={{ DropdownIndicator:() => null, IndicatorSeparator:() => null }}
+                    styles={inputStyle}
                     options={optionsArray}
                     value={value}
                     isClearable={allowEmpty}
@@ -40,6 +46,8 @@ export default function Autosuggest({ startingValue, options, createOptionUrl, o
                 </Creatable>)}
             {(!allowNewValues) && (
                 <Select
+                    components={{ DropdownIndicator:() => null, IndicatorSeparator:() => null }}
+                    styles={inputStyle}
                     options={optionsArray}
                     defaultValue={value}
                     isClearable={allowEmpty}

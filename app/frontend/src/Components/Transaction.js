@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import DatePicker from "react-datepicker";
 import { v4 as uuidv4 } from 'uuid';
 import instance from '../axois'
 
@@ -17,6 +16,7 @@ import Autosuggest from './Inputs/Autosuggest';
 
 import "../style/Transaction.css"
 import TransactionCategory from './TransactionCategory';
+import DateInput from './Inputs/DateInput';
 
 
 export const Transaction = ({
@@ -45,6 +45,20 @@ export const Transaction = ({
     const [transactionCategories, setTransactionCategories] = useState(transaction.categories.map(obj => ({ ...obj, uuid: uuidv4() })));
     const updateTransactionButton = useRef(null);
     const deleteTransactionButton = useRef(null);
+
+
+    const transactionMemoInputStyle = {
+        width: '80%',
+        margin: 'auto',
+        backgroundColor:'white',
+        borderColor: 'lightgrey',
+        borderStyle: 'solid',
+        height: '22px',
+        borderWidth: '1px',
+        borderRadius: '10px',
+        outline: 'none',
+    }
+    
 
     const payeeOptions = () => {
         return Object.keys(payees).map((id) => { return { value: id, label: payees[id] } })
@@ -240,7 +254,7 @@ export const Transaction = ({
 
     const dateSelector = () => {
         if (!selected && date) return <div>{date.toISOString().slice(0, 10)}</div>
-        return <DatePicker className="transactionDate" selected={date} onChange={(date) => { setDate(date) }} />
+        return <DateInput selectedDate={date} onChange={(date) => { setDate(date) }} />
     }
     const payeeInputField = () => {
         if (!selected) return <div>{payeeLabel}</div>
@@ -254,7 +268,12 @@ export const Transaction = ({
     }
     const memoInputField = () => {
         if (!selected) return <div>{memo}</div>
-        return <input className="transactionMemo" value={memo} onChange={(e) => { setMemo(e.target.value) }} />
+        return (<input 
+            style={transactionMemoInputStyle}
+            value={memo} 
+            onChange={(e) => { setMemo(e.target.value) }} 
+            />
+        );
     }
 
     const transactionCategory = () => {

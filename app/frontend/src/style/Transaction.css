@@ -22,34 +22,6 @@
     width: 25px;
 }
 
-.transactionDate {
-    border: none;
-    text-align: center;
-    width: 90px;
-    border-color: hsl(0, 0%, 80%);
-    border-style: solid;
-    min-height: 34px;
-    border-width: 1px;
-    color: var(--dark-color);
-    border-radius: 10px;
-    padding-left: 5px;
-    min-width: 100px;
-    outline: none;
-}
-
-.transactionMemo {
-    width: 80%;
-    border-color: hsl(0, 0%, 80%);
-    border-style: solid;
-    min-height: 34px;
-    border-width: 1px;
-    color: var(--dark-color);
-    border-radius: 10px;
-    padding-left: 5px;
-    min-width: 100px;
-    outline: none;
-}
-
 .transactionCategory {
     display: flex;
     flex-direction: row;

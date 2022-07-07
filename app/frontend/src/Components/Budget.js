@@ -22,6 +22,19 @@ export function Budget({ smallScreen }) {
   const [underfunded, setUnderfunded] = useState(0);
   const [categories, setCategories] = useState([]);
 
+
+  const categeoryNameTitleStyle = {
+    minWidth: '30px',
+    width: '20%',
+    textAlign: 'center',
+  }
+
+  const categeoryAmountTitleStyle = {
+    minWidth: '30px',
+    width: '15%',
+    textAlign: 'center',
+  }
+
   useEffect(() => {
     fetchCategories()
     fetchCategoryGroups()
@@ -148,10 +161,10 @@ export function Budget({ smallScreen }) {
         </div>
         <table className="budgetColumnTitles">
           <td className="categeorySelectedColumn"></td>
-          <td className="categeoryNameColumn">Category</td>
-          <td className="categeoryAssignedColumn">Assigned</td>
-          {(!smallScreen) && (<td className="categeorySpentColumn">Spent</td>)}
-          <td className="categeoryAvailableColumn">Available</td>
+          <td style={categeoryNameTitleStyle}>Category</td>
+          <td style={categeoryAmountTitleStyle}>Assigned</td>
+          {(!smallScreen) && (<td style={categeoryAmountTitleStyle}>Spent</td>)}
+          <td style={categeoryAmountTitleStyle}>Available</td>
         </table>
         <div className="budgetCategories">
           {(categoryGroups.map((name) => {

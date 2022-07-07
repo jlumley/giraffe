@@ -105,11 +105,11 @@ function TransactionCategory({categories, transactionCategories, setTransactionC
     }
 
     function categorieDeleteButton (index) {
-        if (!selected) return
+        if (!selected || index === 0 ) return
         return (
             <CloseCircleOutlineIcon 
-                            size={15} 
-                            onClick={() => { removeCategory(index) }} />
+                size={15} 
+                onClick={() => { removeCategory(index) }} />
         )
 
     }
