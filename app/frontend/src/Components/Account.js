@@ -12,7 +12,7 @@ import { centsToMoney } from '../utils/money_utils';
 import { AccountReconciliationModal } from './Modals/AccountReconciliationModal';
 
 
-export const Account = ({ smallScreen }) => {
+export const Account = ({ mobile }) => {
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [filteredTransactions, setFilteredTransactions] = useState([]);
@@ -166,16 +166,16 @@ export const Account = ({ smallScreen }) => {
         )
     }
 
-    const transactionFilters = () =>{
+    const transactionFilters = () => {
         // <label>Date Range: <input type={"number"}/><Autosuggest/></label>
         return (
-            <label className="accountShowReconciledButton"><input type={"checkbox"} defaultChecked={showReconciled} onClick={() => {setShowReconciled(!showReconciled)}}/>Show Reconciled</label>
+            <label className="accountShowReconciledButton"><input type={"checkbox"} defaultChecked={showReconciled} onClick={() => { setShowReconciled(!showReconciled) }} />Show Reconciled</label>
         )
     }
 
     const transactionSearch = () => {
         return (
-            <input className="accountSearchBar" placeholder="search" value={searchTerm} onChange={(e)=> {setSearchTerm(e.target.value)}}/>
+            <input className="accountSearchBar" placeholder="search" value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value) }} />
         )
     }
 
@@ -191,19 +191,19 @@ export const Account = ({ smallScreen }) => {
             deleteTransaction={() => { deleteTransaction(transaction.id) }}
             deleteTransfer={() => { deleteTransfer(transaction.transfer_id) }}
             fetchPayees={() => { fetchPayees() }}
-            reloadAccount={() => {fetchCurrentAccount()}}/>
+            reloadAccount={() => { fetchCurrentAccount() }} />
     }
 
     useEffect(() => {
-        if (searchTerm === "<empty string>"){
+        if (searchTerm === "<empty string>") {
             setFilteredTransactions(transactions)
             return
         }
-        const _searchTerm =  searchTerm.toLowerCase()
+        const _searchTerm = searchTerm.toLowerCase()
         setFilteredTransactions(
-            transactions.filter((t)=>{ return t.search_str.includes(_searchTerm)})
+            transactions.filter((t) => { return t.search_str.includes(_searchTerm) })
         )
-    },[transactions, searchTerm])
+    }, [transactions, searchTerm])
 
     useEffect(() => {
         fetchTransactions();
@@ -225,7 +225,7 @@ export const Account = ({ smallScreen }) => {
     }, [transactions, selectedTransaction])
 
     useEffect(() => {
-      fetchTransactions()
+        fetchTransactions()
     }, [showReconciled])
 
 
@@ -234,16 +234,16 @@ export const Account = ({ smallScreen }) => {
             <div className="accountHeader">
                 <div className="flexbox">
                     <div className="accountBalance">
-                        {(!smallScreen) && (accountClearedBalance())}
-                        {(!smallScreen) && (accountUnclearedBalance())}
+                        {(!mobile) && (accountClearedBalance())}
+                        {(!mobile) && (accountUnclearedBalance())}
                         {accountTotalBalance()}
                     </div>
-                    {(currentAccount) && (<AccountReconciliationModal account={currentAccount} reloadAccount={() => {fetchCurrentAccount(); fetchTransactions()}}/>)}
+                    {(currentAccount) && (<AccountReconciliationModal account={currentAccount} reloadAccount={() => { fetchCurrentAccount(); fetchTransactions() }} />)}
 
                 </div>
                 <div className="accountHeaderButtonRow">
                     <div className="addTransactionButton" onClick={() => { addNewTransaction() }}>New Transaction </div>
-                    <div className="fillerDiv"/>
+                    <div className="fillerDiv" />
                     {transactionFilters()}
                     {transactionSearch()}
 
@@ -258,9 +258,9 @@ export const Account = ({ smallScreen }) => {
                         <th className="accountTransactionsPayeeColumn">Payee</th>
                         <th className="accountTransactionsMemoColumn">Memo</th>
                         <th className="accountTransactionsCategoryColumn">
-                            <div style={{width:'50%'}}>Category Name</div>
-                            <div style={{width:'25%'}}>Inflow</div>
-                            <div style={{width:'25%'}}>Outflow</div>
+                            <div style={{ width: '50%' }}>Category Name</div>
+                            <div style={{ width: '25%' }}>Inflow</div>
+                            <div style={{ width: '25%' }}>Outflow</div>
                         </th>
                     </tr></thead>
                     <tbody className="accountTransactionsTableBody">

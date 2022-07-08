@@ -9,12 +9,12 @@ import '../style/CategoryGroup.css'
 import instance from '../axois';
 import categoryRequests from '../requests/category';
 
-export const CategoryGroup = ({ 
-  name, 
+export const CategoryGroup = ({
+  name,
   categories,
   fetchCategories,
-  currentDate, 
-  smallScreen, 
+  currentDate,
+  mobile,
   setSelectedCategories,
   selectedCategories,
 }) => {
@@ -31,15 +31,15 @@ export const CategoryGroup = ({
         }
       )
     )
-  
+
   }, [name, categories])
-  
+
 
 
   const category = (category) => {
     return <Category
       key={category.id}
-      smallScreen={smallScreen}
+      mobile={mobile}
       currentDate={currentDate}
       category={category}
       fetchCategories={fetchCategories}
@@ -63,7 +63,7 @@ export const CategoryGroup = ({
   const editCategoryGroupName = (event) => {
     if (isCreditCardGroup) return
     setCategoryGroupName(event.target.value);
-  } 
+  }
   const updateCategoryGroupName = (event) => {
     if (event.target.value === categoryGroupName) return
     groupCategories.forEach(cat => {
@@ -71,22 +71,22 @@ export const CategoryGroup = ({
         { "group": event.target.value }
       )
     });
-  }    
-  
+  }
+
   const ifGroupSelected = () => {
-    if (isCreditCardGroup || smallScreen) return
+    if (isCreditCardGroup || mobile) return
     const groupIds = groupCategories.map(e => e.id)
     const isSelectedGroup = groupCategories.every(e => selectedCategories.includes(e.id))
     if (isSelectedGroup) {
-        return <CheckboxMarkedCircleIcon size={15} onClick={()=>{
-          setSelectedCategories(selectedCategories.filter(e => !groupIds.includes(e)))
-        }}/>
+      return <CheckboxMarkedCircleIcon size={15} onClick={() => {
+        setSelectedCategories(selectedCategories.filter(e => !groupIds.includes(e)))
+      }} />
     } else {
-        return <CheckboxBlankCircleOutlineIcon size={15} onClick={()=>{
-          setSelectedCategories([... new Set(selectedCategories.concat(groupIds))])
-        }} />
+      return <CheckboxBlankCircleOutlineIcon size={15} onClick={() => {
+        setSelectedCategories([... new Set(selectedCategories.concat(groupIds))])
+      }} />
     }
-}
+  }
 
   return <div>
     <div className="categoryGroupTitle">

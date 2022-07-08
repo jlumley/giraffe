@@ -10,7 +10,7 @@ export default function DateInput({ dateSelected, onChange }) {
     const [startDate, setStartDate] = useState(dateSelected ? dateSelected : new Date());
 
     const customDateInputStyle = {
-        width: '85px',
+        minWidth: '95px',
         backgroundColor:'white',
         borderColor: 'lightgrey',
         borderStyle: 'solid',

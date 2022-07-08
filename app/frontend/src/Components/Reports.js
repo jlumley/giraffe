@@ -1,6 +1,6 @@
 import React from 'react'
 
-function Reports({screenSize}) {
+function Reports() {
     return (
         <div>
         Reporting cool shit!!

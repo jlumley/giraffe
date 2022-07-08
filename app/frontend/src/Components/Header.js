@@ -1,24 +1,48 @@
-import React, { useState } from 'react'
+import React, {useState} from 'react'
+import { Link } from 'react-router-dom';
+import SidebarAccount from '../Components/SidebarAccount'
+import { Divide as Hamburger } from 'hamburger-react'
 
-import logo from "../logo/60.png"
+export function Header({ mobile, accounts, }) {
+  const [menu, setMenu] = useState(false);
 
-import '../style/Header.css'
 
-export function Header({ smallScreen, toggleSidebar }) {
+  const headerDiv = {
+    backgroundColor: 'dimgrey',
+    height: 'fit-content'
+  }
+  const SidebarLinkDiv = {
+    padding: 'clamp(5px, 3%, 8px)',
+    display: 'flex'
+  }
+  
+  const SidebarLink = {
+    textDecoration: 'none',
+    color: 'white',
+  }
+  
 
   return (
-    <div className="header">
-      <div className="headerRow">
-        <div className="headerLogo">
-          <img src={logo} />
-        </div>
-        {(smallScreen) && (
-          <div className="menu-button-div" onClick={() => { toggleSidebar() }}>
-            <div className="bar1"></div>
-            <div className="bar2"></div>
-            <div className="bar3"></div>
-          </div>)}
-      </div>
+    <div style={headerDiv}>
+        {(mobile) &&(
+        <Hamburger 
+        toggled={menu} 
+        toggle={setMenu} 
+        color={'white'}/>)}
+
+        {(menu) && (
+        <nav>
+          <Link style={SidebarLink} to="/"><div style={SidebarLinkDiv}>Budget</div></Link>
+          <Link style={SidebarLink} to="/account/all"><div style={SidebarLinkDiv}>All Accounts</div></Link>
+          {
+            accounts.map(account => {
+              if (!account.hidden) return(<SidebarAccount account={account}/>);
+              return null
+            })
+          }
+          <Link style={SidebarLink} to="/reports"><div style={SidebarLinkDiv}>Reports</div></Link>
+          <Link style={SidebarLink} to="/payees"><div style={SidebarLinkDiv}>Manage Payees</div></Link>
+        </nav>)}
     </div>
   );
 }

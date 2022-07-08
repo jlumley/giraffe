@@ -12,7 +12,7 @@ import { BudgetInfo } from './BudgetInfo';
 import { centsToMoney } from '../utils/money_utils'
 
 
-export function Budget({ smallScreen }) {
+export function Budget({ mobile }) {
 
   const [categoryGroups, setCategoryGroups] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -44,7 +44,7 @@ export function Budget({ smallScreen }) {
     fetchReadyToAssign()
     fetchUnderfunded()
   }, [categories])
-  
+
 
   useEffect(() => {
     fetchCategories()
@@ -53,7 +53,7 @@ export function Budget({ smallScreen }) {
 
   async function fetchReadyToAssign() {
     setReadyToAssign(categories.reduce(
-      (prev, next) => { 
+      (prev, next) => {
         if (next.id === 1) return next.balance
         return prev
       },
@@ -71,7 +71,7 @@ export function Budget({ smallScreen }) {
     const today = currentDate.toISOString().slice(0, 10);
     const resp = await instance.get(`${categoryRequests.fetchAllCategories}/${today}`)
     setCategories(resp.data)
-}
+  }
 
   async function fetchCategoryGroups() {
     const categoryGroups = await instance.get(`${categoryRequests.fetchAllCategoryGroups}`)
@@ -84,7 +84,7 @@ export function Budget({ smallScreen }) {
       categories={categories}
       fetchCategories={fetchCategories}
       currentDate={currentDate}
-      smallScreen={smallScreen}
+      mobile={mobile}
       setSelectedCategories={setSelectedCategories}
       selectedCategories={selectedCategories} />)
   }
@@ -95,12 +95,12 @@ export function Budget({ smallScreen }) {
   }
 
   const budgetExtraInfo = () => {
-    if (smallScreen) return
-    return <BudgetInfo 
+    if (mobile) return
+    return <BudgetInfo
       categories={categories}
-      categoryIds={selectedCategories} 
-      currentDate={currentDate} 
-      fetchCategories={fetchCategories}/>
+      categoryIds={selectedCategories}
+      currentDate={currentDate}
+      fetchCategories={fetchCategories} />
   }
 
   function updateDate(monthAdjustment) {
@@ -163,7 +163,7 @@ export function Budget({ smallScreen }) {
           <td className="categeorySelectedColumn"></td>
           <td style={categeoryNameTitleStyle}>Category</td>
           <td style={categeoryAmountTitleStyle}>Assigned</td>
-          {(!smallScreen) && (<td style={categeoryAmountTitleStyle}>Spent</td>)}
+          {(!mobile) && (<td style={categeoryAmountTitleStyle}>Spent</td>)}
           <td style={categeoryAmountTitleStyle}>Available</td>
         </table>
         <div className="budgetCategories">

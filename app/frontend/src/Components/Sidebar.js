@@ -7,7 +7,7 @@ import SidebarAccount from './SidebarAccount';
 
 const SideBarDiv = {
   width: 'clamp(220px, 20%, 350px)',
-  background: darkGradient,
+  background: 'dimgrey',
   textAlign: 'left',
 }
 

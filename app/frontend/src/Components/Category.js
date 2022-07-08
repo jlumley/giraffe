@@ -12,7 +12,7 @@ import MoneyInput from './Inputs/MoneyInput';
 export function Category({
     category,
     currentDate,
-    smallScreen,
+    mobile,
     selectedCategories,
     setSelectedCategories,
     fetchCategories
@@ -21,7 +21,7 @@ export function Category({
     const [categoryAssigned, setCategoryAssigned] = useState(category.assigned_this_month / 100);
     const [categoryBalance, setCategoryBalance] = useState(category.balance);
     const [categorySpent, setCategorySpent] = useState(category.spent_this_month);
-    const [categoryUnderfunded, setCategoryUnderfunded] = useState(category.underfunded/100);
+    const [categoryUnderfunded, setCategoryUnderfunded] = useState(category.underfunded / 100);
     const [selected, setSelected] = useState(selectedCategories.includes(category.id));
 
     const [progressWidth, setProgressWidth] = useState(calculateProgressBarWidth());
@@ -30,7 +30,7 @@ export function Category({
     const categoryNameColumnStyle = {
         width: '30%'
     }
-    
+
     const categoryNameInputStyle = {
         width: '80%',
         borderColor: 'hsl(0, 0%, 80%)',
@@ -43,7 +43,7 @@ export function Category({
         minWidth: '100px',
         outline: 'none'
     }
-    
+
     const categoryProgresBarStlye = {
         backgroundColor: 'lightgreen',
         width: progressWidth,
@@ -65,29 +65,29 @@ export function Category({
         width: 'fit-content',
         padding: '5%',
         margin: 'auto',
-        textAlign:'center'
+        textAlign: 'center'
     }
 
-    useEffect( () => {
+    useEffect(() => {
         setCategoryName(category.name)
         setCategoryAssigned(category.assigned_this_month / 100)
         setCategoryBalance(category.balance)
         setCategorySpent(category.spent_this_month)
-        setCategoryUnderfunded(category.underfunded/100)
+        setCategoryUnderfunded(category.underfunded / 100)
     }, [category])
 
     useEffect(() => {
         if (categoryBalance === 0) {
             setCategoryBalanceColor("lightblue")
         } else {
-            setCategoryBalanceColor(categoryBalance > 0 ? "lightgreen" : "salmon" )
+            setCategoryBalanceColor(categoryBalance > 0 ? "lightgreen" : "salmon")
         }
     }, [categoryBalance])
 
     useEffect(() => {
-        if (categoryAssigned === category.assigned_this_month/100) return
+        if (categoryAssigned === category.assigned_this_month / 100) return
         fetchCategories()
-        setCategoryUnderfunded(category.underfunded/100)
+        setCategoryUnderfunded(category.underfunded / 100)
     }, [categoryAssigned])
 
     useEffect(() => {
@@ -95,15 +95,15 @@ export function Category({
     }, [categoryAssigned, categoryUnderfunded])
 
     useEffect(() => {
-      setSelected(selectedCategories.includes(category.id))
+        setSelected(selectedCategories.includes(category.id))
     }, [selectedCategories, category])
 
-    function calculateProgressBarWidth () {
+    function calculateProgressBarWidth() {
         if (categoryUnderfunded === 0) return '73%'
         const progress = (
             categoryAssigned
         ) / (categoryAssigned + categoryUnderfunded)
-        return `${progress*80}%`
+        return `${progress * 80}%`
     }
 
     const handleChangeCategoryName = (event) => {
@@ -149,7 +149,7 @@ export function Category({
         else if (req_data.amount > 0) {
             instance.put(`${categoryRequests.assignCategory}${category.id}`, req_data)
         }
-        setCategoryAssigned(newValue)   
+        setCategoryAssigned(newValue)
     }
 
     const categoryNameInput = () => {
@@ -159,7 +159,7 @@ export function Category({
                     <input style={categoryNameInputStyle} type="text" value={categoryName} />
                 </td>
             )
-        } 
+        }
         return (
             <td style={categoryNameColumnStyle}>
                 <input style={categoryNameInputStyle} type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} />
@@ -170,10 +170,10 @@ export function Category({
 
     return (
         <tr className="categoryRow">
-            {(!smallScreen) && (<td className="selectedColumn">{ifSelected()}</td>)}
+            {(!mobile) && (<td className="selectedColumn">{ifSelected()}</td>)}
             {categoryNameInput()}
             <td style={categoryAmountColumnStyle}><MoneyInput startingValue={categoryAssigned} onBlur={updateCategoryAssignment} /></td>
-            {(!smallScreen) && (<td style={categoryAmountColumnStyle}>{centsToMoney(categorySpent)}</td>)}
+            {(!mobile) && (<td style={categoryAmountColumnStyle}>{centsToMoney(categorySpent)}</td>)}
             <td style={categoryAmountColumnStyle}><div style={categoryBalanceStyle}>{centsToMoney(categoryBalance)}</div></td>
         </tr >
     );

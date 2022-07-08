@@ -5,12 +5,10 @@ import MoneyInput from '../Inputs/MoneyInput';
 import instance from '../../axois';
 import accountRequests from '../../requests/account';
 
-import { darkColor, lightBackground } from '../../style/Colors';
 
 const AddAccountButton ={
   cursor: 'pointer',
-  background: darkColor,
-  color: lightBackground,
+  color: 'white',
   width: 'fit-content',
   padding: 'clamp(5px, 3%, 8px)',
   display: 'flex'
@@ -41,10 +39,11 @@ const AccountNameInput = {
   width: '80%',
   borderColor: 'hsl(0, 0%, 80%)',
   borderStyle: 'solid',
-  minHeight: '34px',
+  height: 'px',
   borderWidth: '1px',
   color: 'var(--dark-color)',
   borderRadius: '10px',
+  marginBottom: '5px',
   paddingLeft: '5px',
   minWidth: '100px',
   outline: 'none',

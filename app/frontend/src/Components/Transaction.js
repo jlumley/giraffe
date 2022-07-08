@@ -56,7 +56,6 @@ export const Transaction = ({
         outline: 'none',
         paddingLeft: '10px'
     }
-    
 
     const payeeOptions = () => {
         return Object.keys(payees).map((id) => { return { value: id, label: payees[id] } })

@@ -16,7 +16,7 @@ import accountRequests from '../requests/account';
 import { lightBackground } from '../style/Colors';
 
 
-const SMALL_SCREEN = 1024;
+const MOBILE_SCREEN = 1024;
 
 const LayoutDiv = {
     height: '100%',
@@ -37,16 +37,15 @@ const WorkspaceContentDiv = {
     flexGrow:'1'
 }
 
-function setScreenSize() {
-    if (window.innerWidth > SMALL_SCREEN) {
+function setMobile() {
+    if (window.innerWidth > MOBILE_SCREEN) {
         return false;
     } else {
         return true;
     }
 }
 export function Layout() {
-    const [smallScreen, setSmallScreen] = useState(setScreenSize());
-    const [sidebar, setSidebar] = useState(false);
+    const [mobile, setmobile] = useState(setMobile());
     const [accounts, setAccounts] = useState([]);
 
     function fetchAllAccounts() {
@@ -58,24 +57,24 @@ export function Layout() {
 
     useEffect(() => {
         window.addEventListener('resize', () => {
-            setSmallScreen(setScreenSize());
+            setmobile(setMobile());
         })
         fetchAllAccounts()
     }, [])
 
     return (
         <div style={LayoutDiv}>
-            <Header smallScreen={smallScreen} toggleSidebar={() => { setSidebar(!sidebar) }} />
+            <Header mobile={mobile} accounts={accounts}/>
             <div style={MainContentDiv}>
-                {(sidebar || !smallScreen) && (
+                {(!mobile) && (
                     <Sidebar accounts={accounts}/>
                 )}
                 <div style={WorkspaceContentDiv}>
                     <Routes>
-                        <Route path="/account/:id" element={<Account smallScreen={smallScreen} />} />
+                        <Route path="/account/:id" element={<Account mobile={mobile} />} />
                         <Route path="/reports" element={<Reports />} />
                         <Route path="/payees" element={<ManagePayees />} />
-                        <Route path="/" element={<Budget smallScreen={smallScreen} />} />
+                        <Route path="/" element={<Budget mobile={mobile} />} />
                     </Routes>
                 </div>
             </div>
