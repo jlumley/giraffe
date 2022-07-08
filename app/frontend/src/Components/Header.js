@@ -8,7 +8,7 @@ export function Header({ mobile, accounts, }) {
 
 
   const headerDiv = {
-    backgroundColor: 'dimgrey',
+    backgroundColor: 'slategrey',
     height: 'fit-content'
   }
   const SidebarLinkDiv = {
@@ -19,6 +19,7 @@ export function Header({ mobile, accounts, }) {
   const SidebarLink = {
     textDecoration: 'none',
     color: 'white',
+    fontWeight: 'bold' 
   }
   
 
@@ -30,7 +31,7 @@ export function Header({ mobile, accounts, }) {
         toggle={setMenu} 
         color={'white'}/>)}
 
-        {(menu) && (
+        {(menu && mobile) && (
         <nav>
           <Link style={SidebarLink} to="/"><div style={SidebarLinkDiv}>Budget</div></Link>
           <Link style={SidebarLink} to="/account/all"><div style={SidebarLinkDiv}>All Accounts</div></Link>
