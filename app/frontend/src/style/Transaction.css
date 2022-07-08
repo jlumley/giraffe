@@ -3,9 +3,6 @@
 .transactionRow {
     color: var(--dark-color);
     border: 1px solid var(--light-grey);
-    vertical-align: top;
-    border-collapse: separate;
-    border-spacing: 0 18em;
 }
 
 .selected {

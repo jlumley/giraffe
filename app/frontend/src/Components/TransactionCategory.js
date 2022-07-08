@@ -111,7 +111,6 @@ function TransactionCategory({categories, transactionCategories, setTransactionC
                 size={15} 
                 onClick={() => { removeCategory(index) }} />
         )
-
     }
 
     function generateTransactionCategories() {

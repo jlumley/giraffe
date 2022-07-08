@@ -49,14 +49,12 @@ export const Transaction = ({
 
     const transactionMemoInputStyle = {
         width: '80%',
-        margin: 'auto',
         backgroundColor:'white',
-        borderColor: 'lightgrey',
-        borderStyle: 'solid',
+        border: 'solid lightgrey 1px',
         height: '22px',
-        borderWidth: '1px',
         borderRadius: '10px',
         outline: 'none',
+        paddingLeft: '10px'
     }
     
 

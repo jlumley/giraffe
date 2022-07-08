@@ -14,7 +14,33 @@ export default function Autosuggest({ startingValue, options, createOptionUrl, o
           borderRadius: '10px',
           minHeight: '25px',
           height: '25px',
-        })
+        }),
+        clearIndicator: (provided) => ({
+            ...provided,
+            position: 'relative',
+            top: '-6px'
+        }),
+        dropdownIndicator: (provided) => ({
+            ...provided,
+            position: 'relative',
+            top: '-6px'
+        }),
+        indicatorSeparator: (provided) => ({
+            ...provided,
+            position: 'relative',
+            top: '-6px',
+            height: '50%'
+        }),
+        input: (provided) => ({
+            ...provided,
+            position: 'relative',
+            top: '-6px'
+        }),
+        singleValue: (provided) => ({
+            ...provided,
+            position: 'relative',
+            top: '-5px'
+        }),
     };
 
     async function createNewOption(newValue) {
@@ -35,7 +61,6 @@ export default function Autosuggest({ startingValue, options, createOptionUrl, o
         <div>
             {(allowNewValues) && (
                 <Creatable
-                    components={{ DropdownIndicator:() => null, IndicatorSeparator:() => null }}
                     styles={inputStyle}
                     options={optionsArray}
                     value={value}
@@ -46,12 +71,12 @@ export default function Autosuggest({ startingValue, options, createOptionUrl, o
                 </Creatable>)}
             {(!allowNewValues) && (
                 <Select
-                    components={{ DropdownIndicator:() => null, IndicatorSeparator:() => null }}
                     styles={inputStyle}
                     options={optionsArray}
                     defaultValue={value}
                     isClearable={allowEmpty}
-                    onChange={handleChange}>
+                    onChange={handleChange}
+                    maxMenuHeight={175}>
                 </Select>)}
         </div>
     );
