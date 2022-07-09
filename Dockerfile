@@ -18,7 +18,7 @@ npm
 
 RUN pip install --no-cache --upgrade pip
 WORKDIR /src/app
-COPY requirements.txt
+COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
 COPY app/frontend/package.json /src/app/frontend/package.json
