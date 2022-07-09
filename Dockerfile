@@ -17,12 +17,9 @@ nodejs \
 npm
 
 RUN pip install --no-cache --upgrade pip
-RUN pip install \
-Flask==2.0.1 \
-Flask-expects-json==1.7.0 \
-Uwsgi==2.0.19.1 \
-werkzeug==2.0.3 \
-pytest
+WORKDIR /src/app
+COPY requirements.txt
+RUN pip install -r requirements.txt
 
 COPY app/frontend/package.json /src/app/frontend/package.json
 COPY app/frontend/package-lock.json /src/app/frontend/package-lock.json

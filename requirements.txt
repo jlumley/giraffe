@@ -1,3 +1,5 @@
-black
-pre-commit
-
+Flask==2.0.1 
+Flask-expects-json==1.7.0 
+Uwsgi==2.0.20 
+werkzeug==2.0.3 
+pytest
