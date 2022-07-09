@@ -64,7 +64,7 @@ export function Layout() {
 
     return (
         <div style={LayoutDiv}>
-            <Header mobile={mobile} accounts={accounts}/>
+            {(mobile) && (<Header accounts={accounts}/>)}
             <div style={MainContentDiv}>
                 {(!mobile) && (
                     <Sidebar accounts={accounts}/>

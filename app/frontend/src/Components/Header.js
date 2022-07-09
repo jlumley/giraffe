@@ -5,7 +5,7 @@ import { Divide as Hamburger } from 'hamburger-react'
 
 import SidebarAccount from '../Components/SidebarAccount'
 
-export function Header({ mobile, accounts, }) {
+export function Header({ accounts }) {
   const [menu, setMenu] = useState(false);
 
 
@@ -22,7 +22,6 @@ export function Header({ mobile, accounts, }) {
     color: 'white',
     fontWeight: 'bold' 
   }
-  
 
   return (
     <motion.div 
@@ -32,24 +31,23 @@ export function Header({ mobile, accounts, }) {
       height: menu ? '330px' : '45px',
       duration:0.8
     }}>
-        {(mobile) &&(
-        <Hamburger 
-        toggled={menu} 
-        toggle={setMenu} 
-        color={'white'}/>)}
+      <Hamburger 
+      toggled={menu} 
+      toggle={setMenu} 
+      color={'white'}/>
 
-        {(menu && mobile) && (
-          <nav>
-            <Link style={SidebarLink} to="/"><div style={SidebarLinkDiv}>Budget</div></Link>
-            <Link style={SidebarLink} to="/account/all"><div style={SidebarLinkDiv}>All Accounts</div></Link>
-            {
-              accounts.map(account => {
-                if (!account.hidden) return(<SidebarAccount account={account}/>);
-                return null
-              })
-            }
-              <Link style={SidebarLink} to="/payees"><div style={SidebarLinkDiv}>Manage Payees</div></Link>
-          </nav>)}
+      {(menu) && (
+        <nav>
+          <Link style={SidebarLink} to="/"><div style={SidebarLinkDiv}>Budget</div></Link>
+          <Link style={SidebarLink} to="/account/all"><div style={SidebarLinkDiv}>All Accounts</div></Link>
+          {
+            accounts.map(account => {
+              if (!account.hidden) return(<SidebarAccount account={account}/>);
+              return null
+            })
+          }
+            <Link style={SidebarLink} to="/payees"><div style={SidebarLinkDiv}>Manage Payees</div></Link>
+        </nav>)}
     </motion.div>
   );
 }
