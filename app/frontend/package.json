@@ -9,6 +9,7 @@
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.24.0",
+    "framer-motion": "^6.4.3",
     "hamburger-react": "^2.5.0",
     "mdi": "^2.2.43",
     "mdi-react": "^8.2.0",

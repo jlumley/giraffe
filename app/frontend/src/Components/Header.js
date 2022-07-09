@@ -1,7 +1,9 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
+import{ motion } from 'framer-motion' 
 import { Link } from 'react-router-dom';
-import SidebarAccount from '../Components/SidebarAccount'
 import { Divide as Hamburger } from 'hamburger-react'
+
+import SidebarAccount from '../Components/SidebarAccount'
 
 export function Header({ mobile, accounts, }) {
   const [menu, setMenu] = useState(false);
@@ -9,7 +11,6 @@ export function Header({ mobile, accounts, }) {
 
   const headerDiv = {
     backgroundColor: 'slategrey',
-    height: 'fit-content'
   }
   const SidebarLinkDiv = {
     padding: 'clamp(5px, 3%, 8px)',
@@ -24,7 +25,13 @@ export function Header({ mobile, accounts, }) {
   
 
   return (
-    <div style={headerDiv}>
+    <motion.div 
+    style={headerDiv}
+    initial={false}
+    animate={{
+      height: menu ? '330px' : '45px',
+      duration:0.8
+    }}>
         {(mobile) &&(
         <Hamburger 
         toggled={menu} 
@@ -32,18 +39,17 @@ export function Header({ mobile, accounts, }) {
         color={'white'}/>)}
 
         {(menu && mobile) && (
-        <nav>
-          <Link style={SidebarLink} to="/"><div style={SidebarLinkDiv}>Budget</div></Link>
-          <Link style={SidebarLink} to="/account/all"><div style={SidebarLinkDiv}>All Accounts</div></Link>
-          {
-            accounts.map(account => {
-              if (!account.hidden) return(<SidebarAccount account={account}/>);
-              return null
-            })
-          }
-          <Link style={SidebarLink} to="/reports"><div style={SidebarLinkDiv}>Reports</div></Link>
-          <Link style={SidebarLink} to="/payees"><div style={SidebarLinkDiv}>Manage Payees</div></Link>
-        </nav>)}
-    </div>
+          <nav>
+            <Link style={SidebarLink} to="/"><div style={SidebarLinkDiv}>Budget</div></Link>
+            <Link style={SidebarLink} to="/account/all"><div style={SidebarLinkDiv}>All Accounts</div></Link>
+            {
+              accounts.map(account => {
+                if (!account.hidden) return(<SidebarAccount account={account}/>);
+                return null
+              })
+            }
+              <Link style={SidebarLink} to="/payees"><div style={SidebarLinkDiv}>Manage Payees</div></Link>
+          </nav>)}
+    </motion.div>
   );
 }
