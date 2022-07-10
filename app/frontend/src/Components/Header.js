@@ -28,9 +28,12 @@ export function Header({ accounts }) {
     style={headerDiv}
     initial={false}
     animate={{
-      height: menu ? '330px' : '45px',
-      duration:0.8
+      height: menu ? 'fit-content' : '45px',
+    }}
+    transition={{
+      duration:0.3
     }}>
+
       <Hamburger 
       toggled={menu} 
       toggle={setMenu} 

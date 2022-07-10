@@ -65,7 +65,6 @@ export const CategoryGroup = ({
     setCategoryGroupName(event.target.value);
   }
   const updateCategoryGroupName = (event) => {
-    if (event.target.value === categoryGroupName) return
     groupCategories.forEach(cat => {
       instance.put(`${categoryRequests.updateCategory}${cat.id}`,
         { "group": event.target.value }
