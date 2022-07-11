@@ -54,7 +54,7 @@ export function Category({
     }
 
     const categoryAmountColumnStyle = {
-        minWidth: '30px;',
+        minWidth: '30px',
         width: '15%',
         textAlign: 'center',
     }

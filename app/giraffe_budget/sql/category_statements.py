@@ -65,7 +65,7 @@ VALUES (:category_id, :transaction_id, :amount, :date);
 
 GET_CATEGORY_NAMES = """SELECT id, name
 FROM categories
-WHERE category_type IS NULL;
+WHERE category_type in ('budget','system');
 """
 
 GET_CREDIT_CARD_CATEGORY_NAMES = """SELECT id, name, category_type

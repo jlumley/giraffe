@@ -58,6 +58,6 @@ CREATE TABLE IF NOT EXISTS assignments (
   FOREIGN KEY (category_id) REFERENCES categories (id)
 );
 
-INSERT INTO categories (name, category_group) VALUES ("To be Assigned", NULL);
+INSERT INTO categories (name, category_type, category_group) VALUES ("To be Assigned", "system", NULL);
 
-INSERT INTO categories (name, category_group) VALUES ("System", NULL);
+INSERT INTO categories (name, category_type, category_group) VALUES ("System", "system", NULL);

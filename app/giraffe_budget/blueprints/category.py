@@ -148,7 +148,7 @@ def _category_unassign(category_id):
     )
 
 
-def create_category(name, group, category_type=None, notes=None):
+def create_category(name, group, category_type="budget", notes=None):
     """create new category
 
     Args:
