@@ -1,18 +1,15 @@
 import React from 'react'
-import { forwardRef, useState, useEffect } from 'react';
-import DatePicker from 'react-datepicker';
-
-import "react-datepicker/dist/react-datepicker.css";
-
+import { useState, useEffect } from 'react';
 
 export default function DateInput({ dateSelected, onChange }) {
 
-    const [startDate, setStartDate] = useState(dateSelected ? dateSelected : new Date());
+    const [currentDate, setCurrentDate] = useState(dateSelected ? dateSelected : new Date());
 
     const customDateInputStyle = {
         minWidth: '95px',
         backgroundColor:'white',
         borderColor: 'lightgrey',
+        color: 'black',
         borderStyle: 'solid',
         height: '25px',
         borderWidth: '1px',
@@ -21,22 +18,17 @@ export default function DateInput({ dateSelected, onChange }) {
     };
 
     useEffect(() => {
-      onChange(startDate)
-    }, [startDate])
+      onChange(currentDate)
+    }, [currentDate])
     
-
-    const CustomInput = forwardRef(({ value, onClick }, ref) => (
-      <button onClick={onClick} ref={ref} style={customDateInputStyle}> 
-        {value}
-      </button>
-    ));
     return (
-      <DatePicker
-        todayButton={'Today'}
-        dateFormat={'yyyy-MM-dd'}
-        selected={startDate}
-        onChange={(date) => setStartDate(date)}
-        customInput={<CustomInput />}
-      />
+      <input
+        style={customDateInputStyle}
+        required={true}
+        type={'date'}
+        value={currentDate.toISOString().slice(0, 10)}
+        onChange={(e) => {setCurrentDate(e.target.valueAsDate)}}
+      >
+      </input>
     );
 }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import instance from '../axois';
 import Chart from 'react-apexcharts'
 import reportsRequests from '../requests/reports';
-import { centsToMoney } from '../utils/money_utils';
+import DateInput from './Inputs/DateInput';
 
 
 function Reports() {
@@ -20,10 +20,7 @@ function Reports() {
         margin: '20px',
         width: '90%'
     }
-    const spentByCategoryGroupDivStyle = {
-        width:'50%'
-    }
-    const spentByCategoryDivStyle = {
+    const pieChartStyle = {
         width:'50%'
     }
     const reportsHeaderStyle = {
@@ -35,33 +32,7 @@ function Reports() {
         borderRadius: '10px'
     }
 
-    const spentByCategoryGroupOptions = {
-        labels: spentByCategoryGroupNames,
-        plotOptions: {
-            pie: {
-                expandOnClick: false
-            }
-        },
-        
-        chart: {
-            animations: {
-                enabled: true,
-                easing: 'easeinout',
-                speed: 800,
-                animateGradually: {
-                    enabled: true,
-                    delay: 150
-                },
-                dynamicAnimation: {
-                    enabled: true,
-                    speed: 350
-                }
-            }
-        }
-    }
-
-    const spentByCategoryOptions = {
-        labels: spentByCategoryNames,
+    const pieChartOptions = {
         plotOptions: {
             pie: {
                 expandOnClick: false
@@ -96,6 +67,14 @@ function Reports() {
         setSpentByCategoryAmounts(resp.data.map(e=> Math.abs(e.amount)/100))
     }
 
+    const dateRangeSelector = () => {
+        return (
+            <div>
+                <DateInput onChange={(e) => {console.log(e)}}/>
+            </div>
+        );
+    }
+
     useEffect(()=> {
         fetchSpentByCategoryGroup()
         fetchSpentByCategory()
@@ -103,29 +82,34 @@ function Reports() {
 
     return (
         <div>
-        <div
-        style={reportsHeaderStyle}>
+        <div style={reportsHeaderStyle}>
+            {dateRangeSelector()}
         </div>
-        <div
-        style={reportsDivStyle}>
-            <div
-            style={spentByCategoryGroupDivStyle}>
+        <div style={reportsDivStyle}>
             {(spentByCategoryGroupAmounts)&&(<Chart
-                options={spentByCategoryGroupOptions}
-                series={spentByCategoryGroupAmounts}
-                type="donut">    
+            style={pieChartStyle}
+            options={{
+                ...pieChartOptions,
+                labels: spentByCategoryGroupNames,
+                title: {
+                    text: "Spent by Category Group"
+                }
+            }}
+            series={spentByCategoryGroupAmounts}
+            type="donut">    
             </Chart>)}
-            </div>
-            <div
-            style={spentByCategoryDivStyle}>
             {(spentByCategoryAmounts)&&(<Chart
-                options={spentByCategoryOptions}
+                style={pieChartStyle}
+                options={{
+                    ...pieChartOptions,
+                    labels: spentByCategoryNames,
+                    title: {
+                        text: "Spent by Category"
+                    }
+                }}
                 series={spentByCategoryAmounts}
                 type="donut">    
             </Chart>)}
-            </div>
-            
-
         </div>
         </div>
     )
