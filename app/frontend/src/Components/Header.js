@@ -1,26 +1,14 @@
 import React, { useState } from 'react'
 import{ motion } from 'framer-motion' 
-import { Link } from 'react-router-dom';
 import { Divide as Hamburger } from 'hamburger-react'
 
-import SidebarAccount from '../Components/SidebarAccount'
+import AccountsMenu from './Menus/AccountsMenu';
 
 export function Header({ accounts }) {
   const [menu, setMenu] = useState(false);
 
-
   const headerDiv = {
-    backgroundColor: 'slategrey',
-  }
-  const SidebarLinkDiv = {
-    padding: 'clamp(5px, 3%, 8px)',
-    display: 'flex'
-  }
-  
-  const SidebarLink = {
-    textDecoration: 'none',
-    color: 'white',
-    fontWeight: 'bold' 
+    backgroundColor: 'slategrey'
   }
 
   return (
@@ -28,29 +16,18 @@ export function Header({ accounts }) {
     style={headerDiv}
     initial={false}
     animate={{
-      height: menu ? 'fit-content' : '45px',
+      height: menu ? 'fit-content' : '50px'
     }}
     transition={{
-      duration:0.3
+      duration:0.4,
+      type: 'spring'
+      
     }}>
-
       <Hamburger 
-      toggled={menu} 
-      toggle={setMenu} 
-      color={'white'}/>
-
-      {(menu) && (
-        <nav>
-          <Link style={SidebarLink} to="/"><div style={SidebarLinkDiv}>Budget</div></Link>
-          <Link style={SidebarLink} to="/account/all"><div style={SidebarLinkDiv}>All Accounts</div></Link>
-          {
-            accounts.map(account => {
-              if (!account.hidden) return(<SidebarAccount account={account}/>);
-              return null
-            })
-          }
-            <Link style={SidebarLink} to="/payees"><div style={SidebarLinkDiv}>Manage Payees</div></Link>
-        </nav>)}
+        toggled={menu} 
+        toggle={setMenu} 
+        color={'white'}/>
+      <AccountsMenu accounts={accounts}/>
     </motion.div>
   );
 }

@@ -28,7 +28,7 @@ function Reports() {
         height: '100px',
         backgroundColor: 'dimgrey',
         opacity: 0.5,
-        margin: '10px',
+        margin: '1%',
         borderRadius: '10px'
     }
 
@@ -70,7 +70,7 @@ function Reports() {
     const dateRangeSelector = () => {
         return (
             <div>
-                <DateInput onChange={(e) => {console.log(e)}}/>
+                <DateInput onChange={(e) => {console.log(e)}}   />
             </div>
         );
     }

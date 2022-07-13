@@ -32,7 +32,8 @@ export function BudgetInfo({
         padding: '8px',
         borderRadius: '10px',
         cursor: 'pointer',
-        backgroundColor: 'var(--light-grey)',
+        backgroundColor: 'var(--dark-accent)',
+        color: 'var(--light-text)',
         textAlign: 'center',
         userSelect: 'none',
     }

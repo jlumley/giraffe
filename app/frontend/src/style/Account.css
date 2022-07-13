@@ -9,10 +9,11 @@
 }
 
 .accountHeader {
-    min-height: 100px;
-    border-radius: 20px;
-    margin: 10px;
-    background-color: var(--light-grey);
+    min-height: 150px;
+    height: fit-content;
+    border-radius: 10px;
+    margin: 1%;
+    background-color: var(--light-accent);
 }
 
 .accountHeaderButtonRow {
@@ -24,7 +25,6 @@
 }
 
 .addTransactionButton {
-    background-color: var(--table-background-even);
     width: fit-content;
     margin: auto;
     padding: 8px;
@@ -46,7 +46,7 @@
     border-radius: 10px;
     cursor: pointer;
     user-select: none;
-    background-color: var(--light-grey);
+    background-color: var(--light-accent);
 }
 
 .accountShowReconciledButton {
@@ -54,10 +54,10 @@
 }
 
 .accountSearchBar {
-    border-color: hsl(0, 0%, 80%);
+    border-color: var(--light-accent);
     border-style: solid;
     border-width: 1px;
-    color: var(--dark-color);
+    color: var(--text);
     border-radius: 10px;
     margin: 10px;
     width: min("120px", 50%);

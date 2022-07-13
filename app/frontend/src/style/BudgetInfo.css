@@ -3,10 +3,10 @@
 .budgetInfo {
     width: 350px;
     height: 100%;
-    margin: 5px;
+    margin: 10px;
     padding: 10px;
     border-radius: 10px;
-    background: var(--light-grey);
+    background: var(--light-accent);
 }
 
 .categoryStats {
@@ -23,7 +23,7 @@
 
 .categoryTarget {
     padding: 12px;
-    border-color: var(--light-grey);
+    border-color: var(--dark-accent);
     border-radius: 10px;
     border-width: thin;
     border-style: solid;
@@ -34,7 +34,7 @@
     padding: 5%;
     font-weight: bold;
     font-size: 20px !important;
-    color: var(--dark-color);
+    color: var(--dark-text);
     text-align: center;
 }
 

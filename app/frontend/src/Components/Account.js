@@ -37,74 +37,57 @@ export const Account = ({ mobile }) => {
         search_str: "",
     };
 
-    function fetchTransactions() {
-        async function _fetchTransactions() {
-            const params = (id !== 'all') ? { accounts: id } : {}
-            if (showReconciled === false) params.reconciled = showReconciled;
+    async function fetchTransactions() {
+        const params = (id !== 'all') ? { accounts: id } : {}
+        if (showReconciled === false) params.reconciled = showReconciled;
 
-            const t = await instance.get(transactionRequests.fetchTransactions, { params })
-            setTransactions(t.data.sort((e1, e2) => {
-                if (e1.date < e2.date) return 1;
-                if (e1.date > e2.date) return -1;
+        const t = await instance.get(transactionRequests.fetchTransactions, { params })
+        setTransactions(t.data.sort((e1, e2) => {
+            if (e1.date < e2.date) return 1;
+            if (e1.date > e2.date) return -1;
 
-                return e1.id < e2.id;
-            }))
-        }
-        _fetchTransactions()
+            return e1.id < e2.id;
+        }))
+}
+    async function fetchCategories() {
+        const c = await instance.get(categoryRequests.fetchAllCategoryNames)
+        setCategories(c.data.reduce((map, obj) => {
+            map[obj.id] = obj.name
+            return map;
+        }, {}))
     }
-    function fetchCategories() {
-        async function _fetchCategories() {
-            const c = await instance.get(categoryRequests.fetchAllCategoryNames)
-            setCategories(c.data.reduce((map, obj) => {
-                map[obj.id] = obj.name
-                return map;
-            }, {}))
-        }
-        _fetchCategories()
-    }
-    function fetchPayees() {
-        async function _fetchPayees() {
-            const p = await instance.get(payeeRequests.fetchAllPayees)
-            setPayees(p.data.reduce((map, obj) => {
-                map[obj.id] = obj.name
-                return map;
-            }, {}))
-        }
-        _fetchPayees()
+    async function fetchPayees() {
+        const p = await instance.get(payeeRequests.fetchAllPayees)
+        setPayees(p.data.reduce((map, obj) => {
+            map[obj.id] = obj.name
+            return map;
+        }, {}))
     }
 
-    function fetchAccounts() {
-        async function _fetchAccounts() {
-            const params = (id !== 'all') ? { accounts: id } : {}
-            const a = await instance.get(accountRequests.fetchAllAccounts, { params })
-            setAccounts(a.data.reduce((map, obj) => {
-                map[obj.id] = obj.name
-                return map;
-            }, {}))
-        }
-        _fetchAccounts()
+    async function fetchAccounts() {
+        const params = (id !== 'all') ? { accounts: id } : {}
+        const a = await instance.get(accountRequests.fetchAllAccounts, { params })
+        setAccounts(a.data.reduce((map, obj) => {
+            map[obj.id] = obj.name
+            return map;
+        }, {}))
     }
 
-    function fetchCurrentAccount() {
-        if (id === 'all') return
-        async function _fetchCurrentAccount() {
-            const a = await instance.get(`${accountRequests.fetchAccount}${id}`)
-            setCurrentAccount(a.data)
-        }
-        _fetchCurrentAccount()
+    async function fetchCurrentAccount() {
+        if (id === 'all') setCurrentAccount(null)
+        const a = await instance.get(`${accountRequests.fetchAccount}${id}`)
+        setCurrentAccount(a.data)
     }
 
-    function addNewTransaction() {
-        async function _addNewTransaction() {
-            var tempTransactions = [...transactions]
-            tempTransactions.unshift({
-                ...newEmptyTransaction
-            })
-            setTransactions(tempTransactions);
-            setSelectedTransaction(0)
-        }
+    async function addNewTransaction() {
         if (selectedTransaction !== null) return
-        _addNewTransaction()
+
+        var tempTransactions = [...transactions]
+        tempTransactions.unshift({
+            ...newEmptyTransaction
+        })
+        setTransactions(tempTransactions);
+        setSelectedTransaction(0)
     }
 
     async function deleteTransaction(transaction_id) {
@@ -167,7 +150,6 @@ export const Account = ({ mobile }) => {
     }
 
     const transactionFilters = () => {
-        // <label>Date Range: <input type={"number"}/><Autosuggest/></label>
         return (
             <label className="accountShowReconciledButton"><input type={"checkbox"} defaultChecked={showReconciled} onClick={() => { setShowReconciled(!showReconciled) }} />Show Reconciled</label>
         )

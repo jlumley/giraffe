@@ -48,27 +48,23 @@ export function Layout() {
     const [mobile, setmobile] = useState(setMobile());
     const [accounts, setAccounts] = useState([]);
 
-    function fetchAllAccounts() {
-        async function _fetchAllAccounts() {
-            setAccounts(await (await instance.get(accountRequests.fetchAllAccounts)).data)
-        }
-        _fetchAllAccounts()
+    async function fetchAllAccounts() {
+        const resp = await instance.get(accountRequests.fetchAllAccounts)
+        setAccounts(resp.data)
     }
 
     useEffect(() => {
+        fetchAllAccounts()
         window.addEventListener('resize', () => {
             setmobile(setMobile());
         })
-        fetchAllAccounts()
     }, [])
 
     return (
         <div style={LayoutDiv}>
-            {(mobile) && (<Header accounts={accounts}/>)}
+            {(mobile)&&(<Header accounts={accounts}/>)}
             <div style={MainContentDiv}>
-                {(!mobile) && (
-                    <Sidebar accounts={accounts}/>
-                )}
+                {(!mobile) && (<Sidebar accounts={accounts}/>)}
                 <div style={WorkspaceContentDiv}>
                     <Routes>
                         <Route path="/account/:id" element={<Account mobile={mobile} />} />

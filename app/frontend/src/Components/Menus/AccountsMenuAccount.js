@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
-import { centsToMoney } from '../utils/money_utils';
+import { centsToMoney } from '../../utils/money_utils';
 import { Link } from 'react-router-dom';
-import { lightBackground} from '../style/Colors'
+import { lightBackground} from '../../style/Colors'
 
 import DotsVerticalIcon from 'mdi-react/DotsVerticalIcon'
 import EyeOffOutlineIcon from 'mdi-react/EyeOffOutlineIcon'
@@ -40,11 +40,10 @@ import EyeOffOutlineIcon from 'mdi-react/EyeOffOutlineIcon'
   }
 
   const HideAccountButton = {
-    color: 'salmon',
     cursor: 'pointer'
   }
 
-function SidebarAccount({account}) {
+export default function AccountsMenuAccount({account}) {
   const [showDeleteIcon, setShowDeleteIcon] = useState(false);  
   return (
     <div style={AccountDiv}>
@@ -59,5 +58,3 @@ function SidebarAccount({account}) {
     </div>
   )
 }
-
-export default SidebarAccount

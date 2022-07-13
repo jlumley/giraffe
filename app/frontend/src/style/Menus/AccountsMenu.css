@@ -1,0 +1,9 @@
+.AccountMenuLinkDiv {
+    padding: clamp(5px, 3%, 8px);
+    display: flex;
+    text-decoration: none;
+    color: var(--light-text);
+    font-weight: bold;
+    align-items: center;
+    display: flex;
+}
