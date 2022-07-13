@@ -1,20 +1,23 @@
 @import url("colors.css");
 
-.categoryGroupTitle {
-    text-align: left;
-    padding: 15px;
+.budgetCategoryGroup {
+    margin: 3%;
 }
 
-.newCategoryButton {
+.budgetCategoryGroupSelectedIcon {
+    vertical-align: middle;
+}
+
+.budgetNewCategoryGroupButton {
     float: right;
-    margin-right: 3%;
+    vertical-align: middle;
 }
 
-.categoryGroupTitleInput {
-    background-color: transparent;
-    border-color: transparent;
+.budgetCategoryGroupTitleInput {
+    border: none;
     outline: none;
     font-weight: bold;
-    font-size: 14px;
-    color: var(--dark-color);
+    font-size: 14px !important;
+    color: var(--dark-text);
+    padding-left: 2%;
 }

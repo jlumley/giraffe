@@ -72,33 +72,42 @@ export const CategoryGroup = ({
     });
   }
 
-  const ifGroupSelected = () => {
+
+  const categoryGroupSelected = () => {
     if (isCreditCardGroup || mobile) return
     const groupIds = groupCategories.map(e => e.id)
     const isSelectedGroup = groupCategories.every(e => selectedCategories.includes(e.id))
     if (isSelectedGroup) {
-      return <CheckboxMarkedCircleIcon size={15} onClick={() => {
-        setSelectedCategories(selectedCategories.filter(e => !groupIds.includes(e)))
-      }} />
+      return (
+        <CheckboxMarkedCircleIcon 
+        size={15}
+        className="budgetCategoryGroupSelectedIcon"
+        onClick={() => {
+          setSelectedCategories(selectedCategories.filter(e => !groupIds.includes(e)))
+        }} 
+      />)
     } else {
-      return <CheckboxBlankCircleOutlineIcon size={15} onClick={() => {
-        setSelectedCategories([... new Set(selectedCategories.concat(groupIds))])
-      }} />
+      return (
+      <CheckboxBlankCircleOutlineIcon 
+        size={15} 
+        className="budgetCategoryGroupSelectedIcon"
+        onClick={() => {
+          setSelectedCategories([...new Set(selectedCategories.concat(groupIds))])
+        }} 
+      />)
     }
   }
 
-  return <div>
-    <div className="categoryGroupTitle">
-      {ifGroupSelected()}
-      <input className="categoryGroupTitleInput" value={categoryGroupName} onChange={editCategoryGroupName} onBlur={updateCategoryGroupName} />
-      {(!isCreditCardGroup) && (<PlusCircleOutlineIcon onClick={createNewCategory} />)}
-    </div>
-    <table>
-      {groupCategories.map(c => {
-        return category(c)
-      })}
-      {newCategories}
-    </table>
-
-  </div>;
+  return (
+    <div className="budgetCategoryGroup">
+      {categoryGroupSelected()}
+      <input className="budgetCategoryGroupTitleInput" value={categoryGroupName} onChange={editCategoryGroupName} onBlur={updateCategoryGroupName} />
+      {(!isCreditCardGroup) && (<PlusCircleOutlineIcon className="budgetNewCategoryGroupButton" onClick={createNewCategory} />)}
+      <table>
+        {groupCategories.map(c => {
+          return category(c)
+        })}
+        {newCategories}
+      </table>
+  </div>);
 }
