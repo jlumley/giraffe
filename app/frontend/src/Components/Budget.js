@@ -134,8 +134,20 @@ export function Budget({ mobile }) {
     updateDate(1)
   }
 
-  const getMonthString = () => {
+  function getMonthString () {
     return `${currentDate.toLocaleString('default', { month: 'short' })} ${currentDate.getFullYear()}`
+  }
+
+  function getBudgetStatBackgroundColor(value) {
+    if (value === 0) {
+      return 'var(--positive-highlight)'
+    }
+    else if (value > 0) {
+      return 'var(--neutral-highlight)'
+    }
+    else {
+      return 'var(--negative-highlight)'
+    }
   }
 
   return (
@@ -143,18 +155,18 @@ export function Budget({ mobile }) {
       <div className="budgetContent">
         <div className="budgetHeader">
           <div className="monthSelector">
-            < ArrowLeftCircleOutlineIcon onClick={prevMonth} className="arrowDiv" />
+            < ArrowLeftCircleOutlineIcon size={30} onClick={prevMonth} className="arrowDiv" />
             <div className="currentMonth"> {getMonthString()} </div>
-            < ArrowRightCircleOutlineIcon onClick={nextMonth} className="arrowDiv" />
+            < ArrowRightCircleOutlineIcon size={30} onClick={nextMonth} className="arrowDiv" />
           </div>
           <div className="newCategoryGroup" onClick={createNewCategoryGroup}>
             <TabPlusIcon size={16} />&nbsp;Category Group
           </div>
           <div className="budgetStatDiv">
-            <div className={`budgetStatBox ${readyToAssign < 0 ? 'negativeToBeAssigned' : ''} ${readyToAssign === 0 ? 'neutralToBeAssigned' : ''} ${readyToAssign > 0 ? 'positiveToBeAssigned' : ''}`}>
+            <div className="budgetStatBox" style={{backgroundColor: getBudgetStatBackgroundColor(readyToAssign)}}>
               Ready To Assign: <br /> {centsToMoney(readyToAssign)}
             </div>
-            <div className={`budgetStatBox`}>
+            <div className="budgetStatBox" style={{backgroundColor: getBudgetStatBackgroundColor(underfunded)}}>
               Underfunded: <br /> {centsToMoney(underfunded)}
             </div>
           </div>

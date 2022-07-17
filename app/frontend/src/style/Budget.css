@@ -12,7 +12,7 @@
     flex-direction: column;
     overflow: auto;
     height: 100%;
-    color: var(--dark-color);
+    color: var(--dark-text);
     font-weight: bold;
     flex-grow: 1;
 }
@@ -21,7 +21,7 @@
     height: 120px;
     border-radius: 15px;
     margin: 5px;
-    background-color: var(--translucent-background);
+    background-color: var(--light-accent);
 }
 
 .newCategoryGroup {
@@ -49,6 +49,8 @@
     width: 50%;
     margin: auto;
     text-align: center;
+    font-weight: bold !important;
+    font-size: large !important;
 }
 
 .budgetCategories {
@@ -79,17 +81,4 @@
     border-radius: 10px;
     height: 50px;
     width: 120px;
-    background-color: var(--light-grey);
-}
-
-.negativeToBeAssigned {
-    background-color: lightcoral;
-}
-
-.neutralToBeAssigned {
-    background-color: lightgreen;
-}
-
-.positiveToBeAssigned {
-    background-color: skyblue;
 }
