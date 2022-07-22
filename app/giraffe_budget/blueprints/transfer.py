@@ -1,6 +1,6 @@
 import sqlite3
 import time
-
+import uuid
 
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
@@ -183,7 +183,7 @@ def create_transfer(**kwargs):
     Returns:
         string: unqiue transfer id
     """
-    transfer_id = md5().hexdigest()
+    transfer_id = str(uuid.uuid4())
 
     _transaction_id = db_utils.execute(
         CREATE_TRANSFER,
