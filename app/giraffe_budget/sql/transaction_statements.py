@@ -14,8 +14,8 @@ WHERE transaction_id = :transaction_id;
 """
 
 CREATE_TRANSACTION = """INSERT INTO transactions
-(account_id, payee_id, date, memo, cleared, reconciled)
-VALUES (:account_id, :payee_id, :date, :memo, :cleared, 0)
+(id, account_id, payee_id, date, memo, cleared, reconciled)
+VALUES (:id, :account_id, :payee_id, :date, :memo, :cleared, 0)
 RETURNING id;
 """
 

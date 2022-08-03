@@ -1,6 +1,6 @@
 import sqlite3
 import time
-
+import uuid
 
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
@@ -286,6 +286,7 @@ def create_transaction(
     transaction = db_utils.execute(
         CREATE_TRANSACTION,
         {
+            "id": uuid.uuidv4(),
             "account_id": account_id,
             "date": date,
             "cleared": cleared,

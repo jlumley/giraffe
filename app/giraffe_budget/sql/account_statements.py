@@ -6,8 +6,8 @@ WHERE id = :account_id"""
 
 
 CREATE_ACCOUNT = """INSERT INTO accounts
-(name, notes, created_date, reconciled_date, hidden, account_type)
-VALUES (:name, :notes, :date, :date, 0, :account_type)
+(id, name, notes, created_date, reconciled_date, hidden, account_type)
+VALUES (:id, :name, :notes, :date, :date, 0, :account_type)
 RETURNING id, name;
 """
 

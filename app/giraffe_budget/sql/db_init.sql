@@ -1,7 +1,7 @@
 INSERT INTO db_version (version) VALUES (1);
 
 CREATE TABLE IF NOT EXISTS accounts (
-  id integer PRIMARY KEY,
+  id text PRIMARY KEY,
   name text NOT NULL,
   notes text,
   hidden integer,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS accounts (
 );
 
 CREATE TABLE IF NOT EXISTS categories (
-  id integer PRIMARY KEY,
+  id text PRIMARY KEY,
   name text NOT NULL,
   category_type text,
   target_type text,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS categories (
 );
 
 CREATE TABLE IF NOT EXISTS payees (
-  id integer PRIMARY KEY,
+  id text PIMARY KEY,
   name text NOT NULL,
   category_prediction integer,
   system_payee integer,
@@ -30,9 +30,9 @@ CREATE TABLE IF NOT EXISTS payees (
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
-  id integer PRIMARY KEY,
-  account_id integer NOT NULL,
-  payee_id integer,
+  id text PRIMARY KEY,
+  account_id text NOT NULL,
+  payee_id text,
   date integer,
   memo text,
   reconciled integer,
@@ -41,9 +41,9 @@ CREATE TABLE IF NOT EXISTS transactions (
 );
 
 CREATE TABLE IF NOT EXISTS transaction_categories (
-  transaction_id integer,
-  category_id integer,
-  amount integer,
+  transaction_id text,
+  category_id text,
+  amount text,
   PRIMARY KEY (transaction_id, category_id),
   FOREIGN KEY (transaction_id) REFERENCES transactions (id),
   FOREIGN KEY (category_id) REFERENCES categories (id)
@@ -52,8 +52,8 @@ CREATE TABLE IF NOT EXISTS transaction_categories (
 CREATE TABLE IF NOT EXISTS assignments (
   date integer,
   amount int,
-  category_id integer,
-  transaction_id integer,
+  category_id text,
+  transaction_id text,
   FOREIGN KEY (transaction_id) REFERENCES transactions (id),
   FOREIGN KEY (category_id) REFERENCES categories (id)
 );

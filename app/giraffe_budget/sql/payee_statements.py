@@ -5,8 +5,8 @@ FROM payees
 WHERE id = :payee_id;"""
 
 CREATE_PAYEE = """INSERT INTO payees
-(name)
-VALUES (:name)
+(id, name)
+VALUES (:id, :name)
 RETURNING id;
 """
 

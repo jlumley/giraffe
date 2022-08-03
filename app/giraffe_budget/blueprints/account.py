@@ -1,5 +1,6 @@
 import datetime
 import time
+import uuid
 
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
@@ -149,7 +150,13 @@ def create_account(name, date, notes=None, starting_balance=0, credit_card=False
     account_type = "credit_card" if credit_card else "budget"
     account = db_utils.execute(
         CREATE_ACCOUNT,
-        {"name": name, "notes": notes, "date": date, "account_type": account_type},
+        {
+            "name": name,
+            "notes": notes,
+            "date": date,
+            "account_type": account_type,
+            "id": uuid.uuidv4(),
+        },
         commit=True,
     )
     # If credit card account create credit card category

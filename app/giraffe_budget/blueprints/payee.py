@@ -1,3 +1,5 @@
+import uuid
+
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
 
@@ -66,7 +68,7 @@ def get_payee(payee_id):
     """Get a Payee by id
 
     Args:
-        payee_id (int): payee id
+        payee_id (str): payee id
 
     Returns:
         list: list of payees with id
@@ -98,7 +100,14 @@ def create_payee(name):
     Returns:
         list: new payee
     """
-    payee = db_utils.execute(CREATE_PAYEE, {"name": name}, commit=True)
+    payee = db_utils.execute(
+                CREATE_PAYEE, 
+                {
+                    "name": name,
+                    "id": uuid.uuidv4()
+                }, 
+                commit=True
+            )
     return payee[0]
 
 

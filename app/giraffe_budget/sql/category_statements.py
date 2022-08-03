@@ -8,8 +8,8 @@ WHERE id = :category_id;
 """
 
 CREATE_CATEGORY = """INSERT INTO categories
-(name, category_type, category_group, notes)
-VALUES (:name, :category_type, :category_group, :notes)
+(id, name, category_type, category_group, notes)
+VALUES (:id, :name, :category_type, :category_group, :notes)
 RETURNING *;
 """
 

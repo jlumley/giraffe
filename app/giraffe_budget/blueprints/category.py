@@ -1,4 +1,5 @@
 import re
+import uuid
 
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
@@ -162,6 +163,7 @@ def create_category(name, group, category_type="budget", notes=None):
     """
     data = request.get_json()
     insert_data = {
+        "id": uuid.uuidv4(),
         "name": name,
         "category_group": group,
         "notes": notes,
