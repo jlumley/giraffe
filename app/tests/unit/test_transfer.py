@@ -25,9 +25,9 @@ def test_create_transfer(test_client):
             cleared=False,
         )
     ]
-
     for transfer in transfers:
         create_response = test_client.post("/transfer/create", json=transfer)
+
         assert create_response.status_code == 201
         assert "id" in create_response.json.keys()
 
@@ -70,7 +70,7 @@ def test_delete_transfer(test_client):
     account_2 = test_client.post(
         "/account/create", json=dict(name="new_account77")
     ).json.get("id")
-
+    
     transfer = dict(
         from_account_id=account_1,
         to_account_id=account_2,

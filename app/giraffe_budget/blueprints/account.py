@@ -22,7 +22,7 @@ def _get_accounts():
     return make_response(jsonify(accounts), 200)
 
 
-@account.route("/<int:account_id>", methods=("GET",))
+@account.route("/<string:account_id>", methods=("GET",))
 def _get_account(account_id):
     """Fetch single account"""
     account = get_account(account_id)
@@ -42,26 +42,26 @@ def _create_account():
         date_str,
         notes=data.get("notes"),
         starting_balance=starting_balance,
-        credit_card=data.get("credit_card"),
+        credit_card=data.get("credit_card")
     )
     return make_response(jsonify(account[0]), 201)
 
 
-@account.route("/hide/<int:account_id>", methods=("PUT",))
+@account.route("/hide/<string:account_id>", methods=("PUT",))
 def _hide_account(account_id):
     """Hide an account"""
     account = hide_account(account_id, True)
     return make_response(jsonify(account), 200)
 
 
-@account.route("/unhide/<int:account_id>", methods=("PUT",))
+@account.route("/unhide/<string:account_id>", methods=("PUT",))
 def _unhide_account(account_id):
     """Unhide an account"""
     account = hide_account(account_id, False)
     return make_response(jsonify(account), 200)
 
 
-@account.route("/reconcile/<int:account_id>", methods=("PUT",))
+@account.route("/reconcile/<string:account_id>", methods=("PUT",))
 @expects_json(PUT_ACCOUNT_RECONCILE_SCHEMA)
 def _reconcile_account(account_id):
     """Set all cleared transactions associated
@@ -155,26 +155,20 @@ def create_account(name, date, notes=None, starting_balance=0, credit_card=False
             "notes": notes,
             "date": date,
             "account_type": account_type,
-            "id": uuid.uuidv4(),
+            "id": str(uuid.uuid4()),
         },
         commit=True,
     )
-    # If credit card account create credit card category
-    if credit_card:
-        category.create_category(
-            name=name, group="Credit Cards", category_type="credit_card"
-        )
 
-    # if it is not a credit card add balance to "ready to assign"
-    categories = [dict(category_id=2, amount=starting_balance)] if credit_card else [dict(category_id=1, amount=starting_balance)]
     # Creating starting balance transaction
-    transaction.create_transaction(
-        account[0]["id"],
-        date,
-        True,
-        memo="Starting Balance",
-        categories=categories,
-    )
+    if not credit_card:
+        transaction.create_transaction(
+            account[0]["id"],
+            date,
+            True,
+            memo="Starting Balance",
+            categories=[dict(category_id="ead604f7-d9bd-4f3e-852d-e04c2d7a71d7", amount=starting_balance)],
+        )
 
     return get_account(account[0]["id"])
 
@@ -221,7 +215,7 @@ def reconcile_account(account_id, date, balance):
             memo="Reconciliation Transaction", 
             categories=[
                 {
-                    "category_id": 2,
+                    "category_id": "7294d522-28e8-4f1d-a721-3d9f74f871a8",
                     "amount": adjustment_amount
                 }
             ]

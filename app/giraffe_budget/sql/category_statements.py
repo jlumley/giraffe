@@ -68,9 +68,6 @@ FROM categories
 WHERE category_type in ('budget','system');
 """
 
-GET_CREDIT_CARD_CATEGORY_NAMES = """SELECT id, name, category_type
-FROM categories WHERE category_type="credit_card";
-"""
 
 GET_CATEGORY_GROUPS = """SELECT DISTINCT category_group
 FROM categories WHERE category_group IS NOT NULL;

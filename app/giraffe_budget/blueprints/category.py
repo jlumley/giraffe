@@ -46,7 +46,7 @@ def _get_categories(date):
     return make_response(jsonify(categories), 200)
 
 
-@category.route("/<int:category_id>/<string:date>", methods=("GET",))
+@category.route("/<string:category_id>/<string:date>", methods=("GET",))
 def _get_category(category_id, date):
     """Get category at a given date"""
     date = time_utils.datestr_to_sqlite_date(date)
@@ -67,7 +67,7 @@ def _create_category():
     return make_response(jsonify(resp), 201)
 
 
-@category.route("/update/<int:category_id>", methods=("PUT",))
+@category.route("/update/<string:category_id>", methods=("PUT",))
 @expects_json(PUT_CATEGORY_UPDATE_SCHEMA)
 def _update_category(category_id):
     """Update Category"""
@@ -81,7 +81,7 @@ def _update_category(category_id):
     return make_response(jsonify(category[0]), 200)
 
 
-@category.route("/target/<int:category_id>", methods=("PUT",))
+@category.route("/target/<string:category_id>", methods=("PUT",))
 @expects_json(PUT_CATEGORY_UPDATE_TARGET_SCHEMA)
 def _update_category_target(category_id):
     """Update Category target"""
@@ -111,7 +111,7 @@ def _update_category_target(category_id):
     return make_response(jsonify(target), 200)
 
 
-@category.route("/target/<int:category_id>", methods=("DELETE",))
+@category.route("/target/<string:category_id>", methods=("DELETE",))
 def delete_cateogry_target(category_id):
     """Remove Category target"""
     delete_cateogry_target(category_id)
@@ -119,7 +119,7 @@ def delete_cateogry_target(category_id):
     return make_response(jsonify({"id": category_id}), 200)
 
 
-@category.route("/assign/<int:category_id>", methods=("PUT",))
+@category.route("/assign/<string:category_id>", methods=("PUT",))
 @expects_json(PUT_CATEGORY_ASSIGN_SCHEMA)
 def _category_assign(category_id):
     """Assign money to category"""
@@ -134,7 +134,7 @@ def _category_assign(category_id):
     )
 
 
-@category.route("/unassign/<int:category_id>", methods=("PUT",))
+@category.route("/unassign/<string:category_id>", methods=("PUT",))
 @expects_json(PUT_CATEGORY_UNASSIGN_SCHEMA)
 def _category_unassign(category_id):
     """Unassign money from category"""
@@ -163,7 +163,7 @@ def create_category(name, group, category_type="budget", notes=None):
     """
     data = request.get_json()
     insert_data = {
-        "id": uuid.uuidv4(),
+        "id": str(uuid.uuid4()),
         "name": name,
         "category_group": group,
         "notes": notes,
@@ -353,12 +353,8 @@ def get_category_balance(category_id, sql_date):
     Returns:
         int: category balance at given date
     """
-    is_credit_card_category = category_id in [
-        c["id"] for c in get_credit_card_category_names()
-    ]
-
     total_assigned = get_category_assignments_sum(
-        category_id, before=sql_date, transaction_assignments=is_credit_card_category
+        category_id, before=sql_date
     )
     total_transacted = get_category_transactions_sum(category_id, before=sql_date)
     return total_assigned + total_transacted
@@ -380,7 +376,7 @@ def assign_money_to_category(category_id, amount, date, transaction_id=None):
     db_utils.execute(
         ASSIGN_CATEGORY,
         {
-            "category_id": 1,
+            "category_id": "ead604f7-d9bd-4f3e-852d-e04c2d7a71d7",
             "amount": amount * -1,
             "date": date,
             "transaction_id": transaction_id,
@@ -486,7 +482,6 @@ def get_category(category_id, sql_date):
     target_data = get_category_target_data(category_id, sql_date)
     category = categories[0] | target_data
 
-    category["credit_card"] = bool(category["category_type"] == "credit_card")
     category["balance"] = get_category_balance(category_id, sql_date)
     category["target_date"] = time_utils.sqlite_date_to_datestr(category["target_date"])
     category["group"] = category["category_group"]
@@ -522,11 +517,6 @@ def get_categories_dict():
         categories[str(c["id"])] = c["name"]
     return categories
 
-def get_credit_card_category_names():
-    """Fetch all the category names and ids"""
-    return db_utils.execute(GET_CREDIT_CARD_CATEGORY_NAMES)
-
-
 def get_category_groups():
     """Fetch all the category groups"""
     return db_utils.execute(GET_CATEGORY_GROUPS)
@@ -539,3 +529,4 @@ def get_target_types():
         savings_target="Savings Target",
         spending_target="Spending Target"
     )
+

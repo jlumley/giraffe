@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS transactions (
 CREATE TABLE IF NOT EXISTS transaction_categories (
   transaction_id text,
   category_id text,
-  amount text,
+  amount int,
   PRIMARY KEY (transaction_id, category_id),
   FOREIGN KEY (transaction_id) REFERENCES transactions (id),
   FOREIGN KEY (category_id) REFERENCES categories (id)
@@ -58,6 +58,6 @@ CREATE TABLE IF NOT EXISTS assignments (
   FOREIGN KEY (category_id) REFERENCES categories (id)
 );
 
-INSERT INTO categories (name, category_type, category_group) VALUES ("To be Assigned", "system", NULL);
+INSERT INTO categories (id, name, category_type, category_group) VALUES ("ead604f7-d9bd-4f3e-852d-e04c2d7a71d7", "To be Assigned", "system", NULL);
 
-INSERT INTO categories (name, category_type, category_group) VALUES ("System", "system", NULL);
+INSERT INTO categories (id, name, category_type, category_group) VALUES ("7294d522-28e8-4f1d-a721-3d9f74f871a8", "System", "system", NULL);

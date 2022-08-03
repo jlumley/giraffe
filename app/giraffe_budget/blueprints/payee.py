@@ -17,7 +17,7 @@ def _get_payees():
     return make_response(jsonify(payees), 200)
 
 
-@payee.route("/<int:payee_id>", methods=("GET",))
+@payee.route("/<string:payee_id>", methods=("GET",))
 def _get_payee(payee_id):
     """Get single payee by id"""
     payee = get_payee(payee_id)[0]
@@ -33,7 +33,7 @@ def _create_payee():
     return make_response(jsonify(payee), 201)
 
 
-@payee.route("/update/<int:payee_id>", methods=("PUT",))
+@payee.route("/update/<string:payee_id>", methods=("PUT",))
 @expects_json(PUT_PAYEE_UPDATE_SCHEMA)
 def update_payee(payee_id):
     """Update payee"""
@@ -42,7 +42,7 @@ def update_payee(payee_id):
     return make_response(jsonify(payee), 200)
 
 
-@payee.route("/delete/<int:payee_id>", methods=("DELETE",))
+@payee.route("/delete/<string:payee_id>", methods=("DELETE",))
 def delete_payee(payee_id):
     """Delete payee"""
 
@@ -104,7 +104,7 @@ def create_payee(name):
                 CREATE_PAYEE, 
                 {
                     "name": name,
-                    "id": uuid.uuidv4()
+                    "id": str(uuid.uuid4())
                 }, 
                 commit=True
             )
