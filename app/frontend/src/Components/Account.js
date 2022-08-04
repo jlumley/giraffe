@@ -26,7 +26,7 @@ export const Account = ({ mobile }) => {
 
     const newEmptyTransaction = {
         date: new Date(),
-        account_id: (id !== 'all') ? parseInt(id) : null,
+        account_id: (id !== 'all') ? id : null,
         account_label: (currentAccount) ? currentAccount.name : "",
         memo: "",
         categories: [{ category_id: 2, amount: 0 }],

@@ -109,13 +109,13 @@ export const Transaction = ({
             if (c.category_id === 0) return
             var new_category = true;
             new_categories.forEach((nc) => {
-                if (parseInt(nc.category_id) === parseInt(c.category_id)) {
+                if (nc.category_id === c.category_id) {
                     nc.amount += c.amount
                     new_category = false
                 }
             })
             if (new_category) {
-                new_categories.push({ category_id: parseInt(c.category_id), amount: Math.round(c.amount) });
+                new_categories.push({ category_id: c.category_id, amount: Math.round(c.amount) });
             }
         });
         return new_categories;
@@ -126,10 +126,10 @@ export const Transaction = ({
             date: date.toISOString().slice(0, 10),
             cleared: cleared,
             memo: memo ? memo : '',
-            account_id: parseInt(accountId),
+            account_id: accountId,
             categories: consolidateCategories()
         }
-        if (payeeId) transactionData.payee_id = parseInt(payeeId)
+        if (payeeId) transactionData.payee_id = payeeId
         const resp = await instance.post(
             `${transactionRequests.createNewTransaction}`,
             transactionData
@@ -145,11 +145,11 @@ export const Transaction = ({
             amount: _categories.reduce((prev, curr) => prev + curr.amount, 0),
         }
         if (transferData.amount > 0) {
-            transferData.from_account_id = parseInt(payeeId)
-            transferData.to_account_id = parseInt(accountId)
+            transferData.from_account_id = payeeId
+            transferData.to_account_id = accountId
         } else {
-            transferData.from_account_id = parseInt(accountId)
-            transferData.to_account_id = parseInt(payeeId)
+            transferData.from_account_id = accountId
+            transferData.to_account_id = payeeId
         }
         const resp = await instance.post(
             `${transferRequests.createNewTransfer}`,
@@ -170,11 +170,11 @@ export const Transaction = ({
             amount: Math.round(_categories.reduce((prev, curr) => prev + curr.amount, 0)),
         }
         if (transferData.amount > 0) {
-            transferData.from_account_id = parseInt(payeeId)
-            transferData.to_account_id = parseInt(accountId)
+            transferData.from_account_id = payeeId
+            transferData.to_account_id = accountId
         } else {
-            transferData.from_account_id = parseInt(accountId)
-            transferData.to_account_id = parseInt(payeeId)
+            transferData.from_account_id = accountId
+            transferData.to_account_id = payeeId
         }
         await instance.put(
             `${transferRequests.updateTransfer}${transferId}`,
@@ -187,10 +187,10 @@ export const Transaction = ({
             date: date.toISOString().slice(0, 10),
             cleared: cleared,
             memo: memo ? memo : '',
-            account_id: parseInt(accountId),
+            account_id: accountId,
             categories: consolidateCategories(),
         }
-        if (payeeId) transactionData.payee_id = parseInt(payeeId)
+        if (payeeId) transactionData.payee_id = payeeId
         await instance.put(
             `${transactionRequests.updateTransaction}${transactionId}`,
             transactionData
