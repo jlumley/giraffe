@@ -54,7 +54,7 @@ export function Budget({ mobile }) {
   async function fetchReadyToAssign() {
     setReadyToAssign(categories.reduce(
       (prev, next) => {
-        if (next.id === 1) return next.balance
+        if (next.id === "ead604f7-d9bd-4f3e-852d-e04c2d7a71d7") return next.balance
         return prev
       },
       0
