@@ -53,8 +53,6 @@ CREATE TABLE IF NOT EXISTS assignments (
   date integer,
   amount int,
   category_id text,
-  transaction_id text,
-  FOREIGN KEY (transaction_id) REFERENCES transactions (id),
   FOREIGN KEY (category_id) REFERENCES categories (id)
 );
 

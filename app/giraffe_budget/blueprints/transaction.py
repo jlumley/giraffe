@@ -142,9 +142,6 @@ def delete_transaction(transaction_id):
         int: id of deleted transaction
     """
     db_utils.execute(
-        DELETE_TRANSACTION_ASSIGNMENTS, {"transaction_id": transaction_id}, commit=True
-    )
-    db_utils.execute(
         DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}, commit=True
     )
     db_utils.execute(

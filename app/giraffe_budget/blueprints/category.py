@@ -360,14 +360,13 @@ def get_category_balance(category_id, sql_date):
     return total_assigned + total_transacted
 
 
-def assign_money_to_category(category_id, amount, date, transaction_id=None):
+def assign_money_to_category(category_id, amount, date):
     """Assign money to category
 
     Args:
         category_id (int): category id
         amount (int): amount to assign (negative to unassign)
         date (int): assignment date
-        transaction_id(int): if the assignment is accociated with a transaction (i.e credit card transactions)
 
     Returns:
         int : category balance after money is assigned
@@ -378,8 +377,7 @@ def assign_money_to_category(category_id, amount, date, transaction_id=None):
         {
             "category_id": "ead604f7-d9bd-4f3e-852d-e04c2d7a71d7",
             "amount": amount * -1,
-            "date": date,
-            "transaction_id": transaction_id,
+            "date": date
         },
         commit=True,
     )
@@ -388,8 +386,7 @@ def assign_money_to_category(category_id, amount, date, transaction_id=None):
         {
             "category_id": category_id,
             "amount": amount,
-            "date": date,
-            "transaction_id": transaction_id,
+            "date": date
         },
         commit=True,
     )
@@ -398,7 +395,7 @@ def assign_money_to_category(category_id, amount, date, transaction_id=None):
 
 
 def get_category_assignments_sum(
-    category_id, before=MAX_INT, after=0, transaction_assignments=False
+    category_id, before=MAX_INT, after=0
 ):
     """Get the sum of all category assignmtnts between two dates
 
@@ -406,14 +403,11 @@ def get_category_assignments_sum(
         category_id (int): category id
         before (int, optional): fetch assignments before date. Defaults to MAX_INT.
         after (int, optional): fetch assignments before date. Defaults to 0.
-        transaction_assignments: (bool, optional): used to get true credit card balance. Defaults to False.
 
     Returns:
         int: sum of assignments
     """
     statement = GET_CATEGORY_ASSIGNMENTS
-    if not transaction_assignments:
-        statement += "AND transaction_id IS NULL;"
     assigned_cents = db_utils.execute(
         statement, {"category_id": category_id, "before": before, "after": after}
     )
