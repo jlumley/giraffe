@@ -6,15 +6,13 @@ import {darkColor} from '../style/Colors'
 
 
 const PayeesInput = {
-  width: '80%',
+  width: '50%',
   borderColor: 'hsl(0, 0%, 80%)',
   borderStyle: 'solid',
   minHeight: '34px',
   borderWidth: '1px',
   color: darkColor,
   borderRadius: '10px',
-  paddingLeft: '5px',
-  minWidth: '100px',
   outline: 'none',
 };
 
@@ -31,11 +29,13 @@ export default function Payee({key, id, name, fetchPayees}) {
   }
 
   return (
-    <input 
-    style={PayeesInput} 
-    value={payeeName} 
-    onChange={e => {setPayeeName(e.target.value)}} 
-    onBlur={handleUpdate}/>
+    <div>
+      <input 
+      style={PayeesInput} 
+      value={payeeName} 
+      onChange={e => {setPayeeName(e.target.value)}} 
+      onBlur={handleUpdate}/>
+    </div>
   );
 
 }
