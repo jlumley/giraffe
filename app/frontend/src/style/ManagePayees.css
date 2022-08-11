@@ -1,0 +1,15 @@
+@import url("colors.css");
+
+.ManagePayeesDiv {
+    padding: 2%;
+    height: 100%;
+}
+
+
+.ManagePayeesScrollDiv {
+  overflow-y: scroll;
+  height:96%
+
+}
+
+
