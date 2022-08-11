@@ -49,10 +49,9 @@ def main():
         r = requests.post("http://localhost:9980/api/transaction/create", json=transaction)
         transactions.append(r.json())
 
-    print(transactions)
-    print(len(transactions))
 
 
 
 if __name__ == "__main__":
     main()
+
