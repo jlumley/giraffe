@@ -3,6 +3,7 @@ import instance from '../axois';
 import Chart from 'react-apexcharts'
 import reportsRequests from '../requests/reports';
 import DateInput from './Inputs/DateInput';
+import '../style/Reports.css'
 
 
 function Reports() {
@@ -57,20 +58,32 @@ function Reports() {
     }
 
     async function fetchSpentByCategoryGroup () {
-        const resp = await instance.get(reportsRequests.fetchCategoryGroupStats)
+        const query_params = {
+          start_date: startDate.toISOString().slice(0, 10),
+          end_date: endDate.toISOString().slice(0, 10),
+        }
+
+        const resp = await instance.get(reportsRequests.fetchCategoryGroupStats, { params: query_params })
         setSpentByCategoryGroupNames(resp.data.map(e=> e.category_group))
         setSpentByCategoryGroupAmounts(resp.data.map(e=> Math.abs(e.amount)/100))
     }
     async function fetchSpentByCategory () {
-        const resp = await instance.get(reportsRequests.fetchCategoryStats)
+        const query_params = {
+          start_date: startDate.toISOString().slice(0, 10),
+          end_date: endDate.toISOString().slice(0, 10),
+        }
+        const resp = await instance.get(reportsRequests.fetchCategoryStats, { params: query_params })
         setSpentByCategoryNames(resp.data.map(e=> e.name))
         setSpentByCategoryAmounts(resp.data.map(e=> Math.abs(e.amount)/100))
     }
 
     const dateRangeSelector = () => {
         return (
-            <div>
-                <DateInput onChange={(e) => {console.log(e)}}   />
+            <div className="reportsHeaderDiv">
+            <span className="reportsHeaderLabel" > Start Date: </span>
+                <DateInput dateSelected={startDate} onChange={(e) => {setStartDate(e)}}   />
+            <span className="reportsHeaderLabel" > End Date: </span>
+                <DateInput dateSelected={endDate} onChange={(e) => {setEndDate(e)}}   />
             </div>
         );
     }
@@ -78,7 +91,7 @@ function Reports() {
     useEffect(()=> {
         fetchSpentByCategoryGroup()
         fetchSpentByCategory()
-    }, [])
+    }, [startDate, endDate])
 
     return (
         <div>
