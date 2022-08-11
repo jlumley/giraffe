@@ -1,0 +1,35 @@
+Fixed Expenses,Mortgage
+Fixed Expenses,Property Tax
+Fixed Expenses,Insurance
+Fixed Expenses,Internet
+Fixed Expenses,Hydro
+Fixed Expenses,Cellphone
+Fixed Expenses,Natural Gas
+Fixed Expenses,Water
+Fixed Expenses,Car Payment
+Fixed Expenses,Donations
+Flexible Expenses,Fuel
+Flexible Expenses,Groceries
+Flexible Expenses,Household Goods
+Flexible Expenses,Clothes
+Flexible Expenses,Cat Expenses
+Flexible Expenses,Dog Expenses
+Flexible Expenses,Personal Care
+Just For Fun,Vacations
+Just For Fun,Alcohol
+Just For Fun,Dining Out
+Just For Fun,House Furnishings
+Just For Fun,Fun Money
+Just For Fun,Coffee Beans
+Just For Fun,Books
+Just For Fun,Movies
+Just For Fun,Netflix
+Savings, Retirement
+Savings, Car Repair
+Savings, House Repair
+Savings, Emergency Fund
+True Expenses, Subscriptions
+True Expenses, Gifts
+True Expenses, Driver's License
+True Expenses, Work Expenses
+True Expenses, Best Girlfriend

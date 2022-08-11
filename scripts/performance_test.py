@@ -4,131 +4,54 @@ import requests
 import uuid
 import time
 
-num_categories = 5
-num_transactions = 0
+num_transactions = 2000
 
-
+category_uuids = []
+account_uuids = []
+payee_uuids= []
+transactions=[]
 def main():
-    accounts = ["Mastercard", "Visa", "Checking", "Saving"]
-    payees = ["Amazon", "Loblaws", "LCBO", "Walmart", "Apple"]
-    categories = ["Mortgage", "Groceries", "Cellphone", "gifts", "Car Repair"]
-
     # create accounts
-    for a in accounts:
-        account = dict(name=a, credit_card=False, starting_balance=10000)
-        if a in ["Visa", "Mastercard"]:
-            account["credit_card"] = True
-            account["starting_balance"] = -1000
-
-        r = requests.post("http://localhost:9980/api/account/create", json=account)
+    with open("scripts/accounts.txt") as f:
+        accounts = f.readlines()
+        for a in accounts:
+            account = dict(name=a, credit_card=False, starting_balance=1000000)
+            r = requests.post("http://localhost:9980/api/account/create", json=account)
+            account_uuids.append(r.json()["id"])
 
     # create payees
-    for p in payees:
-        payee = dict(name=p)
-        r = requests.post("http://localhost:9980/api/payee/create", json=payee)
-        print(r.content)
-
+    with open("scripts/payees.txt") as f:
+        payees = f.readlines() 
+        for p in payees:
+            payee = dict(name=p)
+            r = requests.post("http://localhost:9980/api/payee/create", json=payee)
+            payee_uuids.append(r.json()["id"])
+    
     # create categories
-    for c in categories:
-        group = random.randint(0, 2)
-        category = dict(name=c, group="group" + str(group))
-        r = requests.post("http://localhost:9980/api/category/create", json=category)
-        print(r.content)
+    with open("scripts/categories.txt") as f:
+        categories = f.readlines() 
+        for c in categories:
+            category = dict(name=c.split(",")[1], group=c.split(",")[0])
+            r = requests.post("http://localhost:9980/api/category/create", json=category)
+            category_uuids.append(r.json()["id"])
 
-    # fund accounts
-    for i in []:
-        transaction = dict(
-            payee_id=1,
-            account_id=i,
-            memo="Income",
-            cleared=True,
-            date="2022-01-01",
-            amount=999999,
-            categories=[dict(category_id=1, amount=999999)],
-        )
-        r = requests.post("http://localhost:9980/api/transaction/create", json=transaction)
-        print(r.content)
-
-    # create trasfer between accounts
-    transfer_data = dict(
-        from_account_id=3, to_account_id=1, amount=50, date="2022-02-01"
-    )
-    r = requests.post(
-        "http://localhost:9980/api/transaction/transfer/create", json=transfer_data
-    )
-
-    # fund categories
-    for i in range(0):
-        if i % 2 == 0:
-            r = requests.put(
-                f"http://localhost:9980/api/category/target/{i+1}",
-                json=dict(target_type="monthly_savings", target_amount=50000),
-            )
-            print(r.content)
-        else:
-            r = requests.put(
-                f"http://localhost:9980/api/category/target/{i+1}",
-                json=dict(
-                    target_type="savings_target",
-                    target_amount=53567,
-                    target_date="2022-11-02",
-                ),
-            )
-            print(r.content)
-
-    #   print(r.content)
-    r = requests.get("http://localhost:9980/api/category/1/2022-01-01").content
-    before_resp = json.loads(r)
-    # print(f"Category balance before spending: ${before_resp[0]['balance']}")
-
-    r = requests.get("http://localhost:9980/api/category/2022-01-01").content
-    r = json.loads(r)
-    # print(r)
-
-    # Spend Spend Spend
-    amount_spent = 0
+    # create transactions
     for i in range(num_transactions):
-        amount = int(random.randint(0, 15000) * -1)
-        if i % len(categories) == 0:
-            amount_spent += int(amount)
+        amount = random.randint(99,100000)*-1
         transaction = dict(
-            payee_id=1,
-            account_id=1,
-            categories=[dict(category_id=(i % len(categories) + 1), amount=amount)],
-            memo="Spend spend spend",
+            payee_id=random.choice(payee_uuids),
+            account_id=random.choice(account_uuids),
             cleared=True,
-            date="2022-01-01",
+            date=f"2022-{str(random.randint(1,12)).zfill(2)}-{str(random.randint(1,28)).zfill(2)}",
             amount=amount,
+            categories=[dict(category_id=random.choice(category_uuids), amount=amount)],
         )
         r = requests.post("http://localhost:9980/api/transaction/create", json=transaction)
-        print(r.content)
+        transactions.append(r.json())
 
-    for i in range(num_transactions):
-        amount = int(random.randint(0, 15000) * -2)
-        if i % len(categories) == 0:
-            amount_spent += int(amount)
-        transaction = dict(
-            payee_id=1,
-            account_id=1,
-            categories=[
-                dict(category_id=(i % len(categories) + 1), amount=amount / 2),
-                dict(category_id=(i % num_categories + 2), amount=amount / 2),
-            ],
-            memo="Spend spend spend",
-            cleared=True,
-            date="2022-01-01",
-            amount=amount,
-        )
-        r = requests.post("http://localhost:9980/api/transaction/create", json=transaction)
-        print(r.content)
+    print(transactions)
+    print(len(transactions))
 
-    print(f"Amount spent: ${amount_spent}")
-    # print(requests.get('http://localhost:9980/api/account').content[0])
-
-    r = requests.get("http://localhost:9980/api/category/1/2022-01-01").content
-    after_resp = json.loads(r)
-    # print(f"Category balance after spending: ${after_resp[0]['balance']}")
-    # print(f"Difference: ${round(before_resp[0]['balance']-after_resp[0]['balance'],2)}")
 
 
 if __name__ == "__main__":
