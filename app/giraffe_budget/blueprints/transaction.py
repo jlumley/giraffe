@@ -1,6 +1,6 @@
 import sqlite3
 import time
-
+import uuid
 
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
@@ -16,7 +16,7 @@ from ..sql.transaction_statements import *
 transaction = Blueprint("transaction", __name__, url_prefix="/transaction")
 
 
-@transaction.route("/<int:transaction_id>", methods=("GET",))
+@transaction.route("/<string:transaction_id>", methods=("GET",))
 def _get_transaction(transaction_id):
     """Get transaction by id"""
 
@@ -96,7 +96,7 @@ def _create_transaction():
     return make_response(jsonify({"id": transaction_id}), 201)
 
 
-@transaction.route("/update/<int:transaction_id>", methods=("PUT",))
+@transaction.route("/update/<string:transaction_id>", methods=("PUT",))
 @expects_json(PUT_TRANSACTION_UPDATE_SCHEMA)
 def update_transaction(transaction_id):
     """Update transaction"""
@@ -113,7 +113,7 @@ def update_transaction(transaction_id):
     return make_response(jsonify(transaction), 200)
 
 # TODO: implement custom bool converter for cleared
-@transaction.route("/update/cleared/<int:transaction_id>/<string:cleared>", methods=("PUT",))
+@transaction.route("/update/cleared/<string:transaction_id>/<string:cleared>", methods=("PUT",))
 def _update_transaction_cleared(transaction_id, cleared):
     """clear/unclear a transaction"""
     cleared = str2bool(cleared)
@@ -125,7 +125,7 @@ def _update_transaction_cleared(transaction_id, cleared):
     return make_response(jsonify(transaction), 200)
 
 
-@transaction.route("/delete/<int:transaction_id>", methods=("DELETE",))
+@transaction.route("/delete/<string:transaction_id>", methods=("DELETE",))
 def _delete_transaction(transaction_id):
     """Delete transaction"""
     id = delete_transaction(transaction_id)
@@ -141,9 +141,6 @@ def delete_transaction(transaction_id):
     Returns:
         int: id of deleted transaction
     """
-    db_utils.execute(
-        DELETE_TRANSACTION_ASSIGNMENTS, {"transaction_id": transaction_id}, commit=True
-    )
     db_utils.execute(
         DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}, commit=True
     )
@@ -187,22 +184,8 @@ def update_transaction(**kwargs):
 
     # update categories
     if "categories" in kwargs:
-        # unfund credit cards
-        unassign_credit_card_category(transaction_id)
         # create transaction categories
         create_transaction_categories(transaction_id, kwargs["categories"])
-        # fund credit cards (if neccessary)
-        payee_id = kwargs.get("payee_id", old_transaction.get("payee_id"))
-        account_id = kwargs.get("account_id", old_transaction.get("account_id"))
-        date = kwargs.get("date") if kwargs.get("date") else old_transaction.get("date")
-
-        if is_credit_card_transaction(account_id) and payee_id:
-            move_funds_to_credit_card_category(
-                account_id,
-                transaction_id,
-                kwargs["categories"],
-                date,
-            )
 
     if "payee_id" in kwargs:
         update_statement += ", payee_id = :payee_id"
@@ -286,6 +269,7 @@ def create_transaction(
     transaction = db_utils.execute(
         CREATE_TRANSACTION,
         {
+            "id": str(uuid.uuid4()),
             "account_id": account_id,
             "date": date,
             "cleared": cleared,
@@ -293,11 +277,6 @@ def create_transaction(
             "memo": memo,
         },
     )
-
-    if is_credit_card_transaction(account_id) and categories:
-        move_funds_to_credit_card_category(
-            account_id, transaction[0]["id"], categories, date
-        )
 
     for c in categories:
         db_utils.execute(
@@ -418,54 +397,6 @@ def get_transaction(transaction_id, accounts_map=None, payees_map=None, categori
         t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
         t["search_str"] = generate_search_str(t)
     return transactions
-
-
-def is_credit_card_transaction(account_id):
-    """Return True if the transaction was made with a Credit card account
-
-    Args:
-        account_id (int): account id that was used for the transaction
-
-    Returns:
-        bool: true if it is a credit card transaction
-    """
-    credit_card_transaction = db_utils.execute(
-        IS_CREDIT_CARD_TRANSACTION, {"account_id": account_id}
-    )
-    return bool(credit_card_transaction)
-
-
-def move_funds_to_credit_card_category(account_id, transaction_id, categories, date):
-    """Move funds from transaction categories to credit card category
-
-    Args:
-        account_id (int): Credit Card account id
-        transaction_id (int): Transaction id  associated with the assignments
-        categories (list): transaction categories
-    """
-    # remove money from categories to fund credit card account
-    for c in categories:
-        category.assign_money_to_category(
-            c["category_id"], c["amount"], date, transaction_id=transaction_id
-        )
-
-    amount = sum([c["amount"] for c in categories])
-    # get the category id that corresponds to the credit card account
-    account_name = account.get_account(account_id)[0].get("name")
-    category_names = category.get_credit_card_category_names()
-    category_id = [c["id"] for c in category_names if c["name"] == account_name][0]
-    category.assign_money_to_category(
-        category_id, amount * -1, date, transaction_id=transaction_id
-    )
-
-
-def unassign_credit_card_category(transaction_id):
-    """Remove assignments to credit card for the given transaction
-
-    Args:
-        transaction_id (int): transaction id
-    """
-    db_utils.execute(DELETE_TRANSACTION_ASSIGNMENTS, {"transaction_id": transaction_id})
 
 
 def create_transaction_categories(transaction_id, categories):

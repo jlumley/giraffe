@@ -159,14 +159,6 @@ def test_delete_transaction(test_client):
     assert b"Transaction Not Found" in transaction_response.data
 
 
-def test_delete_transaction_invalid_id(test_client):
-    """Test deleting transactions with invalid ids"""
-    transaction_ids = [None, "foo123"]
-    for transaction_id in transaction_ids:
-        delete_response = test_client.delete(f"/transaction/delete/{transaction_id}")
-        assert delete_response.status_code == 404
-
-
 def test_get_transaction(test_client):
     """Test get single transaction by id"""
     payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(

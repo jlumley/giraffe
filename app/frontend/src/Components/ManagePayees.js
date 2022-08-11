@@ -3,6 +3,7 @@ import instance from '../axois';
 import payeeRequests from '../requests/payee';
 import Payee from './Payee';
 
+import '../style/ManagePayees.css'
 export default function ManagePayees() {
   const [payees, setPayees] = useState([]);
 
@@ -18,12 +19,14 @@ export default function ManagePayees() {
   
 
   return (
-    <div>
+    <div className="ManagePayeesDiv">
+    <div className="ManagePayeesScrollDiv">
         {payees.map(p => {
             return (
                 <Payee key={p.id} id={p.id} name={p.name} fetchPayees={fetchPayees}/>
             )
         })}
+    </div>
     </div>
   );
 

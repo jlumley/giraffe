@@ -31,7 +31,7 @@ def test_get_payees(test_client):
     assert payees_response.status_code == 200
     assert len(payees_response.json) > 0
     for payee in payees_response.json:
-        assert type(payee.get("id")) is int
+        assert type(payee.get("id")) is str
         assert type(payee.get("name")) is str
 
 

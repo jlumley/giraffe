@@ -26,10 +26,10 @@ export const Account = ({ mobile }) => {
 
     const newEmptyTransaction = {
         date: new Date(),
-        account_id: (id !== 'all') ? parseInt(id) : null,
+        account_id: (id !== 'all') ? id : null,
         account_label: (currentAccount) ? currentAccount.name : "",
         memo: "",
-        categories: [{ category_id: 2, amount: 0 }],
+        categories: [{ category_id: "7294d522-28e8-4f1d-a721-3d9f74f871a8", amount: 0 }],
         cleared: false,
         amount: 0,
         id: 0,

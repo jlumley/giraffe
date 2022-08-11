@@ -20,20 +20,20 @@ def main():
             account["credit_card"] = True
             account["starting_balance"] = -1000
 
-        r = requests.post("http://localhost/api/account/create", json=account)
+        r = requests.post("http://localhost:9980/api/account/create", json=account)
 
     # create payees
     for p in payees:
         payee = dict(name=p)
-        r = requests.post("http://localhost/api/payee/create", json=payee)
-        # print(r.content)
+        r = requests.post("http://localhost:9980/api/payee/create", json=payee)
+        print(r.content)
 
     # create categories
     for c in categories:
         group = random.randint(0, 2)
         category = dict(name=c, group="group" + str(group))
-        r = requests.post("http://localhost/api/category/create", json=category)
-        # print(r.content)
+        r = requests.post("http://localhost:9980/api/category/create", json=category)
+        print(r.content)
 
     # fund accounts
     for i in []:
@@ -46,42 +46,42 @@ def main():
             amount=999999,
             categories=[dict(category_id=1, amount=999999)],
         )
-        r = requests.post("http://localhost/api/transaction/create", json=transaction)
-        # print(r.content)
+        r = requests.post("http://localhost:9980/api/transaction/create", json=transaction)
+        print(r.content)
 
     # create trasfer between accounts
     transfer_data = dict(
         from_account_id=3, to_account_id=1, amount=50, date="2022-02-01"
     )
     r = requests.post(
-        "http://localhost/api/transaction/transfer/create", json=transfer_data
+        "http://localhost:9980/api/transaction/transfer/create", json=transfer_data
     )
 
     # fund categories
-    for i in range(3, len(categories)+2):
+    for i in range(0):
         if i % 2 == 0:
             r = requests.put(
-                f"http://localhost/api/category/target/{i+1}",
+                f"http://localhost:9980/api/category/target/{i+1}",
                 json=dict(target_type="monthly_savings", target_amount=50000),
             )
-            print(r)
+            print(r.content)
         else:
             r = requests.put(
-                f"http://localhost/api/category/target/{i+1}",
+                f"http://localhost:9980/api/category/target/{i+1}",
                 json=dict(
                     target_type="savings_target",
                     target_amount=53567,
                     target_date="2022-11-02",
                 ),
             )
-            print(r)
+            print(r.content)
 
     #   print(r.content)
-    r = requests.get("http://localhost/api/category/1/2022-01-01").content
+    r = requests.get("http://localhost:9980/api/category/1/2022-01-01").content
     before_resp = json.loads(r)
     # print(f"Category balance before spending: ${before_resp[0]['balance']}")
 
-    r = requests.get("http://localhost/api/category/2022-01-01").content
+    r = requests.get("http://localhost:9980/api/category/2022-01-01").content
     r = json.loads(r)
     # print(r)
 
@@ -100,7 +100,7 @@ def main():
             date="2022-01-01",
             amount=amount,
         )
-        r = requests.post("http://localhost/api/transaction/create", json=transaction)
+        r = requests.post("http://localhost:9980/api/transaction/create", json=transaction)
         print(r.content)
 
     for i in range(num_transactions):
@@ -119,13 +119,13 @@ def main():
             date="2022-01-01",
             amount=amount,
         )
-        r = requests.post("http://localhost/api/transaction/create", json=transaction)
+        r = requests.post("http://localhost:9980/api/transaction/create", json=transaction)
         print(r.content)
 
     print(f"Amount spent: ${amount_spent}")
-    # print(requests.get('http://localhost/api/account').content[0])
+    # print(requests.get('http://localhost:9980/api/account').content[0])
 
-    r = requests.get("http://localhost/api/category/1/2022-01-01").content
+    r = requests.get("http://localhost:9980/api/category/1/2022-01-01").content
     after_resp = json.loads(r)
     # print(f"Category balance after spending: ${after_resp[0]['balance']}")
     # print(f"Difference: ${round(before_resp[0]['balance']-after_resp[0]['balance'],2)}")

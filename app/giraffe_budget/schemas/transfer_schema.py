@@ -1,8 +1,8 @@
 POST_TRANSFER_CREATE_SCHEMA = {
     "type": "object",
     "properties": {
-        "from_account_id": {"type": "integer"},
-        "to_account_id": {"type": "integer"},
+        "from_account_id": {"type": "string"},
+        "to_account_id": {"type": "string"},
         "date": {"type": "string"},
         "memo": {"type": "string"},
         "amount": {"type": "integer"},
@@ -14,8 +14,8 @@ POST_TRANSFER_CREATE_SCHEMA = {
 PUT_TRANSFER_UPDATE_SCHEMA = {
     "type": "object",
     "properties": {
-        "from_account_id": {"type": "integer"},
-        "to_account_id": {"type": "integer"},
+        "from_account_id": {"type": "string"},
+        "to_account_id": {"type": "string"},
         "date": {"type": "string"},
         "memo": {"type": "string"},
         "amount": {"type": "integer"},

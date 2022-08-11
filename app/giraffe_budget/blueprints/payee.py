@@ -1,3 +1,5 @@
+import uuid
+
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
 
@@ -15,7 +17,7 @@ def _get_payees():
     return make_response(jsonify(payees), 200)
 
 
-@payee.route("/<int:payee_id>", methods=("GET",))
+@payee.route("/<string:payee_id>", methods=("GET",))
 def _get_payee(payee_id):
     """Get single payee by id"""
     payee = get_payee(payee_id)[0]
@@ -31,7 +33,7 @@ def _create_payee():
     return make_response(jsonify(payee), 201)
 
 
-@payee.route("/update/<int:payee_id>", methods=("PUT",))
+@payee.route("/update/<string:payee_id>", methods=("PUT",))
 @expects_json(PUT_PAYEE_UPDATE_SCHEMA)
 def update_payee(payee_id):
     """Update payee"""
@@ -40,7 +42,7 @@ def update_payee(payee_id):
     return make_response(jsonify(payee), 200)
 
 
-@payee.route("/delete/<int:payee_id>", methods=("DELETE",))
+@payee.route("/delete/<string:payee_id>", methods=("DELETE",))
 def delete_payee(payee_id):
     """Delete payee"""
 
@@ -66,7 +68,7 @@ def get_payee(payee_id):
     """Get a Payee by id
 
     Args:
-        payee_id (int): payee id
+        payee_id (str): payee id
 
     Returns:
         list: list of payees with id
@@ -98,7 +100,14 @@ def create_payee(name):
     Returns:
         list: new payee
     """
-    payee = db_utils.execute(CREATE_PAYEE, {"name": name}, commit=True)
+    payee = db_utils.execute(
+                CREATE_PAYEE, 
+                {
+                    "name": name,
+                    "id": str(uuid.uuid4())
+                }, 
+                commit=True
+            )
     return payee[0]
 
 

@@ -48,7 +48,7 @@ function TransactionCategory({categories, transactionCategories, setTransactionC
 
     function updateTransactionCategoryNames(index, new_category) {
         var tempArray = [...transactionCategories];
-        tempArray[index].category_id = parseInt(new_category)
+        tempArray[index].category_id = new_category
         setTransactionCategories(tempArray);
     }
 

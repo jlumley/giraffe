@@ -1,18 +1,18 @@
 POST_TRANSACTION_CREATE_SCHEMA = {
     "type": "object",
     "properties": {
-        "account_id": {"type": "integer"},
+        "account_id": {"type": "string"},
         "categories": {
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
-                    "category_id": {"type": "integer"},
+                    "category_id": {"type": "string"},
                     "amount": {"type": "integer"},
                 },
             },
         },
-        "payee_id": {"type": "integer"},
+        "payee_id": {"type": "string"},
         "date": {"type": "string"},
         "memo": {"type": "string"},
         "cleared": {"type": "boolean"},
@@ -23,8 +23,8 @@ POST_TRANSACTION_CREATE_SCHEMA = {
 TRANSFER_SCHEMA = {
     "type": "object",
     "properties": {
-        "from_account_id": {"type": "integer"},
-        "to_account_id": {"type": "integer"},
+        "from_account_id": {"type": "string"},
+        "to_account_id": {"type": "string"},
         "date": {"type": "string"},
         "memo": {"type": "string"},
     },
@@ -34,18 +34,18 @@ TRANSFER_SCHEMA = {
 PUT_TRANSACTION_UPDATE_SCHEMA = {
     "type": "object",
     "properties": {
-        "account_id": {"type": "integer"},
+        "account_id": {"type": "string"},
         "categories": {
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
-                    "category_id": {"type": "integer"},
+                    "category_id": {"type": "string"},
                     "amount": {"type": "integer"},
                 },
             },
         },
-        "payee_id": {"type": "integer"},
+        "payee_id": {"type": "string"},
         "date": {"type": "string"},
         "memo": {"type": "string"},
         "cleared": {"type": "boolean"},

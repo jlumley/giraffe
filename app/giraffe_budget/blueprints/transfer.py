@@ -1,6 +1,6 @@
 import sqlite3
 import time
-
+import uuid
 
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
@@ -173,8 +173,8 @@ def create_transfer(**kwargs):
     """Create a new transfer between accounts
 
     Args:
-        from_account_id (int): account id money is leaving
-        to_account_id (int): account id money is going to
+        from_account_id (str): account id money is leaving
+        to_account_id (str): account id money is going to
         amount (int): amount being transferred in cents
         date (int): date of the transfer
         cleared (bool): if the transfer has been cleared yet
@@ -183,12 +183,13 @@ def create_transfer(**kwargs):
     Returns:
         string: unqiue transfer id
     """
-    transfer_id = md5().hexdigest()
+    transfer_id = str(str(uuid.uuid4()))
 
     _transaction_id = db_utils.execute(
         CREATE_TRANSFER,
         {
             **kwargs,
+            "id": str(uuid.uuid4()),
             "account_id": kwargs["from_account_id"],
             "payee_id": kwargs["to_account_id"],
             "transfer_id": transfer_id,
@@ -206,6 +207,7 @@ def create_transfer(**kwargs):
         CREATE_TRANSFER,
         {
             **kwargs,
+            "id": str(uuid.uuid4()),
             "account_id": kwargs["to_account_id"],
             "payee_id": kwargs["from_account_id"],
             "transfer_id": transfer_id,

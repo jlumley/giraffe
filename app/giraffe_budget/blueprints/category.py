@@ -1,4 +1,5 @@
 import re
+import uuid
 
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
@@ -45,7 +46,7 @@ def _get_categories(date):
     return make_response(jsonify(categories), 200)
 
 
-@category.route("/<int:category_id>/<string:date>", methods=("GET",))
+@category.route("/<string:category_id>/<string:date>", methods=("GET",))
 def _get_category(category_id, date):
     """Get category at a given date"""
     date = time_utils.datestr_to_sqlite_date(date)
@@ -66,7 +67,7 @@ def _create_category():
     return make_response(jsonify(resp), 201)
 
 
-@category.route("/update/<int:category_id>", methods=("PUT",))
+@category.route("/update/<string:category_id>", methods=("PUT",))
 @expects_json(PUT_CATEGORY_UPDATE_SCHEMA)
 def _update_category(category_id):
     """Update Category"""
@@ -80,7 +81,7 @@ def _update_category(category_id):
     return make_response(jsonify(category[0]), 200)
 
 
-@category.route("/target/<int:category_id>", methods=("PUT",))
+@category.route("/target/<string:category_id>", methods=("PUT",))
 @expects_json(PUT_CATEGORY_UPDATE_TARGET_SCHEMA)
 def _update_category_target(category_id):
     """Update Category target"""
@@ -110,7 +111,7 @@ def _update_category_target(category_id):
     return make_response(jsonify(target), 200)
 
 
-@category.route("/target/<int:category_id>", methods=("DELETE",))
+@category.route("/target/<string:category_id>", methods=("DELETE",))
 def delete_cateogry_target(category_id):
     """Remove Category target"""
     delete_cateogry_target(category_id)
@@ -118,7 +119,7 @@ def delete_cateogry_target(category_id):
     return make_response(jsonify({"id": category_id}), 200)
 
 
-@category.route("/assign/<int:category_id>", methods=("PUT",))
+@category.route("/assign/<string:category_id>", methods=("PUT",))
 @expects_json(PUT_CATEGORY_ASSIGN_SCHEMA)
 def _category_assign(category_id):
     """Assign money to category"""
@@ -133,7 +134,7 @@ def _category_assign(category_id):
     )
 
 
-@category.route("/unassign/<int:category_id>", methods=("PUT",))
+@category.route("/unassign/<string:category_id>", methods=("PUT",))
 @expects_json(PUT_CATEGORY_UNASSIGN_SCHEMA)
 def _category_unassign(category_id):
     """Unassign money from category"""
@@ -162,6 +163,7 @@ def create_category(name, group, category_type="budget", notes=None):
     """
     data = request.get_json()
     insert_data = {
+        "id": str(uuid.uuid4()),
         "name": name,
         "category_group": group,
         "notes": notes,
@@ -351,25 +353,20 @@ def get_category_balance(category_id, sql_date):
     Returns:
         int: category balance at given date
     """
-    is_credit_card_category = category_id in [
-        c["id"] for c in get_credit_card_category_names()
-    ]
-
     total_assigned = get_category_assignments_sum(
-        category_id, before=sql_date, transaction_assignments=is_credit_card_category
+        category_id, before=sql_date
     )
     total_transacted = get_category_transactions_sum(category_id, before=sql_date)
     return total_assigned + total_transacted
 
 
-def assign_money_to_category(category_id, amount, date, transaction_id=None):
+def assign_money_to_category(category_id, amount, date):
     """Assign money to category
 
     Args:
         category_id (int): category id
         amount (int): amount to assign (negative to unassign)
         date (int): assignment date
-        transaction_id(int): if the assignment is accociated with a transaction (i.e credit card transactions)
 
     Returns:
         int : category balance after money is assigned
@@ -378,10 +375,9 @@ def assign_money_to_category(category_id, amount, date, transaction_id=None):
     db_utils.execute(
         ASSIGN_CATEGORY,
         {
-            "category_id": 1,
+            "category_id": "ead604f7-d9bd-4f3e-852d-e04c2d7a71d7",
             "amount": amount * -1,
-            "date": date,
-            "transaction_id": transaction_id,
+            "date": date
         },
         commit=True,
     )
@@ -390,8 +386,7 @@ def assign_money_to_category(category_id, amount, date, transaction_id=None):
         {
             "category_id": category_id,
             "amount": amount,
-            "date": date,
-            "transaction_id": transaction_id,
+            "date": date
         },
         commit=True,
     )
@@ -400,7 +395,7 @@ def assign_money_to_category(category_id, amount, date, transaction_id=None):
 
 
 def get_category_assignments_sum(
-    category_id, before=MAX_INT, after=0, transaction_assignments=False
+    category_id, before=MAX_INT, after=0
 ):
     """Get the sum of all category assignmtnts between two dates
 
@@ -408,14 +403,11 @@ def get_category_assignments_sum(
         category_id (int): category id
         before (int, optional): fetch assignments before date. Defaults to MAX_INT.
         after (int, optional): fetch assignments before date. Defaults to 0.
-        transaction_assignments: (bool, optional): used to get true credit card balance. Defaults to False.
 
     Returns:
         int: sum of assignments
     """
     statement = GET_CATEGORY_ASSIGNMENTS
-    if not transaction_assignments:
-        statement += "AND transaction_id IS NULL;"
     assigned_cents = db_utils.execute(
         statement, {"category_id": category_id, "before": before, "after": after}
     )
@@ -484,7 +476,6 @@ def get_category(category_id, sql_date):
     target_data = get_category_target_data(category_id, sql_date)
     category = categories[0] | target_data
 
-    category["credit_card"] = bool(category["category_type"] == "credit_card")
     category["balance"] = get_category_balance(category_id, sql_date)
     category["target_date"] = time_utils.sqlite_date_to_datestr(category["target_date"])
     category["group"] = category["category_group"]
@@ -520,11 +511,6 @@ def get_categories_dict():
         categories[str(c["id"])] = c["name"]
     return categories
 
-def get_credit_card_category_names():
-    """Fetch all the category names and ids"""
-    return db_utils.execute(GET_CREDIT_CARD_CATEGORY_NAMES)
-
-
 def get_category_groups():
     """Fetch all the category groups"""
     return db_utils.execute(GET_CATEGORY_GROUPS)
@@ -537,3 +523,4 @@ def get_target_types():
         savings_target="Savings Target",
         spending_target="Spending Target"
     )
+

@@ -14,8 +14,8 @@ WHERE transaction_id = :transaction_id;
 """
 
 CREATE_TRANSACTION = """INSERT INTO transactions
-(account_id, payee_id, date, memo, cleared, reconciled)
-VALUES (:account_id, :payee_id, :date, :memo, :cleared, 0)
+(id, account_id, payee_id, date, memo, cleared, reconciled)
+VALUES (:id, :account_id, :payee_id, :date, :memo, :cleared, 0)
 RETURNING id;
 """
 
@@ -31,10 +31,6 @@ WHERE transaction_id = :transaction_id;
 DELETE_TRANSACTION = """DELETE FROM transactions
 WHERE id = :transaction_id
 RETURNING id;
-"""
-
-DELETE_TRANSACTION_ASSIGNMENTS = """DELETE FROM assignments
-WHERE transaction_id = :transaction_id;
 """
 
 IS_CREDIT_CARD_TRANSACTION = """ SELECT account_type

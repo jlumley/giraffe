@@ -16,7 +16,7 @@ RETURNING id;
 
 CREATE_TRANSFER_CATEGORY = """INSERT INTO transaction_categories
 (transaction_id, category_id, amount)
-VALUES (:transaction_id, 2, :amount);
+VALUES (:transaction_id, "7294d522-28e8-4f1d-a721-3d9f74f871a8", :amount);
 """
 
 
