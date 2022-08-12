@@ -56,6 +56,11 @@ CREATE TABLE IF NOT EXISTS assignments (
   FOREIGN KEY (category_id) REFERENCES categories (id)
 );
 
+CREATE INDEX IF NOT EXISTS index_transaction_categories_transaction_id ON transaction_categories (transaction_id);
+CREATE INDEX IF NOT EXISTS index_transaction_categories_category_id ON transaction_categories (category_id);
+CREATE INDEX IF NOT EXISTS index_assignments_category_id ON assignments (category_id);
+
+
 INSERT INTO categories (id, name, category_type, category_group) VALUES ("ead604f7-d9bd-4f3e-852d-e04c2d7a71d7", "To be Assigned", "system", NULL);
 
 INSERT INTO categories (id, name, category_type, category_group) VALUES ("7294d522-28e8-4f1d-a721-3d9f74f871a8", "System", "system", NULL);
