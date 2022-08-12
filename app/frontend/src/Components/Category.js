@@ -85,7 +85,7 @@ export function Category({
     }, [categoryBalance])
 
     useEffect(() => {
-        if (categoryAssigned === category.assigned_this_month / 100) return
+        if (categoryAssigned*100 === category.assigned_this_month) return
         fetchCategories()
         setCategoryUnderfunded(category.underfunded / 100)
     }, [categoryAssigned])
