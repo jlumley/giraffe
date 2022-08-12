@@ -108,7 +108,7 @@ def execute(stmt, stmt_vars=dict(), commit=False):
         return entries
 
     except sqlite3.Error as e:
-        current_app.logger.info(stmt)
+        current_app.logger.error(stmt)
         current_app.logger.error(e)
         raise e
 

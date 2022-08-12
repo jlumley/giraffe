@@ -350,49 +350,38 @@ def get_transactions(
 
     query += " LIMIT ?;"
     query_vars += (limit,)
-    transaction_ids = db_utils.execute(query, query_vars)
-    # fetching transaction data
-    transactions = []
-    accounts_dict = account.get_accounts_dict()
-    categories_dict = category.get_categories_dict()
-    payees_dict = payee.get_payees_dict()
-    for t in transaction_ids:
-        transactions += get_transaction(t["id"], accounts_dict, payees_dict, categories_dict)
+    transactions = db_utils.execute(query, query_vars)
+    transactions = db_utils.int_to_bool(transactions, ["cleared", "reconciled"])
+
+    for t in transactions:
+        categories = db_utils.execute(
+            GET_TRANSACTION_CATEGORIES, {"transaction_id": t["id"]}
+        )
+
+        t["categories"] = categories
+        t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
+        t["search_str"] = generate_search_str(t)
 
     return transactions
 
 
-def get_transaction(transaction_id, accounts_map=None, payees_map=None, categories_map=None):
+def get_transaction(transaction_id):
     """Get a transaction by transaction_id
 
     Args:
         transaction_id (int): transaction_id
-        accounts (dict) : mapping for account ids to names
-        payees (dict) : mapping for payees ids to names
-        categories (dict) : mapping for category ids to names
 
     Returns:
         dict: transaction dict
     """
-    if not accounts_map:
-        accounts_map = account.get_accounts_dict()
-    if not payees_map:
-        payees_map = payee.get_payees_dict()
-    if not categories_map:
-        categories_map = category.get_categories_dict()
 
     transactions = db_utils.execute(GET_TRANSACTION, {"transaction_id": transaction_id})
     categories = db_utils.execute(
         GET_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}
     )
     transactions = db_utils.int_to_bool(transactions, ["cleared", "reconciled"])
-
-    for c in categories:
-        c["category_label"] = categories_map[str(c["category_id"])]
-        del c["transaction_id"]
+    
     for t in transactions:
-        t["payee_label"] = generate_payee_label(t, accounts_map, payees_map)
-        t["account_label"] = accounts_map[str(t["account_id"])]
         t["categories"] = categories
         t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
         t["search_str"] = generate_search_str(t)
@@ -482,10 +471,10 @@ def generate_search_str(transaction):
     Returns:
         str: search string
     """
-
+    current_app.logger.info(transaction)
     search_str = ""
     search_str += transaction["account_label"]
-    search_str += transaction["payee_label"]
+    search_str += transaction["payee_label"] if transaction["payee_label"] else ""
     search_str += transaction["memo"] if transaction["memo"] else ""
     for c in transaction["categories"]:
         search_str += c["category_label"]

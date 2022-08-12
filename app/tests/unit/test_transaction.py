@@ -30,6 +30,7 @@ def test_create_transaction_success(test_client):
         transaction_id = create_response.json.get("id")
         transaction_response = test_client.get(f"/transaction/{transaction_id}")
         assert create_response.status_code == 201
+        print(transaction_response.data) 
         assert transaction_response.json.get("date") == transaction.get("date")
         assert transaction_response.json.get("cleared") == transaction.get("cleared")
 
