@@ -187,7 +187,17 @@ def test_get_transaction(test_client):
     assert transaction_response.status_code == 200
     assert transaction_response.json.get("id") == transaction_id
 
+def test_transaction_pagination(test_client):
+    """Test the offset option when fetching transactions"""
 
+    transaction_response = test_client.get(f"/transaction")
+    
+    request_args = dict(offset=5) 
+    transaction_pagination_response = test_client.get(f"/transaction", query_string=request_args)
+       
+    assert transaction_pagination_response.status_code == 200
+    assert transaction_pagination_response.json[0]["id"] == transaction_response.json[5]["id"]
+    
 def test_put_transaction_update_cleared(test_client):
     """Test get single transaction by id"""
     payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(

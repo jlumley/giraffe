@@ -39,10 +39,11 @@ def _get_transaction(transaction_id):
         "cleared": None,
         "reconciled": None,
         "limit": 1000,
+        "offset": 0,
     },
 )
 def _get_transactions(
-    accounts, categories, payees, before, after, cleared, reconciled, limit
+    accounts, categories, payees, before, after, cleared, reconciled, limit, offset
 ):
     """Get all transactions"""
     accounts = request.args.get("accounts", accounts)
@@ -53,6 +54,7 @@ def _get_transactions(
     cleared = request.args.get("cleared", cleared)
     reconciled = request.args.get("reconciled", reconciled)
     limit = request.args.get("limit", limit)
+    offset = request.args.get("offset", offset)
 
     if accounts:
         accounts = accounts.split(",")
@@ -70,6 +72,7 @@ def _get_transactions(
         cleared,
         reconciled,
         limit,
+        offset
     )
 
     return make_response(jsonify(transactions), 200)
@@ -296,7 +299,7 @@ def create_transaction(
 
 
 def get_transactions(
-    accounts, categories, payees, before, after, cleared, reconciled, limit
+    accounts, categories, payees, before, after, cleared, reconciled, limit, offset
 ):
     """Query All transactions
 
@@ -309,6 +312,7 @@ def get_transactions(
         cleared (bool): get cleared transactions
         reconciled (bool): get reconciled transactions
         limit (int): limit number of transactions returned
+        offset (int): offset the query results by n 
 
     Returns:
         list: list of transactions
@@ -348,8 +352,8 @@ def get_transactions(
         query += " AND reconciled = ?"
         query_vars += (db_utils.to_sqlite_bool(reconciled),)
 
-    query += " LIMIT ?;"
-    query_vars += (limit,)
+    query += " ORDER BY date DESC LIMIT ? OFFSET ?;"
+    query_vars += (limit, offset,)
     transactions = db_utils.execute(query, query_vars)
     transactions = db_utils.int_to_bool(transactions, ["cleared", "reconciled"])
 
