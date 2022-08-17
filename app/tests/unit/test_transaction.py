@@ -187,6 +187,14 @@ def test_get_transaction(test_client):
     assert transaction_response.status_code == 200
     assert transaction_response.json.get("id") == transaction_id
 
+def test_transaction_limit(test_client):
+    """Test the limit option when fetching transactions"""
+
+    request_args = dict(limit=3) 
+    transaction_pagination_response = test_client.get(f"/transaction", query_string=request_args)
+       
+    assert transaction_pagination_response.status_code == 200
+    assert len(transaction_pagination_response.json) == 3
 def test_transaction_pagination(test_client):
     """Test the offset option when fetching transactions"""
 

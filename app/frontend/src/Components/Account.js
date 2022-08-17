@@ -38,17 +38,30 @@ export const Account = ({ mobile }) => {
     };
 
     async function fetchTransactions() {
-        const params = (id !== 'all') ? { accounts: id } : {}
+        let newTransactions = [];
+        const params = {
+          limit:250,
+          offset: 0
+        };
+        if (id !== 'all') params.accounts = id
         if (showReconciled === false) params.reconciled = showReconciled;
+        // paginate transaction requests but limit the max number of request
+        // to 25
+        for (let i = 0; i < 25; i++) {
+          const t = await instance.get(transactionRequests.fetchTransactions, { params })
+          if (t.data.length === 0) break;
+          
+          newTransactions = newTransactions.concat(t.data)
+          setTransactions(newTransactions.sort((e1, e2) => {
+              if (e1.date < e2.date) return 1;
+              if (e1.date > e2.date) return -1;
 
-        const t = await instance.get(transactionRequests.fetchTransactions, { params })
-        setTransactions(t.data.sort((e1, e2) => {
-            if (e1.date < e2.date) return 1;
-            if (e1.date > e2.date) return -1;
+              return e1.id < e2.id;
+          }))
+          params.offset += params.limit;   
+        }
+    }
 
-            return e1.id < e2.id;
-        }))
-}
     async function fetchCategories() {
         const c = await instance.get(categoryRequests.fetchAllCategoryNames)
         setCategories(c.data.reduce((map, obj) => {
@@ -74,7 +87,10 @@ export const Account = ({ mobile }) => {
     }
 
     async function fetchCurrentAccount() {
-        if (id === 'all') setCurrentAccount(null)
+        if (id === 'all') {
+          setCurrentAccount(null)
+          return
+        }
         const a = await instance.get(`${accountRequests.fetchAccount}${id}`)
         setCurrentAccount(a.data)
     }
