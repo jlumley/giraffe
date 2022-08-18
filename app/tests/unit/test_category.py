@@ -109,3 +109,38 @@ def test_delete_category_target(test_client):
         assert category_response.status_code == 200
         assert category_response.json.get("target_type") == None
         assert category_response.json.get("target_amount") == None
+
+
+def test_delete_category(test_client):
+    """Test delete category and moving all transactions and assignments to the new category"""
+    
+    category = dict(name="new category 1238455", group="group1")
+    create_response = test_client.post("/category/create", json=category)
+    category_a = create_response.json.get("id")
+
+    category = dict(name="new category 152345", group="group1")
+    create_response = test_client.post("/category/create", json=category)
+    category_b = create_response.json.get("id")
+
+    delete_response = test_client.delete(f"/category/delete/{category_a}/{category_b}")
+    assert delete_response.status_code == 200
+
+    category_response = test_client.get(f"/category/{category_a}/2022-04-07")
+    assert category_response.status_code == 404
+
+def test_delete_category_invalid_categories(test_client):
+    """Test delete category failure cases"""
+    
+    category = dict(name="new category 1238455", group="group1")
+    create_response = test_client.post("/category/create", json=category)
+    category_a = create_response.json.get("id")
+
+    category = dict(name="new category 152345", group="group1")
+    create_response = test_client.post("/category/create", json=category)
+    category_b = create_response.json.get("id")
+    
+    delete_response = test_client.delete(f"/category/delete/{category_a}/sldakjfsadljf")
+    assert delete_response.status_code == 404
+    delete_response = test_client.delete(f"/category/delete/fooosoaa/{category_b}")
+    assert delete_response.status_code == 404
+    

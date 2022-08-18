@@ -37,7 +37,20 @@ target_amount=null
 WHERE id = :category_id;
 """
 
-DELETE_CATEGORY = """DELETE FROM categories
+REPLACE_CATEGORY_IN_TRANSACTIONS = """
+UPDATE transaction_categories
+SET category_id= :replacement_category
+WHERE category_id= :category_id
+"""
+
+REPLACE_CATEGORY_IN_ASSIGNMENTS = """
+UPDATE assignments
+SET category_id= :replacement_category
+WHERE category_id= :category_id
+"""
+
+DELETE_CATEGORY = """
+DELETE FROM categories
 WHERE id = :category_id;
 """
 

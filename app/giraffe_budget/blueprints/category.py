@@ -4,6 +4,7 @@ import uuid
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
 
+from ..errors import ValidationError
 from ..utils import db_utils, time_utils, money_utils
 from ..schemas.category_schema import *
 from ..sql.category_statements import *
@@ -65,6 +66,19 @@ def _create_category():
     resp = create_category(data.get("name"), data.get("group"), notes=data.get("notes"))
 
     return make_response(jsonify(resp), 201)
+
+
+@category.route("/delete/<string:category_id>/<string:replacement_category>", methods=("DELETE",))
+def _delete_category(category_id, replacement_category):
+    """Delete Category"""
+    try:
+        delete_category(
+            category_id,
+            replacement_category
+        )
+    except ValidationError as e:
+        return make_response(jsonify(str(e)), 404)
+    return make_response(jsonify("success"), 200)
 
 
 @category.route("/update/<string:category_id>", methods=("PUT",))
@@ -177,7 +191,7 @@ def update_category(category_id, name=None, group=None, notes=None):
     """Update category
 
     Args:
-        category_id (int): category_id
+        category_id (str): category_id
         name (str, optional): Category name. Defaults to None.
         group (str, optional): Category group. Defaults to None.
         notes (str, optional): Category notes. Defaults to None.
@@ -211,7 +225,7 @@ def update_category_target(category_id, target_type, amount, date=None):
     """Update target for category
 
     Args:
-        category_id (int): category id
+        category_id (str): category id
         target_type (str): target type
         amount (int): target amount
         date (int), optional): target date (YYYMMDD). Defaults to None.
@@ -240,7 +254,7 @@ def delete_cateogry_target(category_id):
     """Delete category target
 
     Args:
-        category_id (int): category id
+        category_id (str): category id
     """
     db_utils.execute(DELETE_CATEGORY_TARGET, {"category_id": category_id}, commit=True)
 
@@ -249,7 +263,7 @@ def get_category_target_data(category_id, sql_date):
     """Get target data for category at a given date
 
     Args:
-        category_id (int): category id
+        category_id (str): category id
         sql_date (int): sql date YYYMMDD
 
     Returns:
@@ -277,7 +291,7 @@ def get_monthly_savings_target(category_id, sql_date, **target):
     """Get target data for monthly savings target
 
     Args:
-        category_id (int): category id
+        category_id (str): category id
         sql_date (int): in representing date (YYYMMDD)
 
     Returns:
@@ -300,7 +314,7 @@ def get_savings_target(category_id, sql_date, **target):
     """Get target data for a savings target
 
     Args:
-        category_id (int): category id
+        category_id (str): category id
         sql_date (int): in representing date (YYYMMDD)
 
     Returns:
@@ -326,7 +340,7 @@ def get_spending_target(category_id, sql_date, **target):
     """Get target data for a spending target
 
     Args:
-        category_id (int): category id
+        category_id (str): category id
         sql_date (int): in representing date (YYYMMDD)
 
     Returns:
@@ -347,7 +361,7 @@ def get_category_balance(category_id, sql_date):
     """Get category balance at a give date
 
     Args:
-        category_id (int): category id
+        category_id (str): category id
         sql_date (int): sql date YYYMMDD
 
     Returns:
@@ -364,7 +378,7 @@ def assign_money_to_category(category_id, amount, date):
     """Assign money to category
 
     Args:
-        category_id (int): category id
+        category_id (str): category id
         amount (int): amount to assign (negative to unassign)
         date (int): assignment date
 
@@ -400,7 +414,7 @@ def get_category_assignments_sum(
     """Get the sum of all category assignmtnts between two dates
 
     Args:
-        category_id (int): category id
+        category_id (str): category id
         before (int, optional): fetch assignments before date. Defaults to MAX_INT.
         after (int, optional): fetch assignments before date. Defaults to 0.
 
@@ -419,7 +433,7 @@ def get_category_transactions_sum(category_id, before=MAX_INT, after=0):
     """Get the sum of all category transactions between two dates
 
     Args:
-        category_id (int): category id
+        category_id (str): category id
         before (int, optional): fetch transactions before date. Defaults to MAX_INT.
         after (int, optional): fetch transactions after date. Defaults to 0.
 
@@ -464,7 +478,7 @@ def get_category(category_id, sql_date):
     """Fetch a category by id
 
     Args:
-        category_id (int): category id
+        category_id (str): category id
         sql_date (int): sql date YYYMMDD
 
     Returns:
@@ -494,6 +508,33 @@ def get_category(category_id, sql_date):
 
     return category
 
+
+def delete_category(category_id, replacement_category):
+    """
+    Delete a category by id
+
+    Args:
+        category_id (str): category id to be deleted
+        replacement_category (str): move all old transactions and assignments to this category
+        
+    Returns:
+        none
+    """
+    update_vars = dict(
+        category_id=category_id,
+        replacement_category=replacement_category
+    )
+    category_id = db_utils.execute(GET_CATEGORY, {"category_id": category_id})
+    if not category_id:
+        raise ValidationError("Category ID Not Found")
+    
+    category_id = db_utils.execute(GET_CATEGORY, {"category_id": replacement_category})
+    if not category_id:
+        raise ValidationError("Replacement Category ID Not Found")
+    
+    db_utils.execute(REPLACE_CATEGORY_IN_ASSIGNMENTS, update_vars, commit=True)
+    db_utils.execute(REPLACE_CATEGORY_IN_TRANSACTIONS, update_vars, commit=True)
+    db_utils.execute(DELETE_CATEGORY, update_vars, commit=True)
 
 def get_category_names():
     """Fetch all the category names and ids"""
