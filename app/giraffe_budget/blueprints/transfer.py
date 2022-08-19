@@ -183,40 +183,42 @@ def create_transfer(**kwargs):
     Returns:
         string: unqiue transfer id
     """
-    transfer_id = str(str(uuid.uuid4()))
+    transfer_id = str(uuid.uuid4())
+    transaction_a = str(uuid.uuid4())
+    transaction_b = str(uuid.uuid4())
 
-    _transaction_id = db_utils.execute(
+    db_utils.execute(
         CREATE_TRANSFER,
         {
             **kwargs,
-            "id": str(uuid.uuid4()),
+            "id": transaction_a,
             "account_id": kwargs["from_account_id"],
             "payee_id": kwargs["to_account_id"],
             "transfer_id": transfer_id,
         },
-    )[0]["id"]
+    )
     db_utils.execute(
         CREATE_TRANSFER_CATEGORY,
         {
-            "transaction_id": _transaction_id,
+            "transaction_id": transaction_a,
             "amount": abs(kwargs["amount"]) * -1
         }
     )
 
-    _transaction_id = db_utils.execute(
+    db_utils.execute(
         CREATE_TRANSFER,
         {
             **kwargs,
-            "id": str(uuid.uuid4()),
+            "id": transaction_b,
             "account_id": kwargs["to_account_id"],
             "payee_id": kwargs["from_account_id"],
             "transfer_id": transfer_id,
         },
-    )[0]["id"]
+    )
     db_utils.execute(
         CREATE_TRANSFER_CATEGORY,
         {
-            "transaction_id": _transaction_id,
+            "transaction_id": transaction_b,
             "amount": abs(kwargs["amount"])
         }
     )
