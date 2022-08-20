@@ -1,4 +1,4 @@
-GET_ALL_PAYEES = """SELECT id from payees;"""
+GET_ALL_PAYEES = """SELECT * from payees;"""
 
 GET_PAYEE = """ SELECT *
 FROM payees

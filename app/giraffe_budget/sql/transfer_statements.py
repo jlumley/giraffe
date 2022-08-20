@@ -1,5 +1,17 @@
-GET_TRANSFER = """SELECT *
+GET_TRANSFER = """SELECT 
+transactions.id as id,
+transactions.account_id as account_id,
+transactions.payee_id as payee_id,
+transactions.date as date,
+transactions.memo as memo,
+transactions.reconciled as reconciled,
+transactions.cleared as cleared,
+transactions.transfer_id as transfer_id,
+accounts.name as account_label,
+payees.name as payee_label
 FROM transactions
+LEFT JOIN accounts ON transactions.account_id = accounts.id
+LEFT JOIN payees ON transactions.payee_id = payees.id
 WHERE transfer_id = :transfer_id;
 """
 

@@ -1,17 +1,15 @@
-import sqlite3
-import time
-import uuid
-
+from . import account
+from . import category
+from ..schemas.transfer_schema import *
+from ..sql.transfer_statements import *
+from ..utils import db_utils, time_utils, money_utils
+from .transaction import parse_transactions
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
 from hashlib import md5
-
-from . import category
-from . import account
-
-from ..utils import db_utils, time_utils, money_utils
-from ..schemas.transfer_schema import *
-from ..sql.transfer_statements import *
+import sqlite3
+import time
+import uuid
 
 transfer = Blueprint("transfer", __name__, url_prefix="/transfer")
 
@@ -234,8 +232,4 @@ def get_transfer(transfer_id):
         transfer_id (string): a valid transfer id
     """
     transactions = db_utils.execute(GET_TRANSFER, {"transfer_id": transfer_id})
-    for t in transactions:
-        t["categories"] = db_utils.execute(GET_TRANSFER_CATEGORY, {"transaction_id": t["id"]})
-        t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
-
-    return transactions
+    return parse_transactions(transactions) 
