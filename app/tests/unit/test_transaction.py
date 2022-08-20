@@ -2,7 +2,6 @@ import pytest
 
 from .. import test_client
 
-
 def test_create_transaction_success(test_client):
     """Test successfully creating transaction"""
     payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
@@ -187,14 +186,45 @@ def test_get_transaction(test_client):
     assert transaction_response.status_code == 200
     assert transaction_response.json.get("id") == transaction_id
 
+def test_transaction_reconciled(test_client):
+    """Test the reconciled option when fetching transactions"""
+
+    request_args = dict(reconciled=True) 
+    transaction_response = test_client.get(f"/transaction", query_string=request_args)
+       
+    assert transaction_response.status_code == 200
+    assert [t for t in transaction_response.json if t["reconciled"] == False] == [] 
+
+    request_args = dict(reconciled=False) 
+    transaction_response = test_client.get(f"/transaction", query_string=request_args)
+       
+    assert transaction_response.status_code == 200
+    assert [t for t in transaction_response.json if t["reconciled"] == True] == [] 
+
+def test_transaction_cleared(test_client):
+    """Test the cleared option when fetching transactions"""
+
+    request_args = dict(cleared=True) 
+    transaction_response = test_client.get(f"/transaction", query_string=request_args)
+       
+    assert transaction_response.status_code == 200
+    assert [t for t in transaction_response.json if t["cleared"] == False] == [] 
+
+    request_args = dict(cleared=False) 
+    transaction_response = test_client.get(f"/transaction", query_string=request_args)
+       
+    assert transaction_response.status_code == 200
+    assert [t for t in transaction_response.json if t["cleared"] == True] == [] 
+
 def test_transaction_limit(test_client):
     """Test the limit option when fetching transactions"""
 
     request_args = dict(limit=3) 
-    transaction_pagination_response = test_client.get(f"/transaction", query_string=request_args)
+    transaction_response = test_client.get(f"/transaction", query_string=request_args)
        
-    assert transaction_pagination_response.status_code == 200
-    assert len(transaction_pagination_response.json) == 3
+    assert transaction_response.status_code == 200
+    assert len(transaction_response.json) == 3
+
 def test_transaction_pagination(test_client):
     """Test the offset option when fetching transactions"""
 

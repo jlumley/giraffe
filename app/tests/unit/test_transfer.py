@@ -60,6 +60,7 @@ def test_get_transfer(test_client):
         assert transaction.get("transfer_id") == transfer_id
         assert transaction.get("categories") != None
         assert transaction.get("cleared") == False
+        assert transaction.get("payee_label").startswith("Transfer to/from")
 
 
 def test_delete_transfer(test_client):

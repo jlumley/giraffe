@@ -13,8 +13,7 @@ payee = Blueprint("payee", __name__, url_prefix="/payee")
 @payee.route("", methods=("GET",))
 def _get_payees():
     """Get all payees"""
-    payees = get_payees()
-    return make_response(jsonify(payees), 200)
+    return make_response(jsonify(get_payees()), 200)
 
 
 @payee.route("/<string:payee_id>", methods=("GET",))
@@ -56,12 +55,7 @@ def get_payees():
     Returns:
         list: list of all payes
     """
-    payee_ids = db_utils.execute(GET_ALL_PAYEES)
-    payees = []
-    for p in payee_ids:
-        payees += get_payee(p["id"])
-
-    return payees
+    return db_utils.execute(GET_ALL_PAYEES)
 
 
 def get_payee(payee_id):
@@ -73,8 +67,7 @@ def get_payee(payee_id):
     Returns:
         list: list of payees with id
     """
-    payee = db_utils.execute(GET_PAYEE, {"payee_id": payee_id})
-    return payee
+    return db_utils.execute(GET_PAYEE, {"payee_id": payee_id})
 
 def get_payees_dict():
     """Create a mapping of all payees to
