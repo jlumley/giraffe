@@ -355,19 +355,8 @@ def get_transactions(
     query += " ORDER BY date DESC LIMIT ? OFFSET ?;"
     query_vars += (limit, offset,)
     transactions = db_utils.execute(query, query_vars)
-    transactions = db_utils.int_to_bool(transactions, ["cleared", "reconciled"])
 
-    for t in transactions:
-        categories = db_utils.execute(
-            GET_TRANSACTION_CATEGORIES, {"transaction_id": t["id"]}
-        )
-
-        t["categories"] = categories
-        t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
-        t["search_str"] = generate_search_str(t)
-
-    return transactions
-
+    return parse_transactions(transactions)    
 
 def get_transaction(transaction_id):
     """Get a transaction by transaction_id
@@ -385,12 +374,7 @@ def get_transaction(transaction_id):
     )
     transactions = db_utils.int_to_bool(transactions, ["cleared", "reconciled"])
     
-    for t in transactions:
-        t["categories"] = categories
-        t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
-        t["search_str"] = generate_search_str(t)
-    return transactions
-
+    return parse_transactions(transactions)    
 
 def create_transaction_categories(transaction_id, categories):
     """Create transaction categories
@@ -401,7 +385,8 @@ def create_transaction_categories(transaction_id, categories):
     """
     # remove old transaction categories
     db_utils.execute(
-        DELETE_TRANSACTION_CATEGORIES, {"transaction_id": transaction_id}, commit=True
+        DELETE_TRANSACTION_CATEGORIES, {
+        "transaction_id": transaction_id}, commit=True
     )
     # create new tranasaction categories
     for c in categories:
@@ -447,23 +432,18 @@ def is_valid_payee_id(payee_id):
     raise RuntimeError(f"Payee id: {payee_id} Not Found")
 
 
-def generate_payee_label(transaction, accounts, payees):
-    """generate appropriate payee label for transaction
+def generate_transfer_payee_label(transaction):
+    """generate payee label for transfer transaction
 
     Args:
         transaction (dict): transaction data
-        accounts (dict): account ids to names mapping
-        payees (dict): payee ids to names mapping
 
     Returns:
         string: transaction payee label
     """
-    if not transaction['payee_id']:
-        return ""
-    if (transaction["transfer_id"]):
-        return f"Transfer to/from {accounts[str(transaction['payee_id'])]}"
-    else:
-        return f"{payees[str(transaction['payee_id'])]}"
+    account = db_utils.execute("SELECT name FROM accounts WHERE id = :account",
+            dict(account=transaction["payee_id"]))[0]["name"]
+    return f"Transfer to/from {account}"
 
 
 def generate_search_str(transaction):
@@ -489,3 +469,21 @@ def generate_search_str(transaction):
 
 def str2bool(v):
   return v.lower() in ("yes", "true", "t", "1")
+
+
+def parse_transactions(transactions):
+    """
+    parse a list of transactions
+    """
+    transactions = db_utils.int_to_bool(transactions, ["cleared", "reconciled"])
+        
+    for t in transactions:
+        t["categories"] = db_utils.execute(
+            GET_TRANSACTION_CATEGORIES, {"transaction_id": t["id"]}
+        )
+        if t["transfer_id"]:
+            t["payee_label"] = generate_transfer_payee_label(t)
+        t["date"] = time_utils.sqlite_date_to_datestr(t["date"])
+        t["search_str"] = generate_search_str(t)
+
+    return transactions
