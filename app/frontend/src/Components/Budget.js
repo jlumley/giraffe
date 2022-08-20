@@ -16,6 +16,7 @@ export function Budget({ mobile }) {
 
   const [categoryGroups, setCategoryGroups] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState('2022-08');
   const [newCategoryGroups, setNewCategoryGroups] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [readyToAssign, setReadyToAssign] = useState(0);
@@ -47,9 +48,38 @@ export function Budget({ mobile }) {
 
 
   useEffect(() => {
+    updateCurrentDate()
+  }, [currentMonth])
+
+  useEffect(() => {
     fetchCategories()
   }, [currentDate])
 
+  async function updateCurrentDate(){
+    const year = new Date(currentMonth).getFullYear();
+    let month = new Date(currentMonth).getMonth();
+    let day = new Date(currentMonth).getDate();
+
+    const diff_months = (
+      (year - new Date().getFullYear()) * 12 +
+      (month - new Date().getMonth())
+    );
+
+    // if temp date is in the future set the day to the first date of the month
+    if (diff_months > 0) {
+        day = 1;
+    }
+    // if temp date is in the past set the day to the last date of the month
+    else if (diff_months < 0) {
+        day = -1;
+        month += 1;
+    }
+    else {
+        day = new Date().getDate();
+    }
+    setCurrentDate(new Date(year, month, day))
+
+  }
 
   async function fetchReadyToAssign() {
     setReadyToAssign(categories.reduce(
@@ -127,15 +157,18 @@ export function Budget({ mobile }) {
     }
   }
 
-  function prevMonth() {
-    updateDate(-1)
-  }
   function nextMonth() {
-    updateDate(1)
+        const month = (parseInt(currentMonth.split("-")[1]) < 12) ? parseInt(currentMonth.split("-")[1]) + 1 : 1 
+        const year =  (month == 1) ? parseInt(currentMonth.split("-")[0]) + 1 : parseInt(currentMonth.split("-")[0])
+        console.log(`${year}-${String(month).padStart(2, '0')}`)
+        setCurrentMonth(`${year}-${String(month).padStart(2, '0')}`)
   }
-
-  function getMonthString () {
-    return `${currentDate.toLocaleString('default', { month: 'short' })} ${currentDate.getFullYear()}`
+  
+  function prevMonth() {
+        const month = (parseInt(currentMonth.split("-")[1]) > 1) ? parseInt(currentMonth.split("-")[1]) - 1 : 12 
+        const year =  (month == 12) ? parseInt(currentMonth.split("-")[0]) - 1 : parseInt(currentMonth.split("-")[0])
+        console.log(`${year}-${String(month).padStart(2, '0')}`)
+        setCurrentMonth(`${year}-${String(month).padStart(2, '0')}`)
   }
 
   function getBudgetStatBackgroundColor(value) {
@@ -155,12 +188,9 @@ export function Budget({ mobile }) {
       <div className="budgetContent">
         <div className="budgetHeader">
           <div className="monthSelector">
-            < ArrowLeftCircleOutlineIcon size={30} onClick={prevMonth} className="arrowDiv" />
-            <div className="currentMonth"> {getMonthString()} </div>
-            < ArrowRightCircleOutlineIcon size={30} onClick={nextMonth} className="arrowDiv" />
-          </div>
-          <div className="newCategoryGroup" onClick={createNewCategoryGroup}>
-            <TabPlusIcon size={16} />&nbsp;Category Group
+            <ArrowLeftCircleOutlineIcon size={30} onClick={prevMonth} className="arrowDiv" />
+            <input className="currentMonth" type="month" value={currentMonth} onChange={(e) => {setCurrentMonth(e.target.value)}}/>  
+            <ArrowRightCircleOutlineIcon size={30} onClick={nextMonth} className="arrowDiv" />
           </div>
           <div className="budgetStatDiv">
             <div className="budgetStatBox" style={{backgroundColor: getBudgetStatBackgroundColor(readyToAssign)}}>
@@ -169,6 +199,9 @@ export function Budget({ mobile }) {
             <div className="budgetStatBox" style={{backgroundColor: getBudgetStatBackgroundColor(underfunded)}}>
               Underfunded: <br /> {centsToMoney(underfunded)}
             </div>
+          <div className="newCategoryGroup" onClick={createNewCategoryGroup}>
+            <TabPlusIcon size={16} />
+          </div>
           </div>
         </div>
         <table className="budgetColumnTitles">

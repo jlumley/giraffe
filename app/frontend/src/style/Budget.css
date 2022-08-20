@@ -18,7 +18,7 @@
 }
 
 .budgetHeader {
-    height: 120px;
+    height: 150px;
     border-radius: 15px;
     margin: 5px;
     background-color: var(--light-accent);
@@ -35,8 +35,7 @@
     margin: 1%;
     display: flex;
     flex-direction: row;
-    width: 20%;
-    min-width: 160px;
+    width: clamp('160px', 25%, '300px'); 
 }
 
 .arrowDiv {
@@ -46,13 +45,15 @@
 }
 
 .currentMonth {
-    width: 50%;
+    width: 30%;
     margin: auto;
     text-align: center;
+    background: transparent;
+    color: var(--dark-text);
     font-weight: bold !important;
-    font-size: large !important;
+    outline: none;
+    border: none;
 }
-
 .budgetCategories {
     width: 100%;
     flex-grow: 1;
