@@ -16,13 +16,12 @@ export function Budget({ mobile }) {
 
   const [categoryGroups, setCategoryGroups] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentMonth, setCurrentMonth] = useState('2022-08');
+  const [currentMonth, setCurrentMonth] = useState(`${new Date().getFullYear()}-${new Date().getMonth()+1}`);
   const [newCategoryGroups, setNewCategoryGroups] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [readyToAssign, setReadyToAssign] = useState(0);
   const [underfunded, setUnderfunded] = useState(0);
   const [categories, setCategories] = useState([]);
-
 
   const categeoryNameTitleStyle = {
     minWidth: '30px',
@@ -56,15 +55,15 @@ export function Budget({ mobile }) {
   }, [currentDate])
 
   async function updateCurrentDate(){
-    const year = new Date(currentMonth).getFullYear();
-    let month = new Date(currentMonth).getMonth();
-    let day = new Date(currentMonth).getDate();
-
+    const year = parseInt(currentMonth.split("-")[0])
+    let month = parseInt(currentMonth.split("-")[1])-1
+    let day = new Date().getDate();
+      
     const diff_months = (
+    //https://stackoverflow.com/questions/18624326/getmonth-in-javascript-gives-previous-month
       (year - new Date().getFullYear()) * 12 +
       (month - new Date().getMonth())
     );
-
     // if temp date is in the future set the day to the first date of the month
     if (diff_months > 0) {
         day = 1;
@@ -74,11 +73,7 @@ export function Budget({ mobile }) {
         day = -1;
         month += 1;
     }
-    else {
-        day = new Date().getDate();
-    }
     setCurrentDate(new Date(year, month, day))
-
   }
 
   async function fetchReadyToAssign() {
@@ -133,41 +128,15 @@ export function Budget({ mobile }) {
       fetchCategories={fetchCategories} />
   }
 
-  function updateDate(monthAdjustment) {
-    var tmp_date = new Date(currentDate.setDate(1));
-    tmp_date = new Date(tmp_date.setMonth(tmp_date.getMonth() + monthAdjustment));
-
-    const diff_months = (
-      (tmp_date.getFullYear() - new Date().getFullYear()) * 12 +
-      (tmp_date.getMonth() - new Date().getMonth())
-    );
-
-    var newCurrentDate = new Date();
-    // if temp date is in the future set the day to the first date of the month
-    if (diff_months > 0) {
-      newCurrentDate = new Date(tmp_date.getFullYear(), tmp_date.getMonth(), 1)
-    }
-    // if temp date is in the past set the day to the last date of the month
-    else if (diff_months < 0) {
-      newCurrentDate = new Date(tmp_date.getFullYear(), tmp_date.getMonth() + 1, 0)
-    }
-
-    if (newCurrentDate !== currentDate) {
-      setCurrentDate(newCurrentDate);
-    }
-  }
-
   function nextMonth() {
         const month = (parseInt(currentMonth.split("-")[1]) < 12) ? parseInt(currentMonth.split("-")[1]) + 1 : 1 
         const year =  (month == 1) ? parseInt(currentMonth.split("-")[0]) + 1 : parseInt(currentMonth.split("-")[0])
-        console.log(`${year}-${String(month).padStart(2, '0')}`)
         setCurrentMonth(`${year}-${String(month).padStart(2, '0')}`)
   }
   
   function prevMonth() {
         const month = (parseInt(currentMonth.split("-")[1]) > 1) ? parseInt(currentMonth.split("-")[1]) - 1 : 12 
         const year =  (month == 12) ? parseInt(currentMonth.split("-")[0]) - 1 : parseInt(currentMonth.split("-")[0])
-        console.log(`${year}-${String(month).padStart(2, '0')}`)
         setCurrentMonth(`${year}-${String(month).padStart(2, '0')}`)
   }
 
