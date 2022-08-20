@@ -77,6 +77,7 @@ export function Budget({ mobile }) {
     else {
         day = new Date().getDate();
     }
+    setCurrentDate(new Date(year, month, day))
 
   }
 
