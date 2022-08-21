@@ -1,8 +1,22 @@
-GET_ALL_CATEGORIES = """SELECT id
+GET_ALL_CATEGORIES = """SELECT
+categories.id,
+categories.name,
+categories.notes,
+categories.category_group,
+categories.target_type,
+categories.target_amount,
+categories.target_date
 FROM categories
 WHERE true """
 
-GET_CATEGORY = """SELECT *
+GET_CATEGORY = """SELECT
+categories.id,
+categories.name,
+categories.notes,
+categories.category_group,
+categories.target_type,
+categories.target_amount,
+categories.target_date
 FROM CATEGORIES
 WHERE id = :category_id;
 """
@@ -15,14 +29,6 @@ RETURNING *;
 
 UPDATE_CATEGORY = """UPDATE categories
 SET id = id"""
-
-GET_CATEGORY_TARGET = """SELECT
-target_type,
-target_amount,
-target_date
-FROM categories
-WHERE id = :category_id;
-"""
 
 UPDATE_CATEGORY_TARGET = """UPDATE categories
 SET id = id,
