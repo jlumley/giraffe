@@ -64,10 +64,10 @@ export function Layout() {
         <div style={LayoutDiv}>
             {(mobile)&&(<Header accounts={accounts}/>)}
             <div style={MainContentDiv}>
-                {(!mobile) && (<Sidebar accounts={accounts}/>)}
+                {(!mobile) && (<Sidebar accounts={accounts} fetchAllAccounts={fetchAllAccounts}/>)}
                 <div style={WorkspaceContentDiv}>
                     <Routes>
-                        <Route path="/account/:id" element={<Account mobile={mobile} />} />
+                        <Route path="/account/:id" element={<Account mobile={mobile} fetchAllAccounts={fetchAllAccounts}/>} />
                         <Route path="/reports" element={<Reports />} />
                         <Route path="/payees" element={<ManagePayees />} />
                         <Route path="/" element={<Budget mobile={mobile} />} />

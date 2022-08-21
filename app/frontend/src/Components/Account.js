@@ -12,7 +12,7 @@ import { centsToMoney } from '../utils/money_utils';
 import { AccountReconciliationModal } from './Modals/AccountReconciliationModal';
 
 
-export const Account = ({ mobile }) => {
+export const Account = ({mobile, fetchAllAccounts}) => {
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [filteredTransactions, setFilteredTransactions] = useState([]);
@@ -38,6 +38,7 @@ export const Account = ({ mobile }) => {
     };
 
     async function fetchTransactions() {
+        fetchAllAccounts()
         let newTransactions = [];
         const params = {
           limit:250,

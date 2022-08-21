@@ -11,9 +11,7 @@ const SideBarDiv = {
   textAlign: 'left',
 }
 
-export default function Sidebar({ accounts }) {
-
-  console.log(accounts)
+export default function Sidebar({ accounts, fetchAllAccounts }) {
 
   return (
     <motion.div
@@ -23,7 +21,7 @@ export default function Sidebar({ accounts }) {
         transition={{
           duration: 0.3
         }}>
-      <AccountsMenu accounts={accounts}/>
+      <AccountsMenu accounts={accounts} fetchAllAccounts={fetchAllAccounts}/>
     </motion.div>
   );
 

@@ -6,7 +6,7 @@ import AccountsMenuAccount from './AccountsMenuAccount';
 
 import '../../style/Menus/AccountsMenu.css'
 
-function AccountsMenu({accounts}) {
+function AccountsMenu({ accounts, fetchAllAccounts }) {
   return (
     <nav>
         <Link style={{textDecoration: 'none'}} to="/">
@@ -27,7 +27,7 @@ function AccountsMenu({accounts}) {
         <Link style={{textDecoration: 'none'}} to="/payees">
             <div className='AccountMenuLinkDiv'>Manage Payees</div>
         </Link>
-        <AddAccountModal />
+        <AddAccountModal fetchAllAccounts={fetchAllAccounts}/>
     </nav>
   )
 }
