@@ -260,99 +260,86 @@ def delete_cateogry_target(category_id):
     db_utils.execute(DELETE_CATEGORY_TARGET, {"category_id": category_id}, commit=True)
 
 
-def get_category_target_data(category_id, sql_date):
+def get_category_target_data(category, sql_date):
     """Get target data for category at a given date
 
     Args:
-        category_id (str): category id
+        category (dict): category
         sql_date (int): sql date YYYMMDD
 
     Returns:
         dict: target_data
     """
-    # get target type
-    target_data = db_utils.execute(GET_CATEGORY_TARGET, {"category_id": category_id})[0]
-    target_type = target_data.get("target_type")
+    target_type = category.get("target_type")
 
     if target_type == MONTHLY_SAVINGS:
-        return get_monthly_savings_target(category_id, sql_date, **target_data)
+        return get_monthly_savings_target(category, sql_date)
 
     elif target_type == SAVINGS_TARGET:
-        return get_savings_target(category_id, sql_date, **target_data)
+        return get_savings_target(category, sql_date)
 
     elif target_type == SPENDING_TARGET:
-        return get_spending_target(category_id, sql_date, **target_data)
+        return get_spending_target(category, sql_date)
 
     # if no target is set
     else:
-        return dict(**target_data, underfunded=0)
+        return dict(underfunded=0)
 
 
-def get_monthly_savings_target(category_id, sql_date, **target):
+def get_monthly_savings_target(category, sql_date):
     """Get target data for monthly savings target
 
     Args:
-        category_id (str): category id
+        category (dict): category
         sql_date (int): in representing date (YYYMMDD)
 
     Returns:
         dict: target_data
     """
-    first_of_the_month = time_utils.get_first_of_the_month(sql_date)
-    assigned_this_month = get_category_assignments_sum(
-        category_id, after=first_of_the_month, before=sql_date
-    )
-    monthly_target = target.get("target_amount")
-    underfunded = max(monthly_target - assigned_this_month, 0)
+    monthly_target = category.get("target_amount")
+    underfunded = max(monthly_target - category.get("assigned_this_month"), 0)
+
     return dict(
-        **target,
         monthly_target=monthly_target,
         underfunded=underfunded,
     )
 
 
-def get_savings_target(category_id, sql_date, **target):
+def get_savings_target(category, sql_date):
     """Get target data for a savings target
 
     Args:
-        category_id (str): category id
+        category (dict): category
         sql_date (int): in representing date (YYYMMDD)
 
     Returns:
         dict: target_data
     """
-    first_of_the_month = time_utils.get_first_of_the_month(sql_date)
-    months_left = time_utils.diff_month(target.get("target_date"), sql_date)
-    assigned_this_month = get_category_assignments_sum(
-        category_id, after=first_of_the_month, before=sql_date
-    )
-    target_amount = target.get("target_amount")
-    balance = get_category_balance(category_id, sql_date)
+    months_left = time_utils.diff_month(category.get("target_date"), sql_date)
+    target_amount = category.get("target_amount")
+    assigned_this_month = category.get("assigned_this_month")
+    balance = category.get("balance")
     monthly_target = int((target_amount - balance + assigned_this_month) / months_left)
     underfunded = max(monthly_target - assigned_this_month, 0)
+
     return dict(
-        **target,
         monthly_target=monthly_target,
         underfunded=underfunded,
     )
 
 
-def get_spending_target(category_id, sql_date, **target):
+def get_spending_target(category, sql_date):
     """Get target data for a spending target
 
     Args:
-        category_id (str): category id
+        category (dict): category
         sql_date (int): in representing date (YYYMMDD)
 
     Returns:
         dict: target_data
     """
-    first_of_the_month = time_utils.get_first_of_the_month(sql_date)
-    assigned_this_month = get_category_assignments_sum(
-        category_id, after=first_of_the_month, before=sql_date
-    )
+
     return dict(
-        **target,
         monthly_target=0,
         underfunded=0,
     )
@@ -553,9 +540,7 @@ def parse_categories(categories, date):
     parsed_categories=[]
     for c in categories:
         category_id = c["id"]
-        c = c | get_category_target_data(category_id, date)
         c["balance"] = get_category_balance(category_id, date)
-        c["target_date"] = time_utils.sqlite_date_to_datestr(c["target_date"])
         c["group"] = c["category_group"]
         del c["category_group"]
         c["assigned_this_month"] = get_category_assignments_sum(
@@ -568,7 +553,9 @@ def parse_categories(categories, date):
                 after=start_date,
                 before=end_date,
             )
+        c = c | get_category_target_data(c, date)
         parsed_categories.append(c)
+        c["target_date"] = time_utils.sqlite_date_to_datestr(c["target_date"])
 
     return parsed_categories
 
