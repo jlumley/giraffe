@@ -1,8 +1,16 @@
-GET_ALL_CATEGORIES = """SELECT id
+GET_ALL_CATEGORIES = """SELECT
+categories.id,
+categories.name,
+categories.notes,
+categories.category_group
 FROM categories
 WHERE true """
 
-GET_CATEGORY = """SELECT *
+GET_CATEGORY = """SELECT
+categories.id,
+categories.name,
+categories.notes,
+categories.category_group
 FROM CATEGORIES
 WHERE id = :category_id;
 """
