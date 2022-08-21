@@ -56,14 +56,22 @@ const closeButtonStlye = {
 // Make sure to bind modal to your appElement (https://reactcommunity.org/react-modal/accessibility/)
 Modal.setAppElement('#root');
 
-export function AddAccountModal() {
+export function AddAccountModal({fetchAllAccounts}) {
   const [accountName, setAccountName] = useState("");
   const [startingBalance, setStartingBalance] = useState(0);
   const [isCreditCard, setIsCreditCard] = useState(false);
   const [accountNotes, setAccountNotes] = useState("");
   const [modalIsOpen, setIsOpen] = React.useState(false);
-  function openModal() {setIsOpen(true);}
-  function closeModal() {setIsOpen(false);}
+  function openModal() {
+      setIsOpen(true);
+  }
+  function closeModal() {
+      fetchAllAccounts();
+      setAccountName("");
+      setIsCreditCard(false);
+      setStartingBalance(0);
+      setIsOpen(false);
+  }
 
 
   async function createNewAccount() {
