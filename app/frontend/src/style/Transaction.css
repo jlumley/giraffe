@@ -2,7 +2,7 @@
 
 .transactionRow {
     color: var(--dark-color);
-    border: 1px solid var(--light-grey);
+    border: 1px solid var(--light-accent);
 }
 
 .selected {
@@ -22,7 +22,7 @@
 .transactionCategory {
     display: flex;
     flex-direction: row;
-    border-bottom: var(--light-grey) solid 1px;
+    border-bottom: var(--light-accent) solid 1px;
 }
 
 .transactionClearedColumn {
@@ -50,7 +50,6 @@
 .transactionMemoColumn {
     min-width: 150px;
     text-align: left;
-    background-color: transparent;
 }
 
 .transactionCategoriesColumn {

@@ -92,9 +92,9 @@ table {
 
 .accountTransactionsTableHeader {
     position: sticky;
-    top: -2px;
+    top: 0px;
     z-index: 1;
-    background-color: var(--light-solid-background);
+    background-color: white;
 }
 
 .accountTransactionsTableBody {
