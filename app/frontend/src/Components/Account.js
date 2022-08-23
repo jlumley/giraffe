@@ -1,15 +1,14 @@
+import '../style/Account.css'
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router';
-
-import instance from '../axois'
-import { Transaction } from './Transaction';
+import accountRequests from '../requests/account';
 import categoryRequests from '../requests/category';
+import instance from '../axois'
 import payeeRequests from '../requests/payee';
 import transactionRequests from '../requests/transaction';
-import accountRequests from '../requests/account';
-import '../style/Account.css'
-import { centsToMoney } from '../utils/money_utils';
 import { AccountReconciliationModal } from './Modals/AccountReconciliationModal';
+import { Transaction } from './Transaction';
+import { centsToMoney } from '../utils/money_utils';
+import { useParams } from 'react-router';
 
 
 export const Account = ({mobile, fetchAllAccounts}) => {
@@ -50,7 +49,6 @@ export const Account = ({mobile, fetchAllAccounts}) => {
         // to 25
         for (let i = 0; i < 25; i++) {
           const t = await instance.get(transactionRequests.fetchTransactions, { params })
-          if (t.data.length === 0) break;
           
           newTransactions = newTransactions.concat(t.data)
           setTransactions(newTransactions.sort((e1, e2) => {
@@ -59,6 +57,7 @@ export const Account = ({mobile, fetchAllAccounts}) => {
 
               return e1.id < e2.id;
           }))
+          if (t.data.length === 0) break;
           params.offset += params.limit;   
         }
     }
@@ -77,7 +76,6 @@ export const Account = ({mobile, fetchAllAccounts}) => {
             return map;
         }, {}))
     }
-
     async function fetchAccounts() {
         const params = (id !== 'all') ? { accounts: id } : {}
         const a = await instance.get(accountRequests.fetchAllAccounts, { params })
@@ -232,10 +230,11 @@ export const Account = ({mobile, fetchAllAccounts}) => {
         <div className="accountContent">
             <div className="accountHeader">
                 <div className="flexbox">
-                    <div className="accountBalance">
+                    <div className="accountAccountName"> {(currentAccount) ? currentAccount.name : ""} </div>
+                    <div className="accountAccountBalance">
                         {(!mobile) && (accountClearedBalance())}
                         {(!mobile) && (accountUnclearedBalance())}
-                        {accountTotalBalance()}
+                        {(!mobile) && (accountTotalBalance())}
                     </div>
                     {(currentAccount) && (<AccountReconciliationModal account={currentAccount} reloadAccount={() => { fetchCurrentAccount(); fetchTransactions() }} />)}
 
