@@ -19,7 +19,10 @@
 .accountHeaderButtonRow {
     display: flex;
 }
-
+.accountAccountName{
+    font-weight: bold;
+    padding: 5px;
+}
 .flexbox {
     display: flex;
 }
@@ -65,7 +68,7 @@
     outline: none;
 }
 
-.accountBalance {
+.accountAccountBalance {
     display: flex;
     padding: 15px;
     flex-grow: 1;
