@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import instance from '../axois';
-import categoryRequests from '../requests/category';
-
-import { centsToMoney } from '../utils/money_utils'
+import '../style/Category.css'
+import 'react-circular-progressbar/dist/styles.css';
 import CheckboxBlankCircleOutlineIcon from 'mdi-react/CheckboxBlankCircleOutlineIcon'
 import CheckboxMarkedCircleIcon from 'mdi-react/CheckboxMarkedCircleIcon'
-
-import '../style/Category.css'
 import MoneyInput from './Inputs/MoneyInput';
+import React, { useEffect, useState } from 'react';
+import categoryRequests from '../requests/category';
+import instance from '../axois';
+import { CircularProgressbar } from 'react-circular-progressbar';
+import { centsToMoney } from '../utils/money_utils'
 
 export function Category({
     category,
@@ -24,49 +24,8 @@ export function Category({
     const [categoryUnderfunded, setCategoryUnderfunded] = useState(category.underfunded / 100);
     const [selected, setSelected] = useState(selectedCategories.includes(category.id));
 
-    const [progressWidth, setProgressWidth] = useState(calculateProgressBarWidth());
+    const [targetProgress, setTargetProgress] = useState(calculateTargetProgress());
     const [categoryBalanceColor, setCategoryBalanceColor] = useState("white")
-
-    const categoryNameColumnStyle = {
-        width: '30%'
-    }
-
-    const categoryNameInputStyle = {
-        width: '80%',
-        borderColor: 'hsl(0, 0%, 80%)',
-        borderStyle: 'solid',
-        height: '24px',
-        borderWidth: '1px',
-        color: 'var(--dark-color)',
-        borderRadius: '10px',
-        paddingLeft: '5px',
-        minWidth: '100px',
-        outline: 'none'
-    }
-
-    const categoryProgresBarStlye = {
-        backgroundColor: 'lightgreen',
-        width: progressWidth,
-        height: '3px',
-        marginLeft: '10px',
-        marginRight: '10px',
-        borderRadius: '10px'
-    }
-
-    const categoryAmountColumnStyle = {
-        minWidth: '30px',
-        width: '15%',
-        textAlign: 'center',
-    }
-
-    const categoryBalanceStyle = {
-        borderRadius: '10px',
-        backgroundColor: categoryBalanceColor,
-        width: 'fit-content',
-        padding: '5%',
-        margin: 'auto',
-        textAlign: 'center'
-    }
 
     useEffect(() => {
         setCategoryName(category.name)
@@ -91,19 +50,20 @@ export function Category({
     }, [categoryAssigned])
 
     useEffect(() => {
-        setProgressWidth(calculateProgressBarWidth())
+        setTargetProgress(calculateTargetProgress())
     }, [categoryAssigned, categoryUnderfunded])
 
     useEffect(() => {
         setSelected(selectedCategories.includes(category.id))
     }, [selectedCategories, category])
 
-    function calculateProgressBarWidth() {
-        if (categoryUnderfunded === 0) return '73%'
+    function calculateTargetProgress() {
+        if (categoryUnderfunded === 0) return 1
+        if (categoryAssigned < 0 ) return 0
         const progress = (
             categoryAssigned
         ) / (categoryAssigned + categoryUnderfunded)
-        return `${progress * 80}%`
+        return progress
     }
 
     const handleChangeCategoryName = (event) => {
@@ -153,18 +113,10 @@ export function Category({
     }
 
     const categoryNameInput = () => {
-        if (category.credit_card) {
-            return (
-                <td style={categoryNameColumnStyle}>
-                    <input style={categoryNameInputStyle} type="text" value={categoryName} />
-                </td>
-            )
-        }
         return (
-            <td style={categoryNameColumnStyle}>
-                <input style={categoryNameInputStyle} type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} />
-                <div style={categoryProgresBarStlye}></div>
-            </td>
+            <td className="categoryNameColumnStyle">
+                <input className="categoryNameInputStyle" type="text" value={categoryName} onChange={handleChangeCategoryName} onBlur={updateCategoryName} />
+                 <progress className="categoryTargetProgress" value={targetProgress} max={1}/> </td>
         )
     }
 
@@ -172,9 +124,9 @@ export function Category({
         <tr className="categoryRow">
             {(!mobile) && (<td className="selectedColumn">{ifSelected()}</td>)}
             {categoryNameInput()}
-            <td style={categoryAmountColumnStyle}><MoneyInput startingValue={categoryAssigned} onBlur={updateCategoryAssignment} /></td>
-            {(!mobile) && (<td style={categoryAmountColumnStyle}>{centsToMoney(categorySpent)}</td>)}
-            <td style={categoryAmountColumnStyle}><div style={categoryBalanceStyle}>{centsToMoney(categoryBalance)}</div></td>
-        </tr >
+            <td className="categoryAmountColumnStyle"><MoneyInput startingValue={categoryAssigned} onBlur={updateCategoryAssignment} /></td>
+            {(!mobile) && (<td className="categoryAmountColumnStyle">{centsToMoney(categorySpent)}</td>)}
+            <td className="categoryAmountColumnStyle"><div className="categoryBalanceStyle" style={{backgroundColor: categoryBalanceColor}}>{centsToMoney(categoryBalance)}</div></td>
+        </tr>
     );
 }
