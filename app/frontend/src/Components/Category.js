@@ -1,12 +1,10 @@
 import '../style/Category.css'
-import 'react-circular-progressbar/dist/styles.css';
 import CheckboxBlankCircleOutlineIcon from 'mdi-react/CheckboxBlankCircleOutlineIcon'
 import CheckboxMarkedCircleIcon from 'mdi-react/CheckboxMarkedCircleIcon'
 import MoneyInput from './Inputs/MoneyInput';
 import React, { useEffect, useState } from 'react';
 import categoryRequests from '../requests/category';
 import instance from '../axois';
-import { CircularProgressbar } from 'react-circular-progressbar';
 import { centsToMoney } from '../utils/money_utils'
 
 export function Category({
