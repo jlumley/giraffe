@@ -29,7 +29,6 @@ def test_create_transaction_success(test_client):
         transaction_id = create_response.json.get("id")
         transaction_response = test_client.get(f"/transaction/{transaction_id}")
         assert create_response.status_code == 201
-        print(transaction_response.data) 
         assert transaction_response.json.get("date") == transaction.get("date")
         assert transaction_response.json.get("cleared") == transaction.get("cleared")
 
@@ -298,3 +297,35 @@ def test_get_transactions(test_client):
 
     transaction_response = test_client.get(f"/transaction")
     assert transaction_response.status_code == 200
+
+def test_get_transactions_memo_arg(test_client):
+    """ Test get all transaction matching a memo search"""
+
+    payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
+        "id"
+    )
+    account_id = test_client.post(
+        "/account/create", json=dict(name="new_account1")
+    ).json.get("id")
+    category_id = test_client.post(
+        "/category/create", json=dict(group="new_group1", name="new_account1")
+    ).json.get("id")
+
+    transactions = [
+        dict(
+            payee_id=payee_id,
+            account_id=account_id,
+            categories=[dict(category_id=category_id, amount=-5000)],
+            date="2022-04-22",
+            cleared=True,
+            memo="foo_qwerty444999_bar",
+        )
+    ]
+    for transaction in transactions:
+        create_response = test_client.post("/transaction/create", json=transaction)
+        transaction_id = create_response.json.get("id")
+        request_args = dict(memo="qwerty444999") 
+        transaction_response = test_client.get(f"/transaction", query_string=request_args)
+        assert transaction_response.status_code == 200
+        assert transaction_id in [t["id"] for t in transaction_response.json]
+        assert len(transaction_response.json) == 1
