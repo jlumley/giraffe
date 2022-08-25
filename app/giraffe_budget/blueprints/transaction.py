@@ -34,6 +34,7 @@ def _get_transaction(transaction_id):
         "accounts": None,
         "categories": None,
         "payees": None,
+        "memo": None,
         "before": None,
         "after": None,
         "cleared": None,
@@ -43,12 +44,13 @@ def _get_transaction(transaction_id):
     },
 )
 def _get_transactions(
-    accounts, categories, payees, before, after, cleared, reconciled, limit, offset
+    accounts, categories, payees, memo, before, after, cleared, reconciled, limit, offset
 ):
     """Get all transactions"""
     accounts = request.args.get("accounts", accounts)
     categories = request.args.get("categories", categories)
     payees = request.args.get("payees", payees)
+    memo = request.args.get("memo", memo)
     before = request.args.get("before", before)
     after = request.args.get("after", after)
     cleared = request.args.get("cleared", cleared)
@@ -67,6 +69,7 @@ def _get_transactions(
         accounts,
         categories,
         payees,
+        memo,
         time_utils.datestr_to_sqlite_date(before),
         time_utils.datestr_to_sqlite_date(after),
         cleared,
@@ -299,7 +302,7 @@ def create_transaction(
 
 
 def get_transactions(
-    accounts, categories, payees, before, after, cleared, reconciled, limit, offset
+    accounts, categories, payees, memo, before, after, cleared, reconciled, limit, offset
 ):
     """Query All transactions
 
@@ -307,6 +310,7 @@ def get_transactions(
         accounts (list): list of account ids
         categories (list): list of category ids
         payees (list): list of payee ids
+        memo (str): a search string for memos
         before (int): get transactions before date (YYYYMMDD)
         after (int): get transactions after date (YYYYMMDD)
         cleared (bool): get cleared transactions
@@ -335,6 +339,10 @@ def get_transactions(
     if payees:
         query += f" AND payee_id IN ({','.join('?' * len(payees))})"
         query_vars += tuple(payees)
+
+    if memo:
+        query += " AND memo LIKE ?"
+        query_vars += (f"%{memo}%",)
 
     if before is not None:
         query += " AND date <= ?"
