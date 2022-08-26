@@ -1,5 +1,7 @@
-Flask==2.0.1 
 Flask-expects-json==1.7.0 
+Flask==2.0.1 
 Uwsgi==2.0.20 
 werkzeug==2.0.3 
+Flask-Pydantic
+pydantic
 pytest
