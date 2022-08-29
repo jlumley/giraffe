@@ -1,14 +1,25 @@
+import datetime
 import re
 
+def is_valid_date(date_str):
+    """
+    date must be in format YYYY-MM-DD
+    """
+    m = re.search(r"(\d{4})-(\d{2})-(\d{2})", date_str)
+    if not m:
+        raise ValueError(f"date: {date_str} does not match format YYYY-MM-DD")
+    
+    year = m.group(1)
+    month = m.group(2)
+    day = m.group(3)
+    datetime.datetime(year, month, day)
+
+    return date_str
 
 def datestr_to_sqlite_date(date_str):
     if not date_str:
         return None
-    if re.match(r"(\d{4})-(\d{2})-(\d{2})", date_str):
-        date_str = str(date_str)
-        return re.sub("-", "", date_str)
-    else:
-        raise TypeError(f"Date string {date_str} does not match format YYYY-MM-DD")
+    return re.sub("-", "", date_str)
 
 
 def sqlite_date_to_datestr(sql_date):

@@ -4,12 +4,19 @@ from .. import test_client
 
 def test_create_transaction_success(test_client):
     """Test successfully creating transaction"""
+    account_data = {
+            "name": "account 33",
+            "notes": "foobar88sd08",
+            "starting_balance": 994411155,
+            "credit_card": False
+        }
+    account_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_id = account_response.json.get("id")
     payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
         "id"
     )
-    account_id = test_client.post(
-        "/account/create", json=dict(name="new_account1")
-    ).json.get("id")
     category_id = test_client.post(
         "/category/create", json=dict(group="new_group1", name="new_account1")
     ).json.get("id")
@@ -35,12 +42,19 @@ def test_create_transaction_success(test_client):
 
 def test_create_transaction_fail(test_client):
     """Test successfully creating transaction"""
+    account_data = {
+            "name": "account 33",
+            "notes": "foobar88sd08",
+            "starting_balance": 994411155,
+            "credit_card": False
+        }
+    account_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_id = account_response.json.get("id")
     payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
         "id"
     )
-    account_id = test_client.post(
-        "/account/create", json=dict(name="new_account1")
-    ).json.get("id")
     category_id = test_client.post(
         "/category/create", json=dict(group="new_group1", name="new_account1")
     ).json.get("id")
@@ -68,21 +82,35 @@ def test_create_transaction_fail(test_client):
 
 def test_update_transaction(test_client):
     """Test successfully updating transaction"""
+    account_data = {
+            "name": "account 33",
+            "notes": "foobar88sd08",
+            "starting_balance": 994411155,
+            "credit_card": False
+        }
+    account_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_id = account_response.json.get("id")
+    account_data = {
+            "name": "account 33",
+            "notes": "foobar88sd08",
+            "starting_balance": 994411155,
+            "credit_card": False
+        }
+    account_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    new_account_id = account_response.json.get("id")
     payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
         "id"
     )
-    account_id = test_client.post(
-        "/account/create", json=dict(name="new_account1")
-    ).json.get("id")
     category_id = test_client.post(
         "/category/create", json=dict(group="new_group1", name="new_cat2")
     ).json.get("id")
 
     new_payee_id = test_client.post(
         "/payee/create", json=dict(name="amazontest2")
-    ).json.get("id")
-    new_account_id = test_client.post(
-        "/account/create", json=dict(name="new_account12")
     ).json.get("id")
     new_category_id = test_client.post(
         "/category/create", json=dict(group="new_group12", name="new_cat00")
@@ -115,6 +143,7 @@ def test_update_transaction(test_client):
         update_response = test_client.put(
             f"/transaction/update/{transaction_id}", json=update
         )
+        print(update_response.data)
         assert update_response.status_code == 200
         assert update_response.json.get("id") == transaction_id
 
@@ -129,12 +158,19 @@ def test_update_transaction(test_client):
 
 def test_delete_transaction(test_client):
     """Test deleting transaction"""
+    account_data = {
+            "name": "account 33",
+            "notes": "foobar88sd08",
+            "starting_balance": 994411155,
+            "credit_card": False
+        }
+    account_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_id = account_response.json.get("id")
     payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
         "id"
     )
-    account_id = test_client.post(
-        "/account/create", json=dict(name="new_account1")
-    ).json.get("id")
     category_id = test_client.post(
         "/category/create", json=dict(group="new_group1", name="new_account1")
     ).json.get("id")
@@ -160,12 +196,19 @@ def test_delete_transaction(test_client):
 
 def test_get_transaction(test_client):
     """Test get single transaction by id"""
+    account_data = {
+            "name": "account 33",
+            "notes": "foobar88sd08",
+            "starting_balance": 994411155,
+            "credit_card": False
+        }
+    account_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_id = account_response.json.get("id")
     payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
         "id"
     )
-    account_id = test_client.post(
-        "/account/create", json=dict(name="new_account1")
-    ).json.get("id")
     category_id = test_client.post(
         "/category/create", json=dict(group="new_group1", name="new_account1")
     ).json.get("id")
@@ -237,12 +280,19 @@ def test_transaction_pagination(test_client):
     
 def test_put_transaction_update_cleared(test_client):
     """Test get single transaction by id"""
+    account_data = {
+            "name": "account 33",
+            "notes": "foobar88sd08",
+            "starting_balance": 994411155,
+            "credit_card": False
+        }
+    account_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_id = account_response.json.get("id")
     payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
         "id"
     )
-    account_id = test_client.post(
-        "/account/create", json=dict(name="new_account1")
-    ).json.get("id")
     category_id = test_client.post(
         "/category/create", json=dict(group="new_group1", name="new_account1")
     ).json.get("id")
@@ -267,12 +317,19 @@ def test_put_transaction_update_cleared(test_client):
 
 def test_put_transaction_update_cleared_invalid_id(test_client):
     """Test get single transaction by id"""
+    account_data = {
+            "name": "account 33",
+            "notes": "foobar88sd08",
+            "starting_balance": 994411155,
+            "credit_card": False
+        }
+    account_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_id = account_response.json.get("id")
     payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
         "id"
     )
-    account_id = test_client.post(
-        "/account/create", json=dict(name="new_account1")
-    ).json.get("id")
     category_id = test_client.post(
         "/category/create", json=dict(group="new_group1", name="new_account1")
     ).json.get("id")
@@ -301,12 +358,19 @@ def test_get_transactions(test_client):
 def test_get_transactions_memo_arg(test_client):
     """ Test get all transaction matching a memo search"""
 
+    account_data = {
+            "name": "account 33",
+            "notes": "foobar88sd08",
+            "starting_balance": 994411155,
+            "credit_card": False
+        }
+    account_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_id = account_response.json.get("id")
     payee_id = test_client.post("/payee/create", json=dict(name="amazontest")).json.get(
         "id"
     )
-    account_id = test_client.post(
-        "/account/create", json=dict(name="new_account1")
-    ).json.get("id")
     category_id = test_client.post(
         "/category/create", json=dict(group="new_group1", name="new_account1")
     ).json.get("id")

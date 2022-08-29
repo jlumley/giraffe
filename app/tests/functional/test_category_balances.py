@@ -43,8 +43,16 @@ def test_unassigning_money_to_category(test_client):
 
 def test_spending_money_from_category(test_client):
     """Test if money assigned and spent this month is correct"""
-    account = {"name": uuid.uuid4().hex, "starting_balance": 10000}
-    account_id = test_client.post("/account/create", json=account).json.get("id")
+    account_data = {
+            "name": "account 39",
+            "notes": "foobar889d08",
+            "starting_balance": 10000,
+            "credit_card": False
+        }
+    account_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_id = account_response.json.get("id")
 
     payee = {"name": uuid.uuid4().hex}
     payee_id = test_client.post("/payee/create", json=payee).json.get("id")
@@ -73,8 +81,16 @@ def test_spending_money_from_category(test_client):
 
 def test_spending_money_and_deleting_transaction_from_category(test_client):
     """Test if money assigned and spent this month is correct"""
-    account = {"name": uuid.uuid4().hex, "starting_balance": 10000}
-    account_id = test_client.post("/account/create", json=account).json.get("id")
+    account_data = {
+            "name": "account 39",
+            "notes": "foobar889d08",
+            "starting_balance": 10000,
+            "credit_card": False
+        }
+    account_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_id = account_response.json.get("id")
 
     payee = {"name": uuid.uuid4().hex}
     payee_id = test_client.post("/payee/create", json=payee).json.get("id")

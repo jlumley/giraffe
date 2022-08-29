@@ -2,12 +2,14 @@ import datetime
 import time
 import uuid
 
+from flask_pydantic import validate
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
 
 from . import transaction
 from . import category
 
+from ..models.account import *
 from ..utils import db_utils, money_utils, time_utils
 from ..schemas.account_schema import *
 from ..sql.account_statements import *
@@ -30,19 +32,23 @@ def _get_account(account_id):
 
 
 @account.route("/create", methods=("POST",))
-@expects_json(POST_ACCOUNT_CREATE_SCHEMA)
-def _create_account():
+@validate()
+def _create_account(body: CreateAccountModel):
     """Create new account"""
-    data = request.get_json()
-    starting_balance = data.get("starting_balance", 0)
+    name = body.name
+    notes = body.notes
+    credit_card = body.credit_card
+    starting_balance = body.starting_balance
+
     date = datetime.datetime.now().strftime("%Y-%m-%d")
     date_str = time_utils.datestr_to_sqlite_date(date)
+
     account = create_account(
-        data.get("name"),
+        name,
         date_str,
-        notes=data.get("notes"),
+        notes=notes,
         starting_balance=starting_balance,
-        credit_card=data.get("credit_card")
+        credit_card=credit_card,
     )
     return make_response(jsonify(account[0]), 201)
 

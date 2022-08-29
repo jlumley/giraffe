@@ -3,10 +3,9 @@ import uuid
 from flask_pydantic import validate
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 
-from ..utils import db_utils
 from ..models.payee import *
-from ..schemas.payee_schema import *
 from ..sql.payee_statements import *
+from ..utils import db_utils
 
 payee = Blueprint("payee", __name__, url_prefix="/payee")
 

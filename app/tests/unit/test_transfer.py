@@ -5,15 +5,36 @@ from .. import test_client
 
 def test_create_transfer(test_client):
     """Test create transfer"""
-    account_1 = test_client.post(
-        "/account/create", json=dict(name="new_account44")
-    ).json.get("id")
-    account_2 = test_client.post(
-        "/account/create", json=dict(name="new_account45")
-    ).json.get("id")
-    account_3 = test_client.post(
-        "/account/create", json=dict(name="new_account46")
-    ).json.get("id")
+    account_data = {
+            "name": "account 3n",
+            "notes": "foobar88kd08",
+            "starting_balance": 993411155,
+            "credit_card": False
+        }
+    create_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_1 = create_response.json.get("id")
+    account_data = {
+            "name": "account 3n",
+            "notes": "foobar88kd08",
+            "starting_balance": 993411155,
+            "credit_card": False
+        }
+    create_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_2 = create_response.json.get("id")
+    account_data = {
+            "name": "account 3n",
+            "notes": "foobar88kd08",
+            "starting_balance": 993411155,
+            "credit_card": False
+        }
+    create_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_3 = create_response.json.get("id")
 
     transfers = [
         dict(
@@ -34,12 +55,26 @@ def test_create_transfer(test_client):
 
 def test_get_transfer(test_client):
     """Test get a single transfer by id"""
-    account_1 = test_client.post(
-        "/account/create", json=dict(name="new_account66")
-    ).json.get("id")
-    account_2 = test_client.post(
-        "/account/create", json=dict(name="new_account67")
-    ).json.get("id")
+    account_data = {
+            "name": "account 3n",
+            "notes": "foobar88kd08",
+            "starting_balance": 993411155,
+            "credit_card": False
+        }
+    create_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_1 = create_response.json.get("id")
+    account_data = {
+            "name": "account 3n",
+            "notes": "foobar88kd08",
+            "starting_balance": 993411155,
+            "credit_card": False
+        }
+    create_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_2 = create_response.json.get("id")
 
     transfer = dict(
         from_account_id=account_1,
@@ -65,13 +100,27 @@ def test_get_transfer(test_client):
 
 def test_delete_transfer(test_client):
     """Test delete transfer"""
-    account_1 = test_client.post(
-        "/account/create", json=dict(name="new_account76")
-    ).json.get("id")
-    account_2 = test_client.post(
-        "/account/create", json=dict(name="new_account77")
-    ).json.get("id")
-    
+    account_data = {
+            "name": "account 3n",
+            "notes": "foobar88kd08",
+            "starting_balance": 993411155,
+            "credit_card": False
+        }
+    create_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_1 = create_response.json.get("id")
+    account_data = {
+            "name": "account 3n",
+            "notes": "foobar88kd08",
+            "starting_balance": 993411155,
+            "credit_card": False
+        }
+    create_response = test_client.post(
+        "/account/create", json=account_data
+    )
+    account_2 = create_response.json.get("id")
+
     transfer = dict(
         from_account_id=account_1,
         to_account_id=account_2,
