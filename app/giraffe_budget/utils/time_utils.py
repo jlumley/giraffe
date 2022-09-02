@@ -14,7 +14,7 @@ def is_valid_date(date_str):
     day = m.group(3)
     datetime.datetime(year, month, day)
 
-    return date_str
+    return re.sub("-", "", date_str)
 
 def datestr_to_sqlite_date(date_str):
     if not date_str:

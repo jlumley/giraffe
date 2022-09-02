@@ -1,18 +1,15 @@
+from . import category
+from . import transaction
+from ..models.account import *
+from ..schemas.account_schema import *
+from ..sql.account_statements import *
+from ..utils import db_utils, money_utils, time_utils
+from flask import Blueprint, current_app, request, make_response, g, jsonify
+from flask_expects_json import expects_json
+from flask_pydantic import validate
 import datetime
 import time
 import uuid
-
-from flask_pydantic import validate
-from flask import Blueprint, current_app, request, make_response, g, jsonify
-from flask_expects_json import expects_json
-
-from . import transaction
-from . import category
-
-from ..models.account import *
-from ..utils import db_utils, money_utils, time_utils
-from ..schemas.account_schema import *
-from ..sql.account_statements import *
 
 account = Blueprint("account", __name__, url_prefix="/account")
 
@@ -24,8 +21,9 @@ def _get_accounts():
     return make_response(jsonify(accounts), 200)
 
 
-@account.route("/<string:account_id>", methods=("GET",))
-def _get_account(account_id):
+@account.route("/<account_id>", methods=("GET",))
+@validate()
+def _get_account(account_id: str):
     """Fetch single account"""
     account = get_account(account_id)
     return make_response(jsonify(account[0]), 200)
@@ -53,23 +51,25 @@ def _create_account(body: CreateAccountModel):
     return make_response(jsonify(account[0]), 201)
 
 
-@account.route("/hide/<string:account_id>", methods=("PUT",))
-def _hide_account(account_id):
+@account.route("/hide/<account_id>", methods=("PUT",))
+@validate()
+def _hide_account(account_id: str):
     """Hide an account"""
     account = hide_account(account_id, True)
     return make_response(jsonify(account), 200)
 
 
-@account.route("/unhide/<string:account_id>", methods=("PUT",))
-def _unhide_account(account_id):
+@account.route("/unhide/<account_id>", methods=("PUT",))
+@validate()
+def _unhide_account(account_id: str):
     """Unhide an account"""
     account = hide_account(account_id, False)
     return make_response(jsonify(account), 200)
 
 
-@account.route("/reconcile/<string:account_id>", methods=("PUT",))
-@expects_json(PUT_ACCOUNT_RECONCILE_SCHEMA)
-def _reconcile_account(account_id):
+@account.route("/reconcile/<account_id>", methods=("PUT",))
+@validate()
+def _reconcile_account(account_id: str, body: ReconcileAccountModel):
     """Set all cleared transactions associated
     with this account as reconciled and set the
     reconciled_date to now

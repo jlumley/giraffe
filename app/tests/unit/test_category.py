@@ -67,6 +67,21 @@ def test_get_category(test_client):
     assert category_response.json.get("name") == category_data.get("name")
     assert category_response.json.get("group") == category_data.get("group")
 
+def test_category_assign(test_client):
+    """Test update category target"""
+    category = dict(name="new catedgory 81", group="gdroup1")
+    create_response = test_client.post("/category/create", json=category)
+    category_id = create_response.json.get("id")
+    assignment_data = dict(
+        date="2022-04-01",
+        amount=100
+    )
+    update_response = test_client.put(f"/category/assign/{category_id}", json=assignment_data)
+    update_response.status_code == 200
+
+    category_response = test_client.get(f"/category/{category_id}/2022-04-07")
+    assert category_response.status_code == 200
+    assert category_response.json.get("assigned_this_month") == assignment_data.get("amount")
 
 def test_update_category_target(test_client):
     """Test update category target"""

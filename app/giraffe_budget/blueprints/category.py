@@ -1,13 +1,13 @@
 import re
-import uuid
-
+from ..errors import ValidationError
+from ..models.category import *
+from ..sql.category_statements import *
+from ..utils import db_utils, time_utils, money_utils
+from datetime import datetime
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
-from datetime import datetime
-from ..errors import ValidationError
-from ..utils import db_utils, time_utils, money_utils
-from ..schemas.category_schema import *
-from ..sql.category_statements import *
+from flask_pydantic import validate
+import uuid
 
 category = Blueprint("category", __name__, url_prefix="/category")
 
@@ -37,18 +37,20 @@ def _get_category_target_types():
     return make_response(jsonify(get_target_types()), 200)
 
 
-@category.route("/<string:date>", methods=("GET",))
-def _get_categories(date):
+@category.route("/<date>", methods=("GET",))
+@validate()
+def _get_categories(date: str, query: GetCategoriesQueryParamsModel):
     """Get all categories"""
     date = time_utils.datestr_to_sqlite_date(date)
-    group = request.args.get("group")
+    group = query.group
     categories = get_categories(date, group=group)
 
     return make_response(jsonify(categories), 200)
 
 
-@category.route("/<string:category_id>/<string:date>", methods=("GET",))
-def _get_category(category_id, date):
+@category.route("/<category_id>/<date>", methods=("GET",))
+@validate()
+def _get_category(category_id: str, date: str):
     """Get category at a given date"""
     date = time_utils.datestr_to_sqlite_date(date)
     category = get_category(category_id, date)
@@ -59,17 +61,21 @@ def _get_category(category_id, date):
 
 
 @category.route("/create", methods=("POST",))
-@expects_json(POST_CATEGORY_CREATE_SCHEMA)
-def _create_category():
+@validate()
+def _create_category(body: CreateCategoryModel):
     """Create new category"""
-    data = request.get_json()
-    category = create_category(data.get("name"), data.get("group"), notes=data.get("notes"))
+    name = body.name
+    group = body.group
+    notes = body.notes
+    category_type = body.category_type
+    category = create_category(name, group, notes, category_type)
 
     return make_response(jsonify(category[0]), 201)
 
 
-@category.route("/delete/<string:category_id>/<string:replacement_category>", methods=("DELETE",))
-def _delete_category(category_id, replacement_category):
+@category.route("/delete/<category_id>/<replacement_category>", methods=("DELETE",))
+@validate()
+def _delete_category(category_id: str, replacement_category: str):
     """Delete Category"""
     try:
         delete_category(
@@ -81,96 +87,79 @@ def _delete_category(category_id, replacement_category):
     return make_response(jsonify("success"), 200)
 
 
-@category.route("/update/<string:category_id>", methods=("PUT",))
-@expects_json(PUT_CATEGORY_UPDATE_SCHEMA)
-def _update_category(category_id):
+@category.route("/update/<category_id>", methods=("PUT",))
+@validate()
+def _update_category(category_id: str, body: UpdateCategoryModel):
     """Update Category"""
-    data = request.get_json()
+    name = body.name
+    group = body.group
+    notes = body.notes
     category = update_category(
         category_id,
-        name=data.get("name"),
-        group=data.get("group"),
-        notes=data.get("notes"),
+        name=name,
+        group=group,
+        notes=notes
     )
     return make_response(jsonify(category[0]), 200)
 
 
-@category.route("/target/<string:category_id>", methods=("PUT",))
-@expects_json(PUT_CATEGORY_UPDATE_TARGET_SCHEMA)
-def _update_category_target(category_id):
+@category.route("/target/<category_id>", methods=("PUT",))
+@validate()
+def _update_category_target(category_id: str, body: UpdateCategoryTargetModel):
     """Update Category target"""
-    data = request.get_json()
-    if data["target_type"] not in get_target_types().keys():
-        return make_response(
-            jsonify(
-                f"Target type not allow, must be one of"
-                f"{','.join(get_target_types().keys())}"
-            ),
-            400,
-        )
-    if not data["target_amount"]:
-        return make_response(jsonify("Missing target amount"), 400)
-
-    if "target_date" in data.keys() and data["target_type"] in ["savings_target"]:
-        if not data["target_date"]:
-            return make_response(jsonify("Missing target date"), 400)
+    target_type = body.target_type
+    target_amount = body.target_amount
+    target_date = body.target_date
 
     target = update_category_target(
         category_id,
-        data.get("target_type"),
-        data.get("target_amount"),
-        time_utils.datestr_to_sqlite_date(data.get("target_date")),
+        target_type,
+        target_amount,
+        target_date
     )
 
     return make_response(jsonify(target), 200)
 
 
-@category.route("/target/<string:category_id>", methods=("DELETE",))
-def delete_cateogry_target(category_id):
+@category.route("/target/<category_id>", methods=("DELETE",))
+@validate()
+def delete_cateogry_target(category_id: str):
     """Remove Category target"""
     delete_cateogry_target(category_id)
 
-    return make_response(jsonify({"id": category_id}), 200)
+    return make_response("success", 200)
 
 
-@category.route("/assign/<string:category_id>", methods=("PUT",))
-@expects_json(PUT_CATEGORY_ASSIGN_SCHEMA)
-def _category_assign(category_id):
+@category.route("/assign/<category_id>", methods=("PUT",))
+@validate()
+def _category_assign(category_id: str, body: CategoryAssignMoneyModel):
     """Assign money to category"""
-    data = request.get_json()
-    date = time_utils.datestr_to_sqlite_date(data["date"])
-    amount = abs(data["amount"])
+    amount = body.amount
+    date = body.date
     balance = assign_money_to_category(category_id, amount, date)
 
-    return make_response(
-        jsonify({"balance": balance, "date": data["date"], "category_id": category_id}),
-        200,
-    )
+    return make_response("success", 200)
 
 
 @category.route("/unassign/<string:category_id>", methods=("PUT",))
-@expects_json(PUT_CATEGORY_UNASSIGN_SCHEMA)
-def _category_unassign(category_id):
-    """Unassign money from category"""
-    data = request.get_json()
-    date = time_utils.datestr_to_sqlite_date(data["date"])
-    amount = abs(data["amount"]) * -1
+@validate()
+def _category_unassign(category_id: str, body: CategoryAssignMoneyModel):
+    """ unassign money from category"""
+    amount = body.amount * -1
+    date = body.date
     balance = assign_money_to_category(category_id, amount, date)
 
-    return make_response(
-        jsonify({"balance": balance, "date": data["date"], "category_id": category_id}),
-        200,
-    )
+    return make_response("success", 200)
 
 
-def create_category(name, group, category_type="budget", notes=None):
+def create_category(name, group, category_type, notes=None):
     """create new category
 
     Args:
         name (str): Category name
         group (str): Category group
+        category_type (str): Category Type
         notes (str, optional): Category notes. Defaults to None.
-        category_type (str, optional): Category Type. Defaults to None
 
     Returns:
         dict: created category
