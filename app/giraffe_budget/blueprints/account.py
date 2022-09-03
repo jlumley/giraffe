@@ -74,17 +74,10 @@ def _reconcile_account(account_id: str, body: ReconcileAccountModel):
     with this account as reconciled and set the
     reconciled_date to now
     """
-    try:
-        data = request.get_json()
-        date = time_utils.datestr_to_sqlite_date(data.get("date"))
-        balance = data.get("balance")
-        if not balance:
-            balance = 0
+    date = time_utils.datestr_to_sqlite_date(body.date)
+    balance = body.balance
 
-        account = reconcile_account(account_id, date, balance)
-
-    except TypeError as e:
-        return make_response(jsonify(dict(error=str(e))), 400)
+    account = reconcile_account(account_id, date, balance)
 
     return make_response(jsonify(account), 200)
 

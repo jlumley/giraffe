@@ -14,4 +14,5 @@ class ReconcileAccountModel(BaseModel):
     
     @validator("date")
     def validate_date(cls, v):
-        return is_valid_date(v)
+        is_valid_date(v)
+        return v

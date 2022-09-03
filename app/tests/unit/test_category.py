@@ -7,8 +7,15 @@ from .. import test_client
 
 def test_create_category(test_client):
     """Test create new category"""
-    categories = [dict(name="new category 1", group="group1")]
-
+    categories = [
+        {
+            "name": "fooas234",
+            "group": "jkluiower",
+            "credit_card": False,
+            "starting_balance": 100,
+        }
+    ]
+        
     for category in categories:
         create_response = test_client.post("/category/create", json=category)
         assert create_response.status_code == 201
@@ -25,7 +32,12 @@ def test_create_category_invalid_data(test_client):
 
 def test_update_category(test_client):
     """Test update category"""
-    category_data = dict(name="category foo", group="group foo")
+    category_data = {
+        "name": "fooag234",
+        "group": "jklgiower",
+        "credit_card": False,
+        "starting_balance": 180,
+    }
     new_name = "new category name"
     new_group = "new group name"
     updates = [dict(name=new_name), dict(group=new_group)]
@@ -57,20 +69,31 @@ def test_get_category_target_types(test_client):
 
 def test_get_category(test_client):
     """Test single category by id"""
-    category_data = dict(name="category foo2", group="group foo2")
+    category_data = {
+        "name": "fookg234",
+        "group": "jkogiower",
+        "credit_card": False,
+        "starting_balance": 180,
+    }
 
     create_response = test_client.post("/category/create", json=category_data)
     category_id = create_response.json.get("id")
 
     category_response = test_client.get(f"/category/{category_id}/2022-04-07")
+    print(category_response.data)
     assert category_response.status_code == 200
     assert category_response.json.get("name") == category_data.get("name")
     assert category_response.json.get("group") == category_data.get("group")
 
 def test_category_assign(test_client):
     """Test update category target"""
-    category = dict(name="new catedgory 81", group="gdroup1")
-    create_response = test_client.post("/category/create", json=category)
+    category_data = {
+        "name": "fookg234",
+        "group": "jkogiower",
+        "credit_card": False,
+        "starting_balance": 180,
+    }
+    create_response = test_client.post("/category/create", json=category_data)
     category_id = create_response.json.get("id")
     assignment_data = dict(
         date="2022-04-01",
@@ -85,8 +108,13 @@ def test_category_assign(test_client):
 
 def test_update_category_target(test_client):
     """Test update category target"""
-    category = dict(name="new category 81", group="group1")
-    create_response = test_client.post("/category/create", json=category)
+    category_data = {
+        "name": "fookg234",
+        "group": "jkogiower",
+        "credit_card": False,
+        "starting_balance": 180,
+    }
+    create_response = test_client.post("/category/create", json=category_data)
     category_id = create_response.json.get("id")
     targets = [
         dict(
@@ -95,19 +123,27 @@ def test_update_category_target(test_client):
         dict(target_type="monthly_savings", target_amount=8900),
     ]
     for t in targets:
-        update_response = test_client.put(f"/category/target/{category_id}", json=t)
-        update_response.status_code == 200
+        target_type = t["target_type"]
+        del t["target_type"]
+        update_response = test_client.put(f"/category/target/{target_type}/{category_id}", json=t)
+        print(update_response.data)
+        assert update_response.status_code == 200
 
         category_response = test_client.get(f"/category/{category_id}/2022-04-07")
         assert category_response.status_code == 200
-        assert category_response.json.get("target_type") == t.get("target_type")
+        assert category_response.json.get("target_type") == target_type
         assert category_response.json.get("target_amount") == t.get("target_amount")
 
 
 def test_delete_category_target(test_client):
     """Test delete category target"""
-    category = dict(name="new category 155", group="group1")
-    create_response = test_client.post("/category/create", json=category)
+    category_data = {
+        "name": "fookg234",
+        "group": "jkogiower",
+        "credit_card": False,
+        "starting_balance": 180,
+    }
+    create_response = test_client.post("/category/create", json=category_data)
     category_id = create_response.json.get("id")
     targets = [
         dict(
@@ -129,12 +165,22 @@ def test_delete_category_target(test_client):
 def test_delete_category(test_client):
     """Test delete category and moving all transactions and assignments to the new category"""
     
-    category = dict(name="new category 1238455", group="group1")
-    create_response = test_client.post("/category/create", json=category)
+    category_data = {
+        "name": "fookg234",
+        "group": "jkogiower",
+        "credit_card": False,
+        "starting_balance": 180,
+    }
+    create_response = test_client.post("/category/create", json=category_data)
     category_a = create_response.json.get("id")
 
-    category = dict(name="new category 152345", group="group1")
-    create_response = test_client.post("/category/create", json=category)
+    category_data = {
+        "name": "fookg234",
+        "group": "jkogiower",
+        "credit_card": False,
+        "starting_balance": 180,
+    }
+    create_response = test_client.post("/category/create", json=category_data)
     category_b = create_response.json.get("id")
 
     delete_response = test_client.delete(f"/category/delete/{category_a}/{category_b}")
@@ -145,13 +191,22 @@ def test_delete_category(test_client):
 
 def test_delete_category_invalid_categories(test_client):
     """Test delete category failure cases"""
-    
-    category = dict(name="new category 1238455", group="group1")
-    create_response = test_client.post("/category/create", json=category)
+    category_data = {
+        "name": "fookg234",
+        "group": "jkogiower",
+        "credit_card": False,
+        "starting_balance": 180,
+    }
+    create_response = test_client.post("/category/create", json=category_data)
     category_a = create_response.json.get("id")
 
-    category = dict(name="new category 152345", group="group1")
-    create_response = test_client.post("/category/create", json=category)
+    category_data = {
+        "name": "fookg234",
+        "group": "jkogiower",
+        "credit_card": False,
+        "starting_balance": 180,
+    }
+    create_response = test_client.post("/category/create", json=category_data)
     category_b = create_response.json.get("id")
     
     delete_response = test_client.delete(f"/category/delete/{category_a}/sldakjfsadljf")

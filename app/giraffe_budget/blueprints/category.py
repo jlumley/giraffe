@@ -13,7 +13,6 @@ category = Blueprint("category", __name__, url_prefix="/category")
 
 MONTHLY_SAVINGS = "monthly_savings"
 SAVINGS_TARGET = "savings_target"
-SPENDING_TARGET = "spending_target"
 MAX_INT = 2 ** 31 - 1
 
 
@@ -103,17 +102,32 @@ def _update_category(category_id: str, body: UpdateCategoryModel):
     return make_response(jsonify(category[0]), 200)
 
 
-@category.route("/target/<category_id>", methods=("PUT",))
+@category.route("/target/monthly_savings/<category_id>", methods=("PUT",))
 @validate()
-def _update_category_target(category_id: str, body: UpdateCategoryTargetModel):
+def _update_category_monthly_savings_target(category_id: str, body: UpdateCategoryMonthlySavingsTargetModel):
     """Update Category target"""
-    target_type = body.target_type
+    target_amount = body.target_amount
+
+    target = update_category_target(
+        category_id,
+        MONTHLY_SAVINGS,
+        target_amount,
+        None
+    )
+
+    return make_response(jsonify(target), 200)
+
+
+@category.route("/target/savings_target/<category_id>", methods=("PUT",))
+@validate()
+def _update_category_savings_target_target(category_id: str, body: UpdateCategorySavingsTargetModel):
+    """Update Category target"""
     target_amount = body.target_amount
     target_date = body.target_date
 
     target = update_category_target(
         category_id,
-        target_type,
+        SAVINGS_TARGET,
         target_amount,
         target_date
     )
@@ -267,9 +281,6 @@ def get_category_target_data(category, sql_date):
     elif target_type == SAVINGS_TARGET:
         return get_savings_target(category, sql_date)
 
-    elif target_type == SPENDING_TARGET:
-        return get_spending_target(category, sql_date)
-
     # if no target is set
     else:
         return dict(underfunded=0)
@@ -314,23 +325,6 @@ def get_savings_target(category, sql_date):
     return dict(
         monthly_target=monthly_target,
         underfunded=underfunded,
-    )
-
-
-def get_spending_target(category, sql_date):
-    """Get target data for a spending target
-
-    Args:
-        category (dict): category
-        sql_date (int): in representing date (YYYMMDD)
-
-    Returns:
-        dict: target_data
-    """
-
-    return dict(
-        monthly_target=0,
-        underfunded=0,
     )
 
 
@@ -514,8 +508,7 @@ def get_target_types():
     """return dict of all category target types """
     return dict(
         monthly_savings="Monthly Savings",
-        savings_target="Savings Target",
-        spending_target="Spending Target"
+        savings_target="Savings Target"
     )
 
 
