@@ -16,8 +16,7 @@ class CategoryAssignMoneyModel(BaseModel):
     
     @validator("date")
     def validate_date(cls, v):
-        is_valid_date(v)
-        return v 
+        return is_valid_date(v)
 
 class GetCategoriesQueryParamsModel(BaseModel):
     group: str
@@ -34,8 +33,7 @@ class UpdateCategorySavingsTargetModel(BaseModel):
     
     @validator("target_date")
     def validate_date(cls, v):
-        is_valid_date(v)
-        return v
+        return is_valid_date(v)
 
 class UpdateCategoryMonthlySavingsTargetModel(BaseModel):
     target_amount: int 
