@@ -18,8 +18,9 @@ def is_valid_date(date_str):
 
 
 def datestr_to_sqlite_date(date_str):
-    date_str = str(date_str)
-    return re.sub("-", "", date_str)
+    if not date_str:
+        return None
+    return re.sub("-", "", str(date_str))
 
 
 def sqlite_date_to_datestr(sql_date):

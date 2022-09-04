@@ -11,8 +11,6 @@ def test_create_category(test_client):
         {
             "name": "fooas234",
             "group": "jkluiower",
-            "credit_card": False,
-            "starting_balance": 100,
         }
     ]
         

@@ -1,5 +1,6 @@
 from ..utils.time_utils import is_valid_date
 from pydantic import BaseModel, validator
+from typing import Optional
 
 class CreateCategoryModel(BaseModel):
     name: str
@@ -19,12 +20,12 @@ class CategoryAssignMoneyModel(BaseModel):
         return is_valid_date(v)
 
 class GetCategoriesQueryParamsModel(BaseModel):
-    group: str
+    group: Optional[str]
 
 class UpdateCategoryModel(BaseModel):
-    name: str
-    group: str
-    notes: str
+    name: Optional[str]
+    group: Optional[str]
+    notes: Optional[str]
 
 
 class UpdateCategorySavingsTargetModel(BaseModel):

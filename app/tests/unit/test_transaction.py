@@ -354,6 +354,7 @@ def test_get_transactions(test_client):
 
     transaction_response = test_client.get(f"/transaction")
     assert transaction_response.status_code == 200
+    assert len(transaction_response.json) > 0
 
 def test_get_transactions_memo_arg(test_client):
     """ Test get all transaction matching a memo search"""
