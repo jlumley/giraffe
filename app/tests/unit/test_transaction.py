@@ -33,6 +33,7 @@ def test_create_transaction_success(test_client):
     ]
     for transaction in transactions:
         create_response = test_client.post("/transaction/create", json=transaction)
+        print(create_response.data)
         transaction_id = create_response.json.get("id")
         transaction_response = test_client.get(f"/transaction/{transaction_id}")
         assert create_response.status_code == 201

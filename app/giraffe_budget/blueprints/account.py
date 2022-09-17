@@ -1,5 +1,6 @@
 from . import category
 from . import transaction
+from ..models.transaction import *
 from ..models.account import *
 from ..sql.account_statements import *
 from ..utils import db_utils, money_utils, time_utils
@@ -164,7 +165,7 @@ def create_account(name, date, notes=None, starting_balance=0, credit_card=False
         date,
         True,
         memo="Starting Balance",
-        categories=[dict(category_id="ead604f7-d9bd-4f3e-852d-e04c2d7a71d7", amount=starting_balance)],
+        categories=[CategoryModel(category_id="ead604f7-d9bd-4f3e-852d-e04c2d7a71d7", amount=starting_balance)]
     )
 
     return get_account(account[0]["id"])
@@ -210,12 +211,7 @@ def reconcile_account(account_id, date, balance):
             date, 
             True, 
             memo="Reconciliation Transaction", 
-            categories=[
-                {
-                    "category_id": "7294d522-28e8-4f1d-a721-3d9f74f871a8",
-                    "amount": adjustment_amount
-                }
-            ]
+            categories=[CategoryModel(category_id="7294d522-28e8-4f1d-a721-3d9f74f871a8", amount=adjustment_amount)]
         )
 
     # mark cleared transactions as reconciled

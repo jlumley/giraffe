@@ -1,23 +1,24 @@
+from . import account
+from . import category
+from . import payee
+from ..models.transaction import *
+from ..schemas.transaction_schema import *
+from ..sql.transaction_statements import *
+from ..utils import db_utils, time_utils, money_utils
+from flask import Blueprint, current_app, request, make_response, g, jsonify
+from flask_expects_json import expects_json
+from flask_pydantic import validate
+from hashlib import md5
 import sqlite3
 import time
 import uuid
 
-from flask import Blueprint, current_app, request, make_response, g, jsonify
-from flask_expects_json import expects_json
-from hashlib import md5
-
-from . import category
-from . import account
-from . import payee
-from ..utils import db_utils, time_utils, money_utils
-from ..schemas.transaction_schema import *
-from ..sql.transaction_statements import *
-
 transaction = Blueprint("transaction", __name__, url_prefix="/transaction")
 
 
-@transaction.route("/<string:transaction_id>", methods=("GET",))
-def _get_transaction(transaction_id):
+@transaction.route("/<transaction_id>", methods=("GET",))
+@validate()
+def _get_transaction(transaction_id: str):
     """Get transaction by id"""
 
     transaction = get_transaction(transaction_id)
@@ -82,19 +83,17 @@ def _get_transactions(
 
 
 @transaction.route("/create", methods=("POST",))
-@expects_json(POST_TRANSACTION_CREATE_SCHEMA)
-def _create_transaction():
+@validate()
+def _create_transaction(body: CreateTransactionModel):
     """Create new transaction"""
-    data = request.get_json()
-
     try:
         transaction_id = create_transaction(
-            data.get("account_id"),
-            time_utils.datestr_to_sqlite_date(data.get("date")),
-            int(data.get("cleared")),
-            payee_id=data.get("payee_id"),
-            memo=data.get("memo"),
-            categories=data.get("categories", []),
+            body.account_id,
+            body.date,
+            int(body.cleared),
+            payee_id=body.payee_id,
+            memo=body.memo,
+            categories=body.categories
         )
     except (RuntimeError, TypeError, sqlite3.IntegrityError) as e:
         return make_response(jsonify(repr(e)), 400)
@@ -267,7 +266,7 @@ def create_transaction(
         RuntimeError: If unable to create transaction
 
     Returns:
-        int: trnasaction id
+        int: transaction id
     """
     is_valid_payee_id(payee_id)
     is_valid_account_id(account_id)
@@ -289,8 +288,8 @@ def create_transaction(
             CREATE_TRANSACTION_CATEGORIES,
             {
                 "transaction_id": transaction[0]["id"],
-                "category_id": c["category_id"],
-                "amount": c["amount"],
+                "category_id": c.category_id,
+                "amount": c.amount,
             },
         )
 
