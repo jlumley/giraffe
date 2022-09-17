@@ -1,7 +1,6 @@
 from . import category
 from . import transaction
 from ..models.account import *
-from ..schemas.account_schema import *
 from ..sql.account_statements import *
 from ..utils import db_utils, money_utils, time_utils
 from flask import Blueprint, current_app, request, make_response, g, jsonify
