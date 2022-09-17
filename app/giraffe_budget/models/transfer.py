@@ -9,7 +9,12 @@ class CreateTransferModel(BaseModel):
     memo: Optional[str]
     cleared: bool
     date: str
-    
+   
+    @validator("amount")
+    def validate_amount(cls, v):
+        assert v > 0, "Amount must be a positive integer"
+        return v
+
     @validator("date")
     def validate_date(cls, v):
         return is_valid_date(v)
