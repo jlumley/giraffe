@@ -1,11 +1,12 @@
 from . import account
 from . import category
-from ..schemas.transfer_schema import *
+from ..models.transfer import *
 from ..sql.transfer_statements import *
 from ..utils import db_utils, time_utils, money_utils
 from .transaction import parse_transactions
 from flask import Blueprint, current_app, request, make_response, g, jsonify
 from flask_expects_json import expects_json
+from flask_pydantic import validate
 from hashlib import md5
 import sqlite3
 import time
@@ -13,9 +14,9 @@ import uuid
 
 transfer = Blueprint("transfer", __name__, url_prefix="/transfer")
 
-
-@transfer.route("/<string:transfer_id>", methods=("GET",))
-def _get_transfer(transfer_id):
+@transfer.route("/<transfer_id>", methods=("GET",))
+@validate()
+def _get_transfer(transfer_id: str):
     """Get a transfer"""
     try:
         transfer = get_transfer(transfer_id)
@@ -32,41 +33,47 @@ def _get_transfer(transfer_id):
 
 
 @transfer.route("/create", methods=("POST",))
-@expects_json(POST_TRANSFER_CREATE_SCHEMA)
-def _create_transfer():
+@validate()
+def _create_transfer(body: CreateTransferModel):
     """Create new transfer"""
-    data = request.get_json()
-
+    date = body.date
+    from_account_id = body.from_account_id
+    to_account_id = body.to_account_id
+    amount = body.amount
+    memo = body.memo
+    cleared = body.cleared
     try:
-        transfer_data = {**data}
-        transfer_data["date"] = time_utils.datestr_to_sqlite_date(data.get("date"))
-        transfer_id = create_transfer(**transfer_data)
+        transfer_id = create_transfer(
+            date=date,
+            from_account_id=from_account_id,
+            to_account_id=to_account_id,
+            amount=amount,
+            memo=memo,
+            cleared=cleared
+        )
     except (RuntimeError, TypeError, sqlite3.IntegrityError) as e:
         return make_response(jsonify(str(e)), 400)
 
     return make_response(jsonify({"id": transfer_id}), 201)
 
 
-@transfer.route("/update/<string:transfer_id>", methods=("PUT",))
-@expects_json(PUT_TRANSFER_UPDATE_SCHEMA)
-def _update_transfer(transfer_id):
+@transfer.route("/update/<transfer_id>", methods=("PUT",))
+@validate()
+def _update_transfer(transfer_id: str, body: UpdateTransferModel):
     """Update transfer"""
-    data = request.get_json()
-
-    try:
-        transfer_id = update_transfer(
-            transfer_id,
-            data.get("from_account_id"),
-            data.get("to_account_id"),
-            data.get("amount"),
-            time_utils.datestr_to_sqlite_date(data.get("date")),
-            memo=data.get("memo"),
-        )
-    except (
-        RuntimeError,
-        TypeError,
-    ) as e:
-        return make_response(jsonify(str(e)), 400)
+    from_account_id = body.from_account_id
+    to_account_id = body.to_account_id
+    amount = body.amount
+    date = body.date
+    memo = body.memo
+    transfer_id = update_transfer(
+        transfer_id,
+        from_account_id,
+        to_account_id,
+        amount,
+        date,
+        memo=memo
+    )
 
     return make_response(jsonify(transfer_id), 200)
 
