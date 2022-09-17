@@ -2,7 +2,6 @@ from . import account
 from . import category
 from . import payee
 from ..models.transaction import *
-from ..schemas.transaction_schema import *
 from ..sql.transaction_statements import *
 from ..utils import db_utils, time_utils, money_utils
 from flask import Blueprint, current_app, request, make_response, g, jsonify
@@ -121,8 +120,9 @@ def update_transaction(transaction_id: str, body: UpdateTransactionModel):
     return make_response(jsonify(transaction), 200)
 
 # TODO: implement custom bool converter for cleared
-@transaction.route("/update/cleared/<string:transaction_id>/<string:cleared>", methods=("PUT",))
-def _update_transaction_cleared(transaction_id, cleared):
+@transaction.route("/update/cleared/<transaction_id>/<cleared>", methods=("PUT",))
+@validate()
+def _update_transaction_cleared(transaction_id: str, cleared: str):
     """clear/unclear a transaction"""
     cleared = str2bool(cleared)
     try:
@@ -133,11 +133,11 @@ def _update_transaction_cleared(transaction_id, cleared):
     return make_response(jsonify(transaction), 200)
 
 
-@transaction.route("/delete/<string:transaction_id>", methods=("DELETE",))
-def _delete_transaction(transaction_id):
+@transaction.route("/delete/<transaction_id>", methods=("DELETE",))
+@validate()
+def _delete_transaction(transaction_id: str):
     """Delete transaction"""
-    id = delete_transaction(transaction_id)
-    return make_response(jsonify({"id": id}), 200)
+    return make_response(jsonify({"id": delete_transaction(transaction_id)}), 200)
 
 
 def delete_transaction(transaction_id):
