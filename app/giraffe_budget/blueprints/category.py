@@ -67,7 +67,7 @@ def _create_category(body: CreateCategoryModel):
     group = body.group
     notes = body.notes
     category_type = body.category_type
-    category = create_category(name, group, notes, category_type)
+    category = create_category(name, group, category_type, notes)
 
     return make_response(jsonify(category[0]), 201)
 
