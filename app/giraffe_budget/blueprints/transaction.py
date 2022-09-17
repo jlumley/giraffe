@@ -101,17 +101,20 @@ def _create_transaction(body: CreateTransactionModel):
     return make_response(jsonify({"id": transaction_id}), 201)
 
 
-@transaction.route("/update/<string:transaction_id>", methods=("PUT",))
-@expects_json(PUT_TRANSACTION_UPDATE_SCHEMA)
-def update_transaction(transaction_id):
+@transaction.route("/update/<transaction_id>", methods=("PUT",))
+@validate()
+def update_transaction(transaction_id: str, body: UpdateTransactionModel):
     """Update transaction"""
-    data = request.get_json()
-    try:
-        update_data = data | {
-            "transaction_id": transaction_id,
-            "date": time_utils.datestr_to_sqlite_date(data.get("date")),
-        }
-        transaction = update_transaction(**update_data)
+    try: 
+        transaction = update_transaction(
+            transaction_id=transaction_id,
+            account_id=body.account_id,
+            payee_id=body.payee_id,
+            date=body.date,
+            memo=body.memo,
+            cleared=body.cleared,
+            categories=body.categories
+        )
     except (RuntimeError, TypeError, sqlite3.IntegrityError) as e:
         return make_response(jsonify(repr(e)), 400)
 
@@ -188,23 +191,23 @@ def update_transaction(**kwargs):
     update_statement = "UPDATE transactions SET id = :transaction_id"
 
     # update categories
-    if "categories" in kwargs:
+    if kwargs.get("categories"):
         # create transaction categories
         create_transaction_categories(transaction_id, kwargs["categories"])
 
-    if "payee_id" in kwargs:
+    if kwargs.get("payee_id"):
         update_statement += ", payee_id = :payee_id"
 
-    if "account_id" in kwargs:
+    if kwargs.get("account_id"):
         update_statement += ", account_id = :account_id"
 
-    if "date" in kwargs and kwargs.get("date"):
+    if kwargs.get("date"):
         update_statement += ", date = :date"
 
-    if "memo" in kwargs:
+    if kwargs.get("memo"):
         update_statement += ", memo = :memo"
 
-    if "cleared" in kwargs:
+    if kwargs.get("cleared"):
         update_statement += ", cleared = :cleared"
 
     update_statement += " WHERE id = :transaction_id RETURNING id;"
@@ -401,8 +404,8 @@ def create_transaction_categories(transaction_id, categories):
             CREATE_TRANSACTION_CATEGORIES,
             {
                 "transaction_id": transaction_id,
-                "category_id": c["category_id"],
-                "amount": c["amount"],
+                "category_id": c.category_id,
+                "amount": c.amount,
             },
             commit=True,
         )

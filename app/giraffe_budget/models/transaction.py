@@ -24,7 +24,7 @@ class UpdateTransactionModel(BaseModel):
     memo: Optional[str]
     cleared: Optional[bool]
     date: Optional[str]
-    categories: Optional[List[CategoryModel]]
+    categories: Optional[List[CategoryModel]] = []
     
     @validator("date")
     def validate_date(cls, v):
