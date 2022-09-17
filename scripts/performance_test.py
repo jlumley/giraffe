@@ -15,7 +15,7 @@ def main():
     with open("scripts/accounts.txt") as f:
         accounts = f.readlines()
         for a in accounts:
-            account = dict(name=a, credit_card=False, starting_balance=1000000)
+            account = dict(name=a, credit_card=False, starting_balance=1000000, notes='')
             r = requests.post("http://localhost:9980/api/account/create", json=account)
             account_uuids.append(r.json()["id"])
 
