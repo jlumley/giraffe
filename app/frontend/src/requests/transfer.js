@@ -4,7 +4,7 @@ const transferRequests = {
 
     updateTransfer: `${PREFIX}/update/`,
     createNewTransfer: `${PREFIX}/create`,
-    deleteTransfer: `${PREFIX}/transfer/`
+    deleteTransfer: `${PREFIX}/delete/`
 }
 
 export default transferRequests;

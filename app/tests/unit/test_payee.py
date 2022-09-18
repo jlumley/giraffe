@@ -17,7 +17,7 @@ def test_create_payee_success(test_client):
 
 def test_create_payee_fail(test_client):
     """Test unsuccessfully creating new payee"""
-    payees = [{"name": 123}, {}]
+    payees = [{}, {"foo": "bar"}]
 
     for payee in payees:
         create_response = test_client.post("/payee/create", json=payee)

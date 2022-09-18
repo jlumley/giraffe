@@ -1,11 +1,11 @@
 import uuid
 
+from flask_pydantic import validate
 from flask import Blueprint, current_app, request, make_response, g, jsonify
-from flask_expects_json import expects_json
 
-from ..utils import db_utils
-from ..schemas.payee_schema import *
+from ..models.payee import *
 from ..sql.payee_statements import *
+from ..utils import db_utils
 
 payee = Blueprint("payee", __name__, url_prefix="/payee")
 
@@ -16,33 +16,35 @@ def _get_payees():
     return make_response(jsonify(get_payees()), 200)
 
 
-@payee.route("/<string:payee_id>", methods=("GET",))
-def _get_payee(payee_id):
+@payee.route("/<payee_id>", methods=("GET",))
+@validate()
+def _get_payee(payee_id: str):
     """Get single payee by id"""
     payee = get_payee(payee_id)[0]
     return make_response(jsonify(payee), 200)
 
 
 @payee.route("/create", methods=("POST",))
-@expects_json(POST_PAYEE_CREATE_SCHEMA)
-def _create_payee():
+@validate()
+def _create_payee(body: CreatePayeeModel):
     """Create new payee"""
-    data = request.get_json()
-    payee = create_payee(data.get("name"))
+    name = body.name
+    payee = create_payee(name)
     return make_response(jsonify(payee), 201)
 
 
-@payee.route("/update/<string:payee_id>", methods=("PUT",))
-@expects_json(PUT_PAYEE_UPDATE_SCHEMA)
-def update_payee(payee_id):
+@payee.route("/update/<payee_id>", methods=("PUT",))
+@validate()
+def update_payee(payee_id: str, body: UpdatePayeeModel):
     """Update payee"""
-    data = request.get_json()
-    payee = update_payee(payee_id, name=data.get("name"))
+    name = body.name
+    payee = update_payee(payee_id, name=name)
     return make_response(jsonify(payee), 200)
 
 
-@payee.route("/delete/<string:payee_id>", methods=("DELETE",))
-def delete_payee(payee_id):
+@payee.route("/delete/<payee_id>", methods=("DELETE",))
+@validate()
+def delete_payee(payee_id: str):
     """Delete payee"""
 
     payee = delete_payee(payee_id)

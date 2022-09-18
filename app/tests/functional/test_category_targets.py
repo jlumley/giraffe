@@ -13,10 +13,10 @@ def test_savings_target(test_client):
     create_response = test_client.post("/category/create", json=category)
     category_id = create_response.json.get("id")
     target = dict(
-        target_type="savings_target", target_amount=12000, target_date="2022-12-31"
+        target_amount=12000, target_date="2022-12-31"
     )
 
-    test_client.put(f"/category/target/{category_id}", json=target)
+    test_client.put(f"/category/target/savings_target/{category_id}", json=target)
     test_client.put(
         f"/category/assign/{category_id}", json=dict(amount=900, date="2022-01-01")
     )
@@ -33,10 +33,10 @@ def test_savings_target_overfunded(test_client):
     create_response = test_client.post("/category/create", json=category)
     category_id = create_response.json.get("id")
     target = dict(
-        target_type="savings_target", target_amount=12000, target_date="2022-12-31"
+        target_amount=12000, target_date="2022-12-31"
     )
 
-    test_client.put(f"/category/target/{category_id}", json=target)
+    test_client.put(f"/category/target/savings_target/{category_id}", json=target)
     test_client.put(
         f"/category/assign/{category_id}", json=dict(amount=1100, date="2022-01-01")
     )
@@ -52,9 +52,9 @@ def test_monthly_savings_target(test_client):
     category = dict(name="new category 1565", group="group1")
     create_response = test_client.post("/category/create", json=category)
     category_id = create_response.json.get("id")
-    target = dict(target_type="monthly_savings", target_amount=6700)
+    target = dict(target_amount=6700)
 
-    test_client.put(f"/category/target/{category_id}", json=target)
+    test_client.put(f"/category/target/monthly_savings/{category_id}", json=target)
     test_client.put(
         f"/category/assign/{category_id}", json=dict(amount=777, date="2022-01-01")
     )
@@ -70,9 +70,9 @@ def test_monthly_savings_target_overfunded(test_client):
     category = dict(name="new category 15565", group="group1")
     create_response = test_client.post("/category/create", json=category)
     category_id = create_response.json.get("id")
-    target = dict(target_type="monthly_savings", target_amount=6700)
+    target = dict(target_amount=6700)
 
-    test_client.put(f"/category/target/{category_id}", json=target)
+    test_client.put(f"/category/target/monthly_savings/{category_id}", json=target)
     test_client.put(
         f"/category/assign/{category_id}", json=dict(amount=6701, date="2022-01-01")
     )

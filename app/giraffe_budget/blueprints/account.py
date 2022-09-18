@@ -1,16 +1,15 @@
+from . import category
+from . import transaction
+from ..models.transaction import *
+from ..models.account import *
+from ..sql.account_statements import *
+from ..utils import db_utils, money_utils, time_utils
+from flask import Blueprint, current_app, request, make_response, g, jsonify
+from flask_expects_json import expects_json
+from flask_pydantic import validate
 import datetime
 import time
 import uuid
-
-from flask import Blueprint, current_app, request, make_response, g, jsonify
-from flask_expects_json import expects_json
-
-from . import transaction
-from . import category
-
-from ..utils import db_utils, money_utils, time_utils
-from ..schemas.account_schema import *
-from ..sql.account_statements import *
 
 account = Blueprint("account", __name__, url_prefix="/account")
 
@@ -22,63 +21,63 @@ def _get_accounts():
     return make_response(jsonify(accounts), 200)
 
 
-@account.route("/<string:account_id>", methods=("GET",))
-def _get_account(account_id):
+@account.route("/<account_id>", methods=("GET",))
+@validate()
+def _get_account(account_id: str):
     """Fetch single account"""
     account = get_account(account_id)
     return make_response(jsonify(account[0]), 200)
 
 
 @account.route("/create", methods=("POST",))
-@expects_json(POST_ACCOUNT_CREATE_SCHEMA)
-def _create_account():
+@validate()
+def _create_account(body: CreateAccountModel):
     """Create new account"""
-    data = request.get_json()
-    starting_balance = data.get("starting_balance", 0)
+    name = body.name
+    notes = body.notes
+    credit_card = body.credit_card
+    starting_balance = body.starting_balance
+
     date = datetime.datetime.now().strftime("%Y-%m-%d")
     date_str = time_utils.datestr_to_sqlite_date(date)
+
     account = create_account(
-        data.get("name"),
+        name,
         date_str,
-        notes=data.get("notes"),
+        notes=notes,
         starting_balance=starting_balance,
-        credit_card=data.get("credit_card")
+        credit_card=credit_card,
     )
     return make_response(jsonify(account[0]), 201)
 
 
-@account.route("/hide/<string:account_id>", methods=("PUT",))
-def _hide_account(account_id):
+@account.route("/hide/<account_id>", methods=("PUT",))
+@validate()
+def _hide_account(account_id: str):
     """Hide an account"""
     account = hide_account(account_id, True)
     return make_response(jsonify(account), 200)
 
 
-@account.route("/unhide/<string:account_id>", methods=("PUT",))
-def _unhide_account(account_id):
+@account.route("/unhide/<account_id>", methods=("PUT",))
+@validate()
+def _unhide_account(account_id: str):
     """Unhide an account"""
     account = hide_account(account_id, False)
     return make_response(jsonify(account), 200)
 
 
-@account.route("/reconcile/<string:account_id>", methods=("PUT",))
-@expects_json(PUT_ACCOUNT_RECONCILE_SCHEMA)
-def _reconcile_account(account_id):
+@account.route("/reconcile/<account_id>", methods=("PUT",))
+@validate()
+def _reconcile_account(account_id: str, body: ReconcileAccountModel):
     """Set all cleared transactions associated
     with this account as reconciled and set the
     reconciled_date to now
     """
-    try:
-        data = request.get_json()
-        date = time_utils.datestr_to_sqlite_date(data.get("date"))
-        balance = data.get("balance")
-        if not balance:
-            balance = 0
+    date = time_utils.datestr_to_sqlite_date(body.date)
+    balance = body.balance
 
-        account = reconcile_account(account_id, date, balance)
-
-    except TypeError as e:
-        return make_response(jsonify(dict(error=str(e))), 400)
+    account = reconcile_account(account_id, date, balance)
 
     return make_response(jsonify(account), 200)
 
@@ -166,7 +165,7 @@ def create_account(name, date, notes=None, starting_balance=0, credit_card=False
         date,
         True,
         memo="Starting Balance",
-        categories=[dict(category_id="ead604f7-d9bd-4f3e-852d-e04c2d7a71d7", amount=starting_balance)],
+        categories=[CategoryModel(category_id="ead604f7-d9bd-4f3e-852d-e04c2d7a71d7", amount=starting_balance)]
     )
 
     return get_account(account[0]["id"])
@@ -212,12 +211,7 @@ def reconcile_account(account_id, date, balance):
             date, 
             True, 
             memo="Reconciliation Transaction", 
-            categories=[
-                {
-                    "category_id": "7294d522-28e8-4f1d-a721-3d9f74f871a8",
-                    "amount": adjustment_amount
-                }
-            ]
+            categories=[CategoryModel(category_id="7294d522-28e8-4f1d-a721-3d9f74f871a8", amount=adjustment_amount)]
         )
 
     # mark cleared transactions as reconciled

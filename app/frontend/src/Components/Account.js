@@ -4,6 +4,7 @@ import accountRequests from '../requests/account';
 import categoryRequests from '../requests/category';
 import instance from '../axois'
 import payeeRequests from '../requests/payee';
+import transferRequests from '../requests/transfer';
 import transactionRequests from '../requests/transaction';
 import { AccountReconciliationModal } from './Modals/AccountReconciliationModal';
 import { Transaction } from './Transaction';
@@ -113,7 +114,7 @@ export const Account = ({mobile, fetchAllAccounts}) => {
 
     async function deleteTransfer(transfer_id) {
         await instance.delete(
-            `${transactionRequests.deleteTransfer}${transfer_id}`,
+            `${transferRequests.deleteTransfer}${transfer_id}`,
         )
         setSelectedTransaction(null)
         fetchTransactions()

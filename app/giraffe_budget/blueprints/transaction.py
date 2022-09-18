@@ -1,23 +1,23 @@
+from . import account
+from . import category
+from . import payee
+from ..models.transaction import *
+from ..sql.transaction_statements import *
+from ..utils import db_utils, time_utils, money_utils
+from flask import Blueprint, current_app, request, make_response, g, jsonify
+from flask_expects_json import expects_json
+from flask_pydantic import validate
+from hashlib import md5
 import sqlite3
 import time
 import uuid
 
-from flask import Blueprint, current_app, request, make_response, g, jsonify
-from flask_expects_json import expects_json
-from hashlib import md5
-
-from . import category
-from . import account
-from . import payee
-from ..utils import db_utils, time_utils, money_utils
-from ..schemas.transaction_schema import *
-from ..sql.transaction_statements import *
-
 transaction = Blueprint("transaction", __name__, url_prefix="/transaction")
 
 
-@transaction.route("/<string:transaction_id>", methods=("GET",))
-def _get_transaction(transaction_id):
+@transaction.route("/<transaction_id>", methods=("GET",))
+@validate()
+def _get_transaction(transaction_id: str):
     """Get transaction by id"""
 
     transaction = get_transaction(transaction_id)
@@ -82,19 +82,17 @@ def _get_transactions(
 
 
 @transaction.route("/create", methods=("POST",))
-@expects_json(POST_TRANSACTION_CREATE_SCHEMA)
-def _create_transaction():
+@validate()
+def _create_transaction(body: CreateTransactionModel):
     """Create new transaction"""
-    data = request.get_json()
-
     try:
         transaction_id = create_transaction(
-            data.get("account_id"),
-            time_utils.datestr_to_sqlite_date(data.get("date")),
-            int(data.get("cleared")),
-            payee_id=data.get("payee_id"),
-            memo=data.get("memo"),
-            categories=data.get("categories", []),
+            body.account_id,
+            body.date,
+            int(body.cleared),
+            payee_id=body.payee_id,
+            memo=body.memo,
+            categories=body.categories
         )
     except (RuntimeError, TypeError, sqlite3.IntegrityError) as e:
         return make_response(jsonify(repr(e)), 400)
@@ -102,25 +100,29 @@ def _create_transaction():
     return make_response(jsonify({"id": transaction_id}), 201)
 
 
-@transaction.route("/update/<string:transaction_id>", methods=("PUT",))
-@expects_json(PUT_TRANSACTION_UPDATE_SCHEMA)
-def update_transaction(transaction_id):
+@transaction.route("/update/<transaction_id>", methods=("PUT",))
+@validate()
+def update_transaction(transaction_id: str, body: UpdateTransactionModel):
     """Update transaction"""
-    data = request.get_json()
-    try:
-        update_data = data | {
-            "transaction_id": transaction_id,
-            "date": time_utils.datestr_to_sqlite_date(data.get("date")),
-        }
-        transaction = update_transaction(**update_data)
+    try: 
+        transaction = update_transaction(
+            transaction_id=transaction_id,
+            account_id=body.account_id,
+            payee_id=body.payee_id,
+            date=body.date,
+            memo=body.memo,
+            cleared=body.cleared,
+            categories=body.categories
+        )
     except (RuntimeError, TypeError, sqlite3.IntegrityError) as e:
         return make_response(jsonify(repr(e)), 400)
 
     return make_response(jsonify(transaction), 200)
 
 # TODO: implement custom bool converter for cleared
-@transaction.route("/update/cleared/<string:transaction_id>/<string:cleared>", methods=("PUT",))
-def _update_transaction_cleared(transaction_id, cleared):
+@transaction.route("/update/cleared/<transaction_id>/<cleared>", methods=("PUT",))
+@validate()
+def _update_transaction_cleared(transaction_id: str, cleared: str):
     """clear/unclear a transaction"""
     cleared = str2bool(cleared)
     try:
@@ -131,11 +133,11 @@ def _update_transaction_cleared(transaction_id, cleared):
     return make_response(jsonify(transaction), 200)
 
 
-@transaction.route("/delete/<string:transaction_id>", methods=("DELETE",))
-def _delete_transaction(transaction_id):
+@transaction.route("/delete/<transaction_id>", methods=("DELETE",))
+@validate()
+def _delete_transaction(transaction_id: str):
     """Delete transaction"""
-    id = delete_transaction(transaction_id)
-    return make_response(jsonify({"id": id}), 200)
+    return make_response(jsonify({"id": delete_transaction(transaction_id)}), 200)
 
 
 def delete_transaction(transaction_id):
@@ -189,23 +191,23 @@ def update_transaction(**kwargs):
     update_statement = "UPDATE transactions SET id = :transaction_id"
 
     # update categories
-    if "categories" in kwargs:
+    if kwargs.get("categories"):
         # create transaction categories
         create_transaction_categories(transaction_id, kwargs["categories"])
 
-    if "payee_id" in kwargs:
+    if kwargs.get("payee_id"):
         update_statement += ", payee_id = :payee_id"
 
-    if "account_id" in kwargs:
+    if kwargs.get("account_id"):
         update_statement += ", account_id = :account_id"
 
-    if "date" in kwargs and kwargs.get("date"):
+    if kwargs.get("date"):
         update_statement += ", date = :date"
 
-    if "memo" in kwargs:
+    if kwargs.get("memo"):
         update_statement += ", memo = :memo"
 
-    if "cleared" in kwargs:
+    if kwargs.get("cleared"):
         update_statement += ", cleared = :cleared"
 
     update_statement += " WHERE id = :transaction_id RETURNING id;"
@@ -267,7 +269,7 @@ def create_transaction(
         RuntimeError: If unable to create transaction
 
     Returns:
-        int: trnasaction id
+        int: transaction id
     """
     is_valid_payee_id(payee_id)
     is_valid_account_id(account_id)
@@ -289,8 +291,8 @@ def create_transaction(
             CREATE_TRANSACTION_CATEGORIES,
             {
                 "transaction_id": transaction[0]["id"],
-                "category_id": c["category_id"],
-                "amount": c["amount"],
+                "category_id": c.category_id,
+                "amount": c.amount,
             },
         )
 
@@ -402,8 +404,8 @@ def create_transaction_categories(transaction_id, categories):
             CREATE_TRANSACTION_CATEGORIES,
             {
                 "transaction_id": transaction_id,
-                "category_id": c["category_id"],
-                "amount": c["amount"],
+                "category_id": c.category_id,
+                "amount": c.amount,
             },
             commit=True,
         )
