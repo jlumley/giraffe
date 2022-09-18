@@ -12,7 +12,7 @@ class CreateTransferModel(BaseModel):
    
     @validator("amount")
     def validate_amount(cls, v):
-        assert v > 0, "Amount must be a positive integer"
+        assert v != 0, "Amount must not be 0"
         return v
 
     @validator("date")
