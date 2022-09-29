@@ -101,10 +101,10 @@ export function Category({
             amount: Math.abs(Math.round((newValue - categoryAssigned) * 100)),
             date: currentDate.toISOString().slice(0, 10)
         }
-        if (req_data.amount < 0) {
+        if (newValue - categoryAssigned < 0) {
             instance.put(`${categoryRequests.unassignCategory}${category.id}`, req_data)
         }
-        else if (req_data.amount > 0) {
+        else if (newValue - categoryAssigned > 0) {
             instance.put(`${categoryRequests.assignCategory}${category.id}`, req_data)
         }
         setCategoryAssigned(newValue)
