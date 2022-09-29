@@ -42,6 +42,7 @@ WHERE transaction_id IN
 (
     SELECT transaction_id FROM transactions
     WHERE transfer_id = :transfer_id
+    AND transfer_id is not NULL;
 );
 """
 

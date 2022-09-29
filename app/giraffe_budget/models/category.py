@@ -15,6 +15,10 @@ class CategoryAssignMoneyModel(BaseModel):
     amount: int
     date: str
     
+    @validator("amount")
+    def validate_amounts(cls, v):
+        return abs(int)
+
     @validator("date")
     def validate_date(cls, v):
         return is_valid_date(v)
