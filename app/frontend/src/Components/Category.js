@@ -98,7 +98,7 @@ export function Category({
     const updateCategoryAssignment = (newValue) => {
         if (Number(newValue) === categoryAssigned) return
         const req_data = {
-            amount: Math.round((newValue - categoryAssigned) * 100),
+            amount: Math.abs(Math.round((newValue - categoryAssigned) * 100)),
             date: currentDate.toISOString().slice(0, 10)
         }
         if (req_data.amount < 0) {
