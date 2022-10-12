@@ -1,7 +1,8 @@
-
+from ..models.reports import *
 from ..utils import db_utils, time_utils
 from datetime import datetime
 from flask import Blueprint, current_app, request, make_response, g, jsonify
+from flask_pydantic import validate
 
 reports = Blueprint("reports", __name__, url_prefix="/reports")
 
@@ -9,12 +10,13 @@ reports = Blueprint("reports", __name__, url_prefix="/reports")
     "/category_groups", 
     methods=("GET",)
 )
-def _spent_in_category_groups():
+@validate()
+def _spent_in_category_groups(body: ReportsQueryParamsModel):
     """return amount spent from each category group between two dates"""
     
     query_params = dict(
-        start_date=time_utils.datestr_to_sqlite_date(request.args.get("start_date")),
-        end_date=time_utils.datestr_to_sqlite_date(request.args.get("end_date")),
+        start_date=body.start_date,
+        end_date=body.end_date
     )
     stats = db_utils.execute("""
     SELECT SUM(amount) as amount, categories.category_group from transaction_categories
@@ -29,11 +31,11 @@ def _spent_in_category_groups():
 
 
 @reports.route("/category", methods=("GET",))
-def _spent_in_categories():
+def _spent_in_categories(body: ReportsQueryParamsModel):
     """return amount spent from each category between two dates"""
     query_params = dict(
-        start_date=time_utils.datestr_to_sqlite_date(request.args.get("start_date")),
-        end_date=time_utils.datestr_to_sqlite_date(request.args.get("end_date")),
+        start_date=body.start_date,
+        end_date=body.end_date
     )
     stats = db_utils.execute("""
     SELECT SUM(amount) as amount, categories.name from transaction_categories
