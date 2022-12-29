@@ -72,9 +72,8 @@ export function BudgetInfo({
     async function updateCategoryTarget() {
         if (!categoryIds) return
         if (targetType) {
-            await instance.put(`${categoryRequests.updateCategoryTarget}${categoryIds[0]}`, {
+            await instance.put(`${categoryRequests.updateCategoryTarget}${targetType}/${categoryIds[0]}`, {
                 target_amount: parseInt(targetAmount * 100),
-                target_type: targetType,
                 target_date: targetDate ? targetDate.toISOString().slice(0, 10) : ''
             })
             fetchCategories()
